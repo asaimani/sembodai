@@ -150,19 +150,58 @@ def candidate_edit(request, pk):
 
 @login_required
 def candidate_print(request, pk):
+    import base64, os
     candidate = get_object_or_404(Candidate, pk=pk)
     admin_profile = None
     try:
         admin_profile = request.user.adminprofile
     except:
         pass
-    return render(request, 'matrimony/candidate_print.html', {'candidate': candidate, 'admin_profile': admin_profile})
+
+    # Convert primary photo to base64 for print
+    photo_base64 = None
+    first_photo = candidate.photos.first()
+    if first_photo:
+        try:
+            photo_path = first_photo.photo.path
+            if os.path.exists(photo_path):
+                with open(photo_path, 'rb') as img_file:
+                    ext = os.path.splitext(photo_path)[1].lower().replace('.', '')
+                    if ext == 'jpg':
+                        ext = 'jpeg'
+                    photo_base64 = f"data:image/{ext};base64,{base64.b64encode(img_file.read()).decode()}"
+        except Exception:
+            photo_base64 = None
+
+    return render(request, 'matrimony/candidate_print.html', {
+        'candidate': candidate,
+        'admin_profile': admin_profile,
+        'photo_base64': photo_base64,
+    })
 
 
 @login_required
 def shadow_list(request):
     shadows = ShadowCandidate.objects.all().order_by('-created_at')
     return render(request, 'matrimony/shadow_list.html', {'shadows': shadows})
+
+
+@login_required
+def delete_photo(request, photo_id):
+    from .models import CandidatePhoto
+    photo = get_object_or_404(CandidatePhoto, pk=photo_id)
+    candidate_pk = photo.candidate.pk
+    if request.method == 'POST':
+        try:
+            # Delete file from filesystem
+            import os
+            if photo.photo and os.path.exists(photo.photo.path):
+                os.remove(photo.photo.path)
+        except Exception:
+            pass
+        photo.delete()
+        messages.success(request, 'புகைப்படம் நீக்கப்பட்டது.')
+    return redirect('candidate_edit', pk=candidate_pk)
 
 
 def get_nachathirams(request):

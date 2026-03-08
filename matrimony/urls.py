@@ -12,4 +12,5 @@ urlpatterns = [
     path('candidates/<int:pk>/print/', views.candidate_print, name='candidate_print'),
     path('shadow/', views.shadow_list, name='shadow_list'),
     path('api/nachathirams/', views.get_nachathirams, name='get_nachathirams'),
+    path('photos/<int:photo_id>/delete/', views.delete_photo, name='delete_photo'),
 ]

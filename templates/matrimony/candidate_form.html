@@ -207,7 +207,13 @@
         <div class="col-12">
             <div class="d-flex gap-2 flex-wrap">
                 {% for photo in candidate.photos.all %}
-                <img src="{{ photo.photo.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0">
+                <div style="position:relative;display:inline-block;margin:4px">
+                    <img src="{{ photo.photo.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0">
+                    <form method="post" action="{% url 'delete_photo' photo.id %}" style="display:inline" onsubmit="return confirm('இந்த புகைப்படத்தை நீக்கவா?')">
+                        {% csrf_token %}
+                        <button type="submit" style="position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1">✕</button>
+                    </form>
+                </div>
                 {% endfor %}
             </div>
         </div>
