@@ -189,18 +189,30 @@ def shadow_list(request):
 @login_required
 def delete_photo(request, photo_id):
     from .models import CandidatePhoto
+    import os
     photo = get_object_or_404(CandidatePhoto, pk=photo_id)
     candidate_pk = photo.candidate.pk
     if request.method == 'POST':
+        # Try to delete file - ignore all errors
         try:
-            # Delete file from filesystem
-            import os
-            if photo.photo and os.path.exists(photo.photo.path):
-                os.remove(photo.photo.path)
+            path = photo.photo.path
+            if path and os.path.exists(path):
+                os.remove(path)
         except Exception:
             pass
+        # Always delete DB record regardless
         photo.delete()
         messages.success(request, 'புகைப்படம் நீக்கப்பட்டது.')
+        return redirect('candidate_edit', pk=candidate_pk)
+    # GET request - also delete
+    try:
+        path = photo.photo.path
+        if path and os.path.exists(path):
+            os.remove(path)
+    except Exception:
+        pass
+    photo.delete()
+    messages.success(request, 'புகைப்படம் நீக்கப்பட்டது.')
     return redirect('candidate_edit', pk=candidate_pk)
 
 
