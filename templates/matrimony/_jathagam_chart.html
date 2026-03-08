@@ -22,15 +22,13 @@ Layout:
     overflow: hidden;
     background: #fffbf0;
     font-family: 'Noto Sans Tamil', sans-serif;
+    width: 100%;
 }
 .jc {
     border: 1px solid #d4a0a0;
     padding: 2px;
     position: relative;
     background: #fffdf5;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
 }
 .jc-center {
     grid-column: 2 / 4;
@@ -43,8 +41,6 @@ Layout:
     font-weight: 700;
     color: #7f1d1d;
     font-size: 14px;
-    text-align: center;
-    flex-direction: column;
 }
 .jc-num {
     position: absolute;
@@ -53,85 +49,79 @@ Layout:
     font-size: 8px;
     color: #b91c1c;
     font-weight: 600;
-    opacity: 0.7;
 }
 .jathagam-select {
     font-size: 9px !important;
-    padding: 1px 2px !important;
+    padding: 1px !important;
     border: 1px solid #ddd !important;
     background: transparent !important;
     width: 100%;
-    margin-top: 12px;
+    margin-top: 14px;
     color: #1a1a1a;
 }
 .jc-value {
     font-size: 10px;
     font-weight: 600;
     color: #1a1a1a;
-    margin-top: 12px;
+    margin-top: 14px;
     word-break: break-word;
-    line-height: 1.2;
 }
-.jathagam-title {
+.chart-label {
     font-size: 12px;
     font-weight: 700;
     color: #b91c1c;
     text-align: center;
     margin-bottom: 4px;
-    border-bottom: 1px solid #b91c1c;
-    padding-bottom: 3px;
 }
 </style>
 
 {% if form_mode %}
-{# ---------- FORM MODE with two charts ---------- #}
 <div class="row g-2">
-    <!-- ராசி Chart -->
+    <!-- ராசி -->
     <div class="col-6">
-        <div class="jathagam-title">ராசி</div>
+        <div class="chart-label">ராசி</div>
         <div class="jathagam-grid">
-            <div class="jc"><span class="jc-num">12</span>{{ form.rasi_h12 }}</div>
-            <div class="jc"><span class="jc-num">1</span>{{ form.rasi_h1 }}</div>
-            <div class="jc"><span class="jc-num">2</span>{{ form.rasi_h2 }}</div>
-            <div class="jc"><span class="jc-num">3</span>{{ form.rasi_h3 }}</div>
-            <div class="jc"><span class="jc-num">11</span>{{ form.rasi_h11 }}</div>
+            <div class="jc"><span class="jc-num">12</span><select name="rasi_h12" class="jathagam-select">{% for val, label in form.rasi_h12.field.choices %}<option value="{{ val }}" {% if form.rasi_h12.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">1</span><select name="rasi_h1" class="jathagam-select">{% for val, label in form.rasi_h1.field.choices %}<option value="{{ val }}" {% if form.rasi_h1.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">2</span><select name="rasi_h2" class="jathagam-select">{% for val, label in form.rasi_h2.field.choices %}<option value="{{ val }}" {% if form.rasi_h2.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">3</span><select name="rasi_h3" class="jathagam-select">{% for val, label in form.rasi_h3.field.choices %}<option value="{{ val }}" {% if form.rasi_h3.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">11</span><select name="rasi_h11" class="jathagam-select">{% for val, label in form.rasi_h11.field.choices %}<option value="{{ val }}" {% if form.rasi_h11.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
             <div class="jc-center">ராசி</div>
-            <div class="jc"><span class="jc-num">4</span>{{ form.rasi_h4 }}</div>
-            <div class="jc"><span class="jc-num">10</span>{{ form.rasi_h10 }}</div>
-            <div class="jc"><span class="jc-num">5</span>{{ form.rasi_h5 }}</div>
-            <div class="jc"><span class="jc-num">9</span>{{ form.rasi_h9 }}</div>
-            <div class="jc"><span class="jc-num">8</span>{{ form.rasi_h8 }}</div>
-            <div class="jc"><span class="jc-num">7</span>{{ form.rasi_h7 }}</div>
-            <div class="jc"><span class="jc-num">6</span>{{ form.rasi_h6 }}</div>
+            <div class="jc"><span class="jc-num">4</span><select name="rasi_h4" class="jathagam-select">{% for val, label in form.rasi_h4.field.choices %}<option value="{{ val }}" {% if form.rasi_h4.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">10</span><select name="rasi_h10" class="jathagam-select">{% for val, label in form.rasi_h10.field.choices %}<option value="{{ val }}" {% if form.rasi_h10.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">5</span><select name="rasi_h5" class="jathagam-select">{% for val, label in form.rasi_h5.field.choices %}<option value="{{ val }}" {% if form.rasi_h5.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">9</span><select name="rasi_h9" class="jathagam-select">{% for val, label in form.rasi_h9.field.choices %}<option value="{{ val }}" {% if form.rasi_h9.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">8</span><select name="rasi_h8" class="jathagam-select">{% for val, label in form.rasi_h8.field.choices %}<option value="{{ val }}" {% if form.rasi_h8.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">7</span><select name="rasi_h7" class="jathagam-select">{% for val, label in form.rasi_h7.field.choices %}<option value="{{ val }}" {% if form.rasi_h7.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">6</span><select name="rasi_h6" class="jathagam-select">{% for val, label in form.rasi_h6.field.choices %}<option value="{{ val }}" {% if form.rasi_h6.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
         </div>
     </div>
-    <!-- நவாம்சம் Chart -->
+    <!-- நவாம்சம் -->
     <div class="col-6">
-        <div class="jathagam-title">நவாம்சம்</div>
+        <div class="chart-label">நவாம்சம்</div>
         <div class="jathagam-grid">
-            <div class="jc"><span class="jc-num">12</span>{{ form.navamsam_h12 }}</div>
-            <div class="jc"><span class="jc-num">1</span>{{ form.navamsam_h1 }}</div>
-            <div class="jc"><span class="jc-num">2</span>{{ form.navamsam_h2 }}</div>
-            <div class="jc"><span class="jc-num">3</span>{{ form.navamsam_h3 }}</div>
-            <div class="jc"><span class="jc-num">11</span>{{ form.navamsam_h11 }}</div>
+            <div class="jc"><span class="jc-num">12</span><select name="navamsam_h12" class="jathagam-select">{% for val, label in form.navamsam_h12.field.choices %}<option value="{{ val }}" {% if form.navamsam_h12.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">1</span><select name="navamsam_h1" class="jathagam-select">{% for val, label in form.navamsam_h1.field.choices %}<option value="{{ val }}" {% if form.navamsam_h1.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">2</span><select name="navamsam_h2" class="jathagam-select">{% for val, label in form.navamsam_h2.field.choices %}<option value="{{ val }}" {% if form.navamsam_h2.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">3</span><select name="navamsam_h3" class="jathagam-select">{% for val, label in form.navamsam_h3.field.choices %}<option value="{{ val }}" {% if form.navamsam_h3.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">11</span><select name="navamsam_h11" class="jathagam-select">{% for val, label in form.navamsam_h11.field.choices %}<option value="{{ val }}" {% if form.navamsam_h11.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
             <div class="jc-center">நவாம்சம்</div>
-            <div class="jc"><span class="jc-num">4</span>{{ form.navamsam_h4 }}</div>
-            <div class="jc"><span class="jc-num">10</span>{{ form.navamsam_h10 }}</div>
-            <div class="jc"><span class="jc-num">5</span>{{ form.navamsam_h5 }}</div>
-            <div class="jc"><span class="jc-num">9</span>{{ form.navamsam_h9 }}</div>
-            <div class="jc"><span class="jc-num">8</span>{{ form.navamsam_h8 }}</div>
-            <div class="jc"><span class="jc-num">7</span>{{ form.navamsam_h7 }}</div>
-            <div class="jc"><span class="jc-num">6</span>{{ form.navamsam_h6 }}</div>
+            <div class="jc"><span class="jc-num">4</span><select name="navamsam_h4" class="jathagam-select">{% for val, label in form.navamsam_h4.field.choices %}<option value="{{ val }}" {% if form.navamsam_h4.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">10</span><select name="navamsam_h10" class="jathagam-select">{% for val, label in form.navamsam_h10.field.choices %}<option value="{{ val }}" {% if form.navamsam_h10.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">5</span><select name="navamsam_h5" class="jathagam-select">{% for val, label in form.navamsam_h5.field.choices %}<option value="{{ val }}" {% if form.navamsam_h5.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">9</span><select name="navamsam_h9" class="jathagam-select">{% for val, label in form.navamsam_h9.field.choices %}<option value="{{ val }}" {% if form.navamsam_h9.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">8</span><select name="navamsam_h8" class="jathagam-select">{% for val, label in form.navamsam_h8.field.choices %}<option value="{{ val }}" {% if form.navamsam_h8.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">7</span><select name="navamsam_h7" class="jathagam-select">{% for val, label in form.navamsam_h7.field.choices %}<option value="{{ val }}" {% if form.navamsam_h7.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+            <div class="jc"><span class="jc-num">6</span><select name="navamsam_h6" class="jathagam-select">{% for val, label in form.navamsam_h6.field.choices %}<option value="{{ val }}" {% if form.navamsam_h6.value == val %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
         </div>
     </div>
 </div>
 
 {% else %}
-{# ---------- DISPLAY MODE with two charts ---------- #}
 <div class="row g-2">
-    <!-- ராசி Chart -->
+    <!-- ராசி display -->
     <div class="col-6">
-        <div class="jathagam-title">ராசி</div>
+        <div class="chart-label">ராசி</div>
         <div class="jathagam-grid">
             <div class="jc"><span class="jc-num">12</span><div class="jc-value">{{ candidate.rasi_h12 }}</div></div>
             <div class="jc"><span class="jc-num">1</span><div class="jc-value">{{ candidate.rasi_h1 }}</div></div>
@@ -148,9 +138,9 @@ Layout:
             <div class="jc"><span class="jc-num">6</span><div class="jc-value">{{ candidate.rasi_h6 }}</div></div>
         </div>
     </div>
-    <!-- நவாம்சம் Chart -->
+    <!-- நவாம்சம் display -->
     <div class="col-6">
-        <div class="jathagam-title">நவாம்சம்</div>
+        <div class="chart-label">நவாம்சம்</div>
         <div class="jathagam-grid">
             <div class="jc"><span class="jc-num">12</span><div class="jc-value">{{ candidate.navamsam_h12 }}</div></div>
             <div class="jc"><span class="jc-num">1</span><div class="jc-value">{{ candidate.navamsam_h1 }}</div></div>

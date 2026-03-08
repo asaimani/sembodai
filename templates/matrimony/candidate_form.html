@@ -89,16 +89,13 @@
 
 <!-- Jathagam Chart -->
 <div class="form-section">
-    <div class="form-section-title"><i class="fas fa-circle-nodes me-2"></i>ஜாதக சக்கரம் (12 வீடுகள்)</div>
-    <div class="row g-3">
-        <div class="col-md-7">
-            {% include 'matrimony/_jathagam_chart.html' with form_mode=True %}
-        </div>
-        <div class="col-md-5">
+    <div class="row g-2 mb-2">
+        <div class="col-md-3">
             <label class="form-label fw-500">ஜாதகம் வகை</label>
             {{ form.jathagam }}
         </div>
     </div>
+    {% include 'matrimony/_jathagam_chart.html' with form_mode=True %}
 </div>
 
 <!-- Education & Career -->
