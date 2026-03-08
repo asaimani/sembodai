@@ -12,8 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN SECRET_KEY=dummy DB_HOST=localhost python manage.py collectstatic --noinput
+RUN SECRET_KEY=dummy DATABASE_URL=postgresql://localhost/dummy python manage.py collectstatic --noinput
 
 EXPOSE 8080
 
-CMD python manage.py migrate && python manage.py load_initial_data && gunicorn sembodai.wsgi:application --bind 0.0.0.0:$PORT
+CMD ["sh", "-c", "python manage.py migrate && python manage.py load_initial_data && gunicorn sembodai.wsgi:application --bind 0.0.0.0:$PORT"]
