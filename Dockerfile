@@ -18,4 +18,4 @@ RUN mkdir -p /app/media
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "echo DATABASE_URL=$DATABASE_URL && python manage.py migrate && python manage.py load_initial_data && gunicorn sembodai.wsgi:application --bind 0.0.0.0:$PORT"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py load_initial_data && gunicorn sembodai.wsgi:application --bind 0.0.0.0:$PORT --timeout 120"]
