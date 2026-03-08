@@ -165,9 +165,20 @@ class Candidate(models.Model):
     class Meta: verbose_name = "விண்ணப்பதாரர்"; ordering = ['-created_at']
 
 
+def candidate_photo_path(instance, filename):
+    import os
+    ext = os.path.splitext(filename)[1].lower()
+    # Folder based on gender
+    folder = 'male' if instance.candidate.gender == 'M' else 'female'
+    # Count existing photos to get sequence number
+    existing = CandidatePhoto.objects.filter(candidate=instance.candidate).count()
+    seq = str(existing + 1).zfill(2)
+    return f'photos/{folder}/{instance.candidate.uid}_{seq}{ext}'
+
+
 class CandidatePhoto(models.Model):
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name='photos')
-    photo = models.ImageField(upload_to='photos/')
+    photo = models.ImageField(upload_to=candidate_photo_path)
     is_primary = models.BooleanField(default=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
