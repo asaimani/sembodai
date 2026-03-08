@@ -1,0 +1,167 @@
+{% extends 'matrimony/base.html' %}
+{% block title %}{{ candidate.name }} - விவரங்கள்{% endblock %}
+{% block page_title %}{{ candidate.name }} ({{ candidate.uid }}){% endblock %}
+
+{% block content %}
+<div class="d-flex gap-2 mb-3">
+    <a href="{% url 'candidate_edit' candidate.pk %}" class="btn btn-warning btn-sm">
+        <i class="fas fa-edit me-1"></i>திருத்து
+    </a>
+    <a href="{% url 'candidate_print' candidate.pk %}" class="btn btn-dark btn-sm" target="_blank">
+        <i class="fas fa-print me-1"></i>அச்சிடு
+    </a>
+    <a href="{% url 'candidate_list' %}?gender={{ candidate.gender }}" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left me-1"></i>திரும்பு
+    </a>
+</div>
+
+<div class="row g-3">
+    <!-- Photos & Basic -->
+    <div class="col-12 col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if candidate.photos.first %}
+                    <img src="{{ candidate.photos.first.photo.url }}" class="rounded-circle mb-3" style="width:120px;height:120px;object-fit:cover;border:3px solid #b91c1c">
+                {% else %}
+                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width:120px;height:120px;font-size:40px">
+                        {% if candidate.gender == 'M' %}👨{% else %}👩{% endif %}
+                    </div>
+                {% endif %}
+                <h5 class="fw-bold">{{ candidate.name }}</h5>
+                <div class="mb-2">
+                    {% if candidate.gender == 'M' %}
+                        <span class="badge badge-male px-3 py-2">ஆண்</span>
+                    {% else %}
+                        <span class="badge badge-female px-3 py-2">பெண்</span>
+                    {% endif %}
+                </div>
+                <div class="fw-bold text-danger fs-5">{{ candidate.uid }}</div>
+                {% if candidate.is_premium_expired %}
+                    <span class="badge badge-expired mt-2">பிரீமியம் காலாவதி</span>
+                {% else %}
+                    <span class="badge badge-active mt-2">செயலில்</span>
+                {% endif %}
+                
+                {% if candidate.photos.count > 1 %}
+                <div class="d-flex gap-1 justify-content-center mt-3 flex-wrap">
+                    {% for photo in candidate.photos.all %}
+                    <img src="{{ photo.photo.url }}" style="width:50px;height:50px;object-fit:cover;border-radius:6px">
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Details -->
+    <div class="col-12 col-md-8">
+        <div class="card">
+            <div class="card-header">அடிப்படை விவரங்கள்</div>
+            <div class="card-body">
+                <div class="row g-2">
+                    {% include 'matrimony/_detail_row.html' with label="வயது" value=candidate.age %}
+                    {% include 'matrimony/_detail_row.html' with label="பிறந்த தேதி" value=candidate.date_of_birth|date:"d/m/Y" %}
+                    {% include 'matrimony/_detail_row.html' with label="உயரம்" value=candidate.height %}
+                    {% include 'matrimony/_detail_row.html' with label="சாதி" value=candidate.caste %}
+                    {% include 'matrimony/_detail_row.html' with label="உட்சாதி" value=candidate.sub_caste %}
+                    {% include 'matrimony/_detail_row.html' with label="மாவட்டம்" value=candidate.district %}
+                    {% include 'matrimony/_detail_row.html' with label="மாநிலம்" value=candidate.state %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">ஜோதிட விவரங்கள்</div>
+            <div class="card-body">
+                <div class="row g-2">
+                    {% include 'matrimony/_detail_row.html' with label="ராசி" value=candidate.rasi %}
+                    {% include 'matrimony/_detail_row.html' with label="நட்சத்திரம்" value=candidate.nachathiram %}
+                    {% include 'matrimony/_detail_row.html' with label="செவ்வாய் தோஷம்" value=candidate.get_sevadosham_display %}
+                    {% include 'matrimony/_detail_row.html' with label="ராகு/கேது" value=candidate.ragu_kethu %}
+                    {% include 'matrimony/_detail_row.html' with label="ஜாதகம்" value=candidate.jathagam %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Career & Family -->
+    <div class="col-12 col-md-6">
+        <div class="card h-100">
+            <div class="card-header">கல்வி மற்றும் தொழில்</div>
+            <div class="card-body">
+                <div class="row g-2">
+                    {% include 'matrimony/_detail_row.html' with label="கல்வி" value=candidate.educational_qualification %}
+                    {% include 'matrimony/_detail_row.html' with label="தொழில்" value=candidate.profession %}
+                    {% include 'matrimony/_detail_row.html' with label="தொழில் விவரம்" value=candidate.profession_comments %}
+                    {% include 'matrimony/_detail_row.html' with label="மாத சம்பளம்" value=candidate.monthly_salary %}
+                    {% include 'matrimony/_detail_row.html' with label="வருடாந்திர வருமானம்" value=candidate.annual_income %}
+                    {% include 'matrimony/_detail_row.html' with label="சொத்து மதிப்பு" value=candidate.property_value %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="card h-100">
+            <div class="card-header">குடும்ப விவரங்கள்</div>
+            <div class="card-body">
+                <div class="row g-2">
+                    {% include 'matrimony/_detail_row.html' with label="தந்தை பெயர்" value=candidate.father_name %}
+                    {% include 'matrimony/_detail_row.html' with label="தந்தை தொழில்" value=candidate.father_profession %}
+                    {% include 'matrimony/_detail_row.html' with label="தாய் பெயர்" value=candidate.mother_name %}
+                    {% include 'matrimony/_detail_row.html' with label="தாய் தொழில்" value=candidate.mother_profession %}
+                    {% include 'matrimony/_detail_row.html' with label="உடன்பிறந்தோர்" value=candidate.siblings_info %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jathagam Chart -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-star me-2"></i>ஜாதக சக்கரம்</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        {% include 'matrimony/_jathagam_chart.html' with form_mode=False %}
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr><td class="text-muted small">வீடு 1 (லக்னம்)</td><td class="fw-bold">{{ candidate.jathagam_h1|default:"-" }}</td></tr>
+                                <tr><td class="text-muted small">வீடு 2</td><td class="fw-bold">{{ candidate.jathagam_h2|default:"-" }}</td></tr>
+                                <tr><td class="text-muted small">வீடு 3</td><td class="fw-bold">{{ candidate.jathagam_h3|default:"-" }}</td></tr>
+                                <tr><td class="text-muted small">வீடு 4</td><td class="fw-bold">{{ candidate.jathagam_h4|default:"-" }}</td></tr>
+                                <tr><td class="text-muted small">வீடு 5</td><td class="fw-bold">{{ candidate.jathagam_h5|default:"-" }}</td></tr>
+                                <tr><td class="text-muted small">வீடு 6</td><td class="fw-bold">{{ candidate.jathagam_h6|default:"-" }}</td></tr>
+                                <tr><td class="text-muted small">வீடு 7</td><td class="fw-bold">{{ candidate.jathagam_h7|default:"-" }}</td></tr>
+                                <tr><td class="text-muted small">வீடு 8</td><td class="fw-bold">{{ candidate.jathagam_h8|default:"-" }}</td></tr>
+                                <tr><td class="text-muted small">வீடு 9</td><td class="fw-bold">{{ candidate.jathagam_h9|default:"-" }}</td></tr>
+                                <tr><td class="text-muted small">வீடு 10</td><td class="fw-bold">{{ candidate.jathagam_h10|default:"-" }}</td></tr>
+                                <tr><td class="text-muted small">வீடு 11</td><td class="fw-bold">{{ candidate.jathagam_h11|default:"-" }}</td></tr>
+                                <tr><td class="text-muted small">வீடு 12</td><td class="fw-bold">{{ candidate.jathagam_h12|default:"-" }}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">பிரீமியம் விவரம்</div>
+            <div class="card-body">
+                <div class="row g-2">
+                    {% include 'matrimony/_detail_row.html' with label="தொடக்க தேதி" value=candidate.premium_start_date|date:"d/m/Y" %}
+                    {% include 'matrimony/_detail_row.html' with label="முடிவு தேதி" value=candidate.premium_end_date|date:"d/m/Y" %}
+                    {% include 'matrimony/_detail_row.html' with label="நிலை" value=candidate.get_status_display %}
+                    {% include 'matrimony/_detail_row.html' with label="சேர்த்தவர்" value=candidate.created_by %}
+                    {% include 'matrimony/_detail_row.html' with label="சேர்த்த தேதி" value=candidate.created_at|date:"d/m/Y H:i" %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

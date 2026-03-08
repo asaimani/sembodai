@@ -1,0 +1,137 @@
+{% extends 'matrimony/base.html' %}
+{% block title %}விண்ணப்பங்கள் பட்டியல்{% endblock %}
+{% block page_title %}
+    {% if gender == 'M' %}ஆண் விண்ணப்பங்கள்{% elif gender == 'F' %}பெண் விண்ணப்பங்கள்{% else %}அனைத்து விண்ணப்பங்கள்{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Search/Filter Card -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <input type="hidden" name="gender" value="{{ gender }}">
+            <div class="col-12 col-md-3">
+                <label class="form-label small fw-500">பெயர் / UID தேடல்</label>
+                <input type="text" name="search" value="{{ search }}" class="form-control form-control-sm" placeholder="தேடவும்...">
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small fw-500">ராசி</label>
+                <select name="rasi" class="form-select form-select-sm">
+                    <option value="">எல்லாம்</option>
+                    {% for r in rasis %}<option value="{{ r.id }}" {% if request.GET.rasi == r.id|stringformat:"s" %}selected{% endif %}>{{ r.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small fw-500">நட்சத்திரம்</label>
+                <select name="nachathiram" class="form-select form-select-sm">
+                    <option value="">எல்லாம்</option>
+                    {% for n in nachathirams %}<option value="{{ n.id }}" {% if request.GET.nachathiram == n.id|stringformat:"s" %}selected{% endif %}>{{ n.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-4 col-md-1">
+                <label class="form-label small fw-500">வயது (குறைந்தது)</label>
+                <input type="number" name="age_min" value="{{ request.GET.age_min }}" class="form-control form-control-sm" placeholder="18" min="18" max="60">
+            </div>
+            <div class="col-4 col-md-1">
+                <label class="form-label small fw-500">வயது (அதிகம்)</label>
+                <input type="number" name="age_max" value="{{ request.GET.age_max }}" class="form-control form-control-sm" placeholder="60" min="18" max="60">
+            </div>
+            <div class="col-4 col-md-2">
+                <label class="form-label small fw-500">சம்பளம் (குறைந்தது)</label>
+                <input type="number" name="salary_min" value="{{ request.GET.salary_min }}" class="form-control form-control-sm" placeholder="₹">
+            </div>
+            <div class="col-12 col-md-1">
+                <button type="submit" class="btn btn-primary btn-sm w-100">
+                    <i class="fas fa-search"></i> தேடு
+                </button>
+            </div>
+            <div class="col-12 col-md-auto">
+                <a href="{% url 'candidate_list' %}{% if gender %}?gender={{ gender }}{% endif %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-times"></i> நீக்கு
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>
+            {% if gender == 'M' %}<i class="fas fa-male me-2"></i>ஆண்{% elif gender == 'F' %}<i class="fas fa-female me-2"></i>பெண்{% else %}<i class="fas fa-users me-2"></i>அனைத்து{% endif %}
+            விண்ணப்பங்கள் ({{ candidates.count }})
+        </span>
+        <div class="d-flex gap-2">
+            <a href="{% url 'candidate_add' %}?gender={% if gender %}{{ gender }}{% else %}M{% endif %}" class="btn btn-sm btn-light">
+                <i class="fas fa-plus me-1"></i>புதிது சேர்க்க
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if candidates %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>UID</th>
+                        <th>பெயர்</th>
+                        <th>பாலினம்</th>
+                        <th>வயது</th>
+                        <th>ராசி</th>
+                        <th>நட்சத்திரம்</th>
+                        <th>தொழில்</th>
+                        <th>சம்பளம்</th>
+                        <th>நிலை</th>
+                        <th>செயல்கள்</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for c in candidates %}
+                <tr {% if c.is_premium_expired %}class="table-warning"{% endif %}>
+                    <td>
+                        <a href="{% url 'candidate_detail' c.pk %}" class="fw-bold text-danger text-decoration-none">{{ c.uid }}</a>
+                        {% if c.is_new %}<span class="badge bg-success ms-1" style="font-size:9px">புதிது</span>{% endif %}
+                    </td>
+                    <td class="fw-500">{{ c.name }}</td>
+                    <td>
+                        {% if c.gender == 'M' %}
+                            <span class="badge badge-male">ஆண்</span>
+                        {% else %}
+                            <span class="badge badge-female">பெண்</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ c.age }}</td>
+                    <td>{{ c.rasi }}</td>
+                    <td>{{ c.nachathiram }}</td>
+                    <td>{{ c.profession }}</td>
+                    <td>{% if c.monthly_salary %}₹{{ c.monthly_salary }}{% else %}-{% endif %}</td>
+                    <td>
+                        {% if c.is_premium_expired %}
+                            <span class="badge badge-expired">காலாவதி</span>
+                        {% elif c.status == 'active' %}
+                            <span class="badge badge-active">செயலில்</span>
+                        {% else %}
+                            <span class="badge bg-secondary">செயலற்று</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'candidate_detail' c.pk %}" class="btn btn-sm btn-outline-primary" title="பார்க்க"><i class="fas fa-eye"></i></a>
+                            <a href="{% url 'candidate_edit' c.pk %}" class="btn btn-sm btn-outline-warning" title="திருத்த"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'candidate_print' c.pk %}" class="btn btn-sm btn-outline-dark" title="அச்சிட" target="_blank"><i class="fas fa-print"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center p-5 text-muted">
+            <i class="fas fa-search fa-3x mb-3"></i>
+            <p>விண்ணப்பங்கள் எதுவும் கிடைக்கவில்லை</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

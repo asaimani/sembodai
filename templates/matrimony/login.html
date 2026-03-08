@@ -1,0 +1,102 @@
+{% extends 'matrimony/base.html' %}
+{% block auth_content %}
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>உள்நுழைவு - செம்போடையார்</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Noto Sans Tamil', sans-serif; }
+        body {
+            background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 50%, #dc2626 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+        .login-logo {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .login-logo .icon { font-size: 50px; }
+        .login-logo h4 {
+            color: #b91c1c;
+            font-weight: 700;
+            font-size: 16px;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+        .login-logo p { color: #64748b; font-size: 12px; }
+        .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 14px;
+            border: 1.5px solid #e2e8f0;
+        }
+        .form-control:focus { border-color: #b91c1c; box-shadow: 0 0 0 3px rgba(185,28,28,0.1); }
+        .btn-login {
+            background: linear-gradient(135deg, #b91c1c, #dc2626);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .btn-login:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(185,28,28,0.4); }
+        .divider { text-align: center; color: #fde68a; font-size: 18px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+<div class="login-card">
+    <div class="login-logo">
+        <div class="icon">💒</div>
+        <h4>செம்போடையார் வன்னியர்<br>திருமண மையம்</h4>
+        <div class="divider">❦ ❦ ❦</div>
+        <p>நிர்வாக உள்நுழைவு</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger py-2 small">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label fw-500 small">பயனர்பெயர்</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-muted"></i></span>
+                <input type="text" name="username" class="form-control border-start-0" placeholder="பயனர்பெயர் உள்ளிடவும்" required>
+            </div>
+        </div>
+        <div class="mb-4">
+            <label class="form-label fw-500 small">கடவுச்சொல்</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                <input type="password" name="password" class="form-control border-start-0" placeholder="கடவுச்சொல் உள்ளிடவும்" required>
+            </div>
+        </div>
+        <button type="submit" class="btn-login">
+            <i class="fas fa-sign-in-alt me-2"></i>உள்நுழைவு
+        </button>
+    </form>
+</div>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</body>
+</html>
+{% endblock %}

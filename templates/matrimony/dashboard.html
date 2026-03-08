@@ -1,0 +1,135 @@
+{% extends 'matrimony/base.html' %}
+{% block title %}டாஷ்போர்டு{% endblock %}
+{% block page_title %}டாஷ்போர்டு{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#1d4ed8,#3b82f6)">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-num">{{ total }}</div>
+            <div class="stat-label">மொத்த விண்ணப்பங்கள்</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#1d4ed8,#2563eb)">
+            <div class="stat-icon"><i class="fas fa-male"></i></div>
+            <div class="stat-num">{{ male_count }}</div>
+            <div class="stat-label">ஆண் விண்ணப்பங்கள்</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#be185d,#ec4899)">
+            <div class="stat-icon"><i class="fas fa-female"></i></div>
+            <div class="stat-num">{{ female_count }}</div>
+            <div class="stat-label">பெண் விண்ணப்பங்கள்</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="background: linear-gradient(135deg,#dc2626,#ef4444)">
+            <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="stat-num">{{ expired_entries.count }}</div>
+            <div class="stat-label">காலாவதியான பிரீமியம்</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- New Entries -->
+    <div class="col-12 col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-star me-2"></i>இன்றைய புதிய விண்ணப்பங்கள்</span>
+                <span class="badge bg-warning text-dark">{{ new_entries.count }}</span>
+            </div>
+            <div class="card-body p-0">
+                {% if new_entries %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>UID</th><th>பெயர்</th><th>பாலினம்</th><th>ராசி</th></tr></thead>
+                        <tbody>
+                        {% for c in new_entries %}
+                        <tr>
+                            <td><a href="{% url 'candidate_detail' c.pk %}" class="text-decoration-none fw-bold text-danger">{{ c.uid }}</a></td>
+                            <td>{{ c.name }}</td>
+                            <td>
+                                {% if c.gender == 'M' %}
+                                    <span class="badge badge-male px-2">ஆண்</span>
+                                {% else %}
+                                    <span class="badge badge-female px-2">பெண்</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ c.rasi }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center p-4 text-muted">
+                    <i class="fas fa-inbox fa-2x mb-2"></i><br>இன்று புதிய விண்ணப்பங்கள் இல்லை
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Expired Entries -->
+    <div class="col-12 col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg,#dc2626,#b91c1c)">
+                <span><i class="fas fa-exclamation-circle me-2"></i>காலாவதியான பிரீமியம்</span>
+                <span class="badge bg-warning text-dark">{{ expired_entries.count }}</span>
+            </div>
+            <div class="card-body p-0">
+                {% if expired_entries %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>UID</th><th>பெயர்</th><th>முடிவு தேதி</th><th></th></tr></thead>
+                        <tbody>
+                        {% for c in expired_entries %}
+                        <tr class="table-danger">
+                            <td><a href="{% url 'candidate_detail' c.pk %}" class="text-decoration-none fw-bold text-danger">{{ c.uid }}</a></td>
+                            <td>{{ c.name }}</td>
+                            <td>{{ c.premium_end_date|date:"d/m/Y" }}</td>
+                            <td><a href="{% url 'candidate_edit' c.pk %}" class="btn btn-sm btn-outline-danger">புதுப்பி</a></td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center p-4 text-muted">
+                    <i class="fas fa-check-circle fa-2x mb-2 text-success"></i><br>காலாவதியான பிரீமியம் இல்லை
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-3 mt-1">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3 text-danger"><i class="fas fa-bolt me-2"></i>விரைவு செயல்கள்</h6>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'candidate_add' %}?gender=M" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>ஆண் விண்ணப்பம்
+                    </a>
+                    <a href="{% url 'candidate_add' %}?gender=F" class="btn btn-outline-primary" style="color:#be185d;border-color:#be185d">
+                        <i class="fas fa-plus me-1"></i>பெண் விண்ணப்பம்
+                    </a>
+                    <a href="{% url 'candidate_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-search me-1"></i>தேடல்
+                    </a>
+                    <a href="{% url 'shadow_list' %}" class="btn btn-outline-warning">
+                        <i class="fas fa-clock me-1"></i>நிலுவை பட்டியல்
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,245 @@
+{% extends 'matrimony/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+
+<!-- Payment Option -->
+<div class="form-section">
+    <div class="form-section-title"><i class="fas fa-rupee-sign me-2"></i>கட்டண விவரம்</div>
+    <div class="row g-3">
+        <div class="col-12">
+            <div class="d-flex gap-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="is_paid" id="paid_yes" value="true" checked>
+                    <label class="form-check-label" for="paid_yes">✅ கட்டணம் செலுத்தியது (முதன்மை பட்டியல்)</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="is_paid" id="paid_no" value="false">
+                    <label class="form-check-label" for="paid_no">⏳ கட்டணம் நிலுவை (நிழல் பட்டியல்)</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Basic Info -->
+<div class="form-section">
+    <div class="form-section-title"><i class="fas fa-user me-2"></i>அடிப்படை விவரங்கள்</div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">பாலினம் *</label>
+            {{ form.gender }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">பெயர் *</label>
+            {{ form.name }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">பிறந்த தேதி *</label>
+            {{ form.date_of_birth }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">உயரம்</label>
+            {{ form.height }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">சாதி</label>
+            {{ form.caste }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">உட்சாதி</label>
+            {{ form.sub_caste }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">மாநிலம்</label>
+            {{ form.state }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">மாவட்டம்</label>
+            {{ form.district }}
+        </div>
+    </div>
+</div>
+
+<!-- Astrology -->
+<div class="form-section">
+    <div class="form-section-title"><i class="fas fa-star me-2"></i>ஜோதிட விவரங்கள்</div>
+    <div class="row g-3">
+        <div class="col-md-3">
+            <label class="form-label">ராசி</label>
+            {{ form.rasi }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">நட்சத்திரம்</label>
+            {{ form.nachathiram }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">செவ்வாய் தோஷம்</label>
+            {{ form.sevadosham }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">ராகு/கேது</label>
+            {{ form.ragu_kethu }}
+        </div>
+    </div>
+</div>
+
+<!-- Jathagam Chart -->
+<div class="form-section">
+    <div class="form-section-title"><i class="fas fa-circle-nodes me-2"></i>ஜாதக சக்கரம் (12 வீடுகள்)</div>
+    <div class="row g-3">
+        <div class="col-md-7">
+            {% include 'matrimony/_jathagam_chart.html' with form_mode=True %}
+        </div>
+        <div class="col-md-5">
+            <div class="alert alert-light border mb-3">
+                <p class="fw-bold text-danger mb-2">🔮 கிரக குறியீடுகள்:</p>
+                <div class="row g-1" style="font-size:12px">
+                    <div class="col-6">சூ = சூரியன்</div>
+                    <div class="col-6">ச = சந்திரன்</div>
+                    <div class="col-6">செ = செவ்வாய்</div>
+                    <div class="col-6">பு = புதன்</div>
+                    <div class="col-6">கு = குரு</div>
+                    <div class="col-6">சுக் = சுக்கிரன்</div>
+                    <div class="col-6">சனி = சனி</div>
+                    <div class="col-6">ரா = ராகு</div>
+                    <div class="col-6">கே = கேது</div>
+                    <div class="col-6">லக் = லக்னம்</div>
+                </div>
+                <hr class="my-2">
+                <p class="small text-muted mb-0">ஒவ்வொரு வீட்டிலும் உள்ள கிரகங்களை dropdown இலிருந்து தேர்ந்தெடுக்கவும்</p>
+            </div>
+            <label class="form-label fw-500">ஜாதகம் வகை</label>
+            {{ form.jathagam }}
+        </div>
+    </div>
+</div>
+
+<!-- Education & Career -->
+<div class="form-section">
+    <div class="form-section-title"><i class="fas fa-graduation-cap me-2"></i>கல்வி மற்றும் தொழில்</div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">கல்வித் தகுதி</label>
+            {{ form.educational_qualification }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">தொழில்</label>
+            {{ form.profession }}
+        </div>
+        <div class="col-md-12">
+            <label class="form-label">தொழில் விவரம்</label>
+            {{ form.profession_comments }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">மாத சம்பளம் (₹)</label>
+            {{ form.monthly_salary }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">வருடாந்திர வருமானம் (₹)</label>
+            {{ form.annual_income }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">சொத்து மதிப்பு</label>
+            {{ form.property_value }}
+        </div>
+    </div>
+</div>
+
+<!-- Family -->
+<div class="form-section">
+    <div class="form-section-title"><i class="fas fa-home me-2"></i>குடும்ப விவரங்கள்</div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">தந்தை பெயர்</label>
+            {{ form.father_name }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">தந்தை தொழில்</label>
+            {{ form.father_profession }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">தாய் பெயர்</label>
+            {{ form.mother_name }}
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">தாய் தொழில்</label>
+            {{ form.mother_profession }}
+        </div>
+        <div class="col-12">
+            <label class="form-label">உடன்பிறந்தோர் விவரம்</label>
+            {{ form.siblings_info }}
+        </div>
+    </div>
+</div>
+
+<!-- Premium & Status -->
+<div class="form-section">
+    <div class="form-section-title"><i class="fas fa-crown me-2"></i>பிரீமியம் விவரம்</div>
+    <div class="row g-3">
+        <div class="col-md-3">
+            <label class="form-label">தொடக்க தேதி</label>
+            {{ form.premium_start_date }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">முடிவு தேதி</label>
+            {{ form.premium_end_date }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">நிலை</label>
+            {{ form.status }}
+        </div>
+    </div>
+</div>
+
+<!-- Photos -->
+<div class="form-section">
+    <div class="form-section-title"><i class="fas fa-camera me-2"></i>புகைப்படங்கள் (அதிகபட்சம் 3)</div>
+    <div class="row g-3">
+        <div class="col-12">
+            <input type="file" name="photos" class="form-control" accept="image/*" multiple>
+            <div class="form-text">JPG, PNG வடிவங்கள் ஏற்கப்படும். அதிகபட்சம் 3 புகைப்படங்கள்.</div>
+        </div>
+        {% if candidate %}
+        <div class="col-12">
+            <div class="d-flex gap-2 flex-wrap">
+                {% for photo in candidate.photos.all %}
+                <img src="{{ photo.photo.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0">
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="d-flex gap-2 justify-content-end">
+    <a href="{% url 'candidate_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-times me-1"></i>ரத்து செய்
+    </a>
+    <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save me-1"></i>சேமி
+    </button>
+</div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Rasi → Nachathiram dynamic load
+$('#id_rasi').change(function() {
+    var rasiId = $(this).val();
+    if (rasiId) {
+        $.get('/api/nachathirams/?rasi_id=' + rasiId, function(data) {
+            var select = $('#id_nachathiram');
+            select.html('<option value="">---------</option>');
+            $.each(data, function(i, n) {
+                select.append('<option value="' + n.id + '">' + n.name + '</option>');
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

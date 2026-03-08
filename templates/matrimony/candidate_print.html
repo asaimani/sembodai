@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ candidate.name }} - வாழ்க்கை துணை தேடல்</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Noto Sans Tamil', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #fff; color: #1a1a1a; }
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 15mm;
+            background: #fff;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            border: 3px double #b91c1c;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #fef2f2, #fff);
+        }
+        .header h1 { color: #b91c1c; font-size: 20px; font-weight: 700; }
+        .header .subtitle { color: #666; font-size: 12px; margin-top: 4px; }
+        .header .admin-address { font-size: 11px; color: #333; margin-top: 6px; border-top: 1px solid #f0c0c0; padding-top: 6px; }
+        
+        /* UID Banner */
+        .uid-banner {
+            background: #b91c1c;
+            color: #fff;
+            text-align: center;
+            padding: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        /* Photo + Basic Info */
+        .top-section { display: flex; gap: 15px; margin-bottom: 15px; }
+        .photo-box {
+            width: 120px;
+            flex-shrink: 0;
+            text-align: center;
+        }
+        .photo-box img { width: 110px; height: 130px; object-fit: cover; border: 2px solid #b91c1c; }
+        .photo-placeholder {
+            width: 110px; height: 130px;
+            border: 2px dashed #b91c1c;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; color: #ccc;
+        }
+        
+        /* Info Grid */
+        .info-grid { flex: 1; }
+        .section-title {
+            background: #b91c1c;
+            color: #fff;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        table.info-table { width: 100%; border-collapse: collapse; }
+        table.info-table td {
+            padding: 4px 8px;
+            font-size: 12px;
+            border-bottom: 1px solid #f0e0e0;
+        }
+        table.info-table td:first-child {
+            color: #666;
+            width: 40%;
+            font-weight: 500;
+        }
+        table.info-table td:last-child { color: #1a1a1a; font-weight: 600; }
+        
+        /* Sections */
+        .section { margin-bottom: 12px; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        /* Footer */
+        .footer {
+            border-top: 2px solid #b91c1c;
+            margin-top: 20px;
+            padding-top: 8px;
+            text-align: center;
+            font-size: 10px;
+            color: #999;
+        }
+        .ornament { color: #b91c1c; font-size: 14px; }
+        
+        @media print {
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            .page { margin: 0; padding: 10mm; }
+        }
+    </style>
+</head>
+<body>
+<!-- Print Button (no-print) -->
+<div class="no-print" style="text-align:center;padding:10px;background:#f8f8f8">
+    <button onclick="window.print()" style="background:#b91c1c;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit">
+        🖨️ அச்சிடு
+    </button>
+    <button onclick="window.close()" style="background:#666;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px">
+        ✖ மூடு
+    </button>
+</div>
+
+<div class="page">
+    <!-- Header with Admin Address -->
+    <div class="header">
+        <h1>💒 செம்போடையார் வன்னியர் திருமண மையம்</h1>
+        <div class="subtitle">வாழ்க்கை துணை தேடல் - சேவை</div>
+        {% if admin_profile %}
+        <div class="admin-address">
+            📍 {{ admin_profile.address }} | 📞 {{ admin_profile.phone }}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- UID -->
+    <div class="uid-banner">
+        {% if candidate.gender == 'M' %}ஆண் விண்ணப்பதாரர்{% else %}பெண் விண்ணப்பதாரர்{% endif %} - {{ candidate.uid }}
+    </div>
+
+    <!-- Photo + Basic -->
+    <div class="top-section">
+        <div class="photo-box">
+            {% if candidate.photos.first %}
+                <img src="{{ candidate.photos.first.photo.url }}" alt="Photo">
+            {% else %}
+                <div class="photo-placeholder">👤</div>
+            {% endif %}
+            {% for photo in candidate.photos.all|slice:"1:3" %}
+            <img src="{{ photo.photo.url }}" style="width:50px;height:55px;object-fit:cover;border:1px solid #b91c1c;margin-top:3px">
+            {% endfor %}
+        </div>
+
+        <div class="info-grid">
+            <div class="section-title">அடிப்படை விவரங்கள்</div>
+            <table class="info-table">
+                <tr><td>பெயர்</td><td>{{ candidate.name }}</td></tr>
+                <tr><td>வயது</td><td>{{ candidate.age }} வயது</td></tr>
+                <tr><td>பிறந்த தேதி</td><td>{{ candidate.date_of_birth|date:"d/m/Y" }}</td></tr>
+                <tr><td>உயரம்</td><td>{{ candidate.height }}</td></tr>
+                <tr><td>சாதி</td><td>{{ candidate.caste }}</td></tr>
+                {% if candidate.sub_caste %}<tr><td>உட்சாதி</td><td>{{ candidate.sub_caste }}</td></tr>{% endif %}
+                <tr><td>மாவட்டம்</td><td>{{ candidate.district }}</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Two Column Sections -->
+    <div class="two-col">
+        <!-- Astrology -->
+        <div class="section">
+            <div class="section-title">ஜோதிட விவரங்கள்</div>
+            <table class="info-table">
+                <tr><td>ராசி</td><td>{{ candidate.rasi }}</td></tr>
+                <tr><td>நட்சத்திரம்</td><td>{{ candidate.nachathiram }}</td></tr>
+                <tr><td>செவ்வாய் தோஷம்</td><td>{{ candidate.get_sevadosham_display }}</td></tr>
+                {% if candidate.ragu_kethu %}<tr><td>ராகு/கேது</td><td>{{ candidate.ragu_kethu }}</td></tr>{% endif %}
+                {% if candidate.jathagam %}<tr><td>ஜாதகம்</td><td>{{ candidate.jathagam }}</td></tr>{% endif %}
+            </table>
+        </div>
+
+        <!-- Education & Career -->
+        <div class="section">
+            <div class="section-title">கல்வி மற்றும் தொழில்</div>
+            <table class="info-table">
+                <tr><td>கல்வி</td><td>{{ candidate.educational_qualification }}</td></tr>
+                <tr><td>தொழில்</td><td>{{ candidate.profession }}</td></tr>
+                {% if candidate.profession_comments %}<tr><td>விவரம்</td><td>{{ candidate.profession_comments }}</td></tr>{% endif %}
+                {% if candidate.monthly_salary %}<tr><td>மாத சம்பளம்</td><td>₹{{ candidate.monthly_salary }}</td></tr>{% endif %}
+                {% if candidate.annual_income %}<tr><td>வருட வருமானம்</td><td>₹{{ candidate.annual_income }}</td></tr>{% endif %}
+                {% if candidate.property_value %}<tr><td>சொத்து மதிப்பு</td><td>{{ candidate.property_value }}</td></tr>{% endif %}
+            </table>
+        </div>
+
+        <!-- Family -->
+        <div class="section">
+            <div class="section-title">குடும்ப விவரங்கள்</div>
+            <table class="info-table">
+                {% if candidate.father_name %}<tr><td>தந்தை</td><td>{{ candidate.father_name }}</td></tr>{% endif %}
+                {% if candidate.father_profession %}<tr><td>தந்தை தொழில்</td><td>{{ candidate.father_profession }}</td></tr>{% endif %}
+                {% if candidate.mother_name %}<tr><td>தாய்</td><td>{{ candidate.mother_name }}</td></tr>{% endif %}
+                {% if candidate.mother_profession %}<tr><td>தாய் தொழில்</td><td>{{ candidate.mother_profession }}</td></tr>{% endif %}
+                {% if candidate.siblings_info %}<tr><td>உடன்பிறந்தோர்</td><td>{{ candidate.siblings_info }}</td></tr>{% endif %}
+            </table>
+        </div>
+    </div>
+
+    <!-- Jathagam Chart for Print -->
+    <div class="section" style="margin-top:12px">
+        <div class="section-title">ஜாதக சக்கரம்</div>
+        <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fffdf5">
+            <tr>
+                <td style="width:25%;height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
+                    <span style="font-size:9px;color:#b91c1c">12</span><br>{{ candidate.jathagam_h12 }}
+                </td>
+                <td style="width:25%;height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
+                    <span style="font-size:9px;color:#b91c1c">1 லக்னம்</span><br>{{ candidate.jathagam_h1 }}
+                </td>
+                <td style="width:25%;height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
+                    <span style="font-size:9px;color:#b91c1c">2</span><br>{{ candidate.jathagam_h2 }}
+                </td>
+                <td style="width:25%;height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
+                    <span style="font-size:9px;color:#b91c1c">3</span><br>{{ candidate.jathagam_h3 }}
+                </td>
+            </tr>
+            <tr>
+                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
+                    <span style="font-size:9px;color:#b91c1c">11</span><br>{{ candidate.jathagam_h11 }}
+                </td>
+                <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fef9ee;font-weight:700;color:#7f1d1d;font-size:14px">
+                    ராசி<br><span style="font-size:10px;color:#888">சக்கரம்</span>
+                </td>
+                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
+                    <span style="font-size:9px;color:#b91c1c">4</span><br>{{ candidate.jathagam_h4 }}
+                </td>
+            </tr>
+            <tr>
+                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
+                    <span style="font-size:9px;color:#b91c1c">10</span><br>{{ candidate.jathagam_h10 }}
+                </td>
+                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
+                    <span style="font-size:9px;color:#b91c1c">5</span><br>{{ candidate.jathagam_h5 }}
+                </td>
+            </tr>
+            <tr>
+                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
+                    <span style="font-size:9px;color:#b91c1c">9</span><br>{{ candidate.jathagam_h9 }}
+                </td>
+                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
+                    <span style="font-size:9px;color:#b91c1c">8</span><br>{{ candidate.jathagam_h8 }}
+                </td>
+                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
+                    <span style="font-size:9px;color:#b91c1c">7</span><br>{{ candidate.jathagam_h7 }}
+                </td>
+                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
+                    <span style="font-size:9px;color:#b91c1c">6</span><br>{{ candidate.jathagam_h6 }}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        <span class="ornament">❦ ❦ ❦</span><br>
+        செம்போடையார் வன்னியர் திருமண மையம் — திருமண சேவை
+    </div>
+</div>
+</body>
+</html>
