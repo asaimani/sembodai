@@ -16,7 +16,7 @@ Layout:
 .jathagam-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 80px);
+    grid-template-rows: repeat(4, 65px);
     border: 2px solid #b91c1c;
     border-radius: 4px;
     overflow: hidden;
@@ -25,7 +25,7 @@ Layout:
 }
 .jc {
     border: 1px solid #d4a0a0;
-    padding: 4px;
+    padding: 2px;
     position: relative;
     background: #fffdf5;
     display: flex;
@@ -40,24 +40,23 @@ Layout:
     align-items: center;
     justify-content: center;
     border: 1px solid #d4a0a0;
-    font-weight: 600;
+    font-weight: 700;
     color: #7f1d1d;
-    font-size: 13px;
+    font-size: 14px;
     text-align: center;
     flex-direction: column;
-    gap: 4px;
 }
 .jc-num {
     position: absolute;
-    top: 2px;
-    left: 3px;
-    font-size: 9px;
+    top: 1px;
+    left: 2px;
+    font-size: 8px;
     color: #b91c1c;
     font-weight: 600;
     opacity: 0.7;
 }
 .jathagam-select {
-    font-size: 10px !important;
+    font-size: 9px !important;
     padding: 1px 2px !important;
     border: 1px solid #ddd !important;
     background: transparent !important;
@@ -65,120 +64,108 @@ Layout:
     margin-top: 12px;
     color: #1a1a1a;
 }
-.jathagam-select:focus {
-    border-color: #b91c1c !important;
-    box-shadow: none !important;
-}
-
-/* Display version (read-only) */
 .jc-value {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
     color: #1a1a1a;
-    margin-top: 14px;
+    margin-top: 12px;
     word-break: break-word;
-    line-height: 1.3;
+    line-height: 1.2;
 }
 .jathagam-title {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     color: #b91c1c;
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #b91c1c;
+    padding-bottom: 3px;
 }
 </style>
 
 {% if form_mode %}
-{# ---------- FORM MODE (with dropdowns) ---------- #}
-<div class="jathagam-title">ஜாதக சக்கரம் 🔮</div>
-<div class="jathagam-grid">
-
-    {# Row 1: Houses 12, 1, 2, 3 #}
-    <div class="jc">
-        <span class="jc-num">12</span>
-        {{ form.jathagam_h12 }}
+{# ---------- FORM MODE with two charts ---------- #}
+<div class="row g-2">
+    <!-- ராசி Chart -->
+    <div class="col-6">
+        <div class="jathagam-title">ராசி</div>
+        <div class="jathagam-grid">
+            <div class="jc"><span class="jc-num">12</span>{{ form.rasi_h12 }}</div>
+            <div class="jc"><span class="jc-num">1</span>{{ form.rasi_h1 }}</div>
+            <div class="jc"><span class="jc-num">2</span>{{ form.rasi_h2 }}</div>
+            <div class="jc"><span class="jc-num">3</span>{{ form.rasi_h3 }}</div>
+            <div class="jc"><span class="jc-num">11</span>{{ form.rasi_h11 }}</div>
+            <div class="jc-center">ராசி</div>
+            <div class="jc"><span class="jc-num">4</span>{{ form.rasi_h4 }}</div>
+            <div class="jc"><span class="jc-num">10</span>{{ form.rasi_h10 }}</div>
+            <div class="jc"><span class="jc-num">5</span>{{ form.rasi_h5 }}</div>
+            <div class="jc"><span class="jc-num">9</span>{{ form.rasi_h9 }}</div>
+            <div class="jc"><span class="jc-num">8</span>{{ form.rasi_h8 }}</div>
+            <div class="jc"><span class="jc-num">7</span>{{ form.rasi_h7 }}</div>
+            <div class="jc"><span class="jc-num">6</span>{{ form.rasi_h6 }}</div>
+        </div>
     </div>
-    <div class="jc">
-        <span class="jc-num">1 (லக்னம்)</span>
-        {{ form.jathagam_h1 }}
+    <!-- நவாம்சம் Chart -->
+    <div class="col-6">
+        <div class="jathagam-title">நவாம்சம்</div>
+        <div class="jathagam-grid">
+            <div class="jc"><span class="jc-num">12</span>{{ form.navamsam_h12 }}</div>
+            <div class="jc"><span class="jc-num">1</span>{{ form.navamsam_h1 }}</div>
+            <div class="jc"><span class="jc-num">2</span>{{ form.navamsam_h2 }}</div>
+            <div class="jc"><span class="jc-num">3</span>{{ form.navamsam_h3 }}</div>
+            <div class="jc"><span class="jc-num">11</span>{{ form.navamsam_h11 }}</div>
+            <div class="jc-center">நவாம்சம்</div>
+            <div class="jc"><span class="jc-num">4</span>{{ form.navamsam_h4 }}</div>
+            <div class="jc"><span class="jc-num">10</span>{{ form.navamsam_h10 }}</div>
+            <div class="jc"><span class="jc-num">5</span>{{ form.navamsam_h5 }}</div>
+            <div class="jc"><span class="jc-num">9</span>{{ form.navamsam_h9 }}</div>
+            <div class="jc"><span class="jc-num">8</span>{{ form.navamsam_h8 }}</div>
+            <div class="jc"><span class="jc-num">7</span>{{ form.navamsam_h7 }}</div>
+            <div class="jc"><span class="jc-num">6</span>{{ form.navamsam_h6 }}</div>
+        </div>
     </div>
-    <div class="jc">
-        <span class="jc-num">2</span>
-        {{ form.jathagam_h2 }}
-    </div>
-    <div class="jc">
-        <span class="jc-num">3</span>
-        {{ form.jathagam_h3 }}
-    </div>
-
-    {# Row 2: House 11, CENTER (rows 2-3 span), House 4 #}
-    <div class="jc">
-        <span class="jc-num">11</span>
-        {{ form.jathagam_h11 }}
-    </div>
-    <div class="jc-center">
-        <div>ராசி</div>
-        <div style="font-size:10px;color:#666">சக்கரம்</div>
-    </div>
-    <div class="jc">
-        <span class="jc-num">4</span>
-        {{ form.jathagam_h4 }}
-    </div>
-
-    {# Row 3: House 10, (center continues), House 5 #}
-    <div class="jc">
-        <span class="jc-num">10</span>
-        {{ form.jathagam_h10 }}
-    </div>
-    <div class="jc">
-        <span class="jc-num">5</span>
-        {{ form.jathagam_h5 }}
-    </div>
-
-    {# Row 4: Houses 9, 8, 7, 6 #}
-    <div class="jc">
-        <span class="jc-num">9</span>
-        {{ form.jathagam_h9 }}
-    </div>
-    <div class="jc">
-        <span class="jc-num">8</span>
-        {{ form.jathagam_h8 }}
-    </div>
-    <div class="jc">
-        <span class="jc-num">7</span>
-        {{ form.jathagam_h7 }}
-    </div>
-    <div class="jc">
-        <span class="jc-num">6</span>
-        {{ form.jathagam_h6 }}
-    </div>
-
 </div>
 
 {% else %}
-{# ---------- DISPLAY MODE (read-only) ---------- #}
-<div class="jathagam-title">ஜாதக சக்கரம் 🔮</div>
-<div class="jathagam-grid">
-
-    <div class="jc"><span class="jc-num">12</span><div class="jc-value">{{ candidate.jathagam_h12 }}</div></div>
-    <div class="jc"><span class="jc-num">1 (லக்னம்)</span><div class="jc-value">{{ candidate.jathagam_h1 }}</div></div>
-    <div class="jc"><span class="jc-num">2</span><div class="jc-value">{{ candidate.jathagam_h2 }}</div></div>
-    <div class="jc"><span class="jc-num">3</span><div class="jc-value">{{ candidate.jathagam_h3 }}</div></div>
-
-    <div class="jc"><span class="jc-num">11</span><div class="jc-value">{{ candidate.jathagam_h11 }}</div></div>
-    <div class="jc-center">
-        <div>ராசி</div>
-        <div style="font-size:10px;color:#888">சக்கரம்</div>
+{# ---------- DISPLAY MODE with two charts ---------- #}
+<div class="row g-2">
+    <!-- ராசி Chart -->
+    <div class="col-6">
+        <div class="jathagam-title">ராசி</div>
+        <div class="jathagam-grid">
+            <div class="jc"><span class="jc-num">12</span><div class="jc-value">{{ candidate.rasi_h12 }}</div></div>
+            <div class="jc"><span class="jc-num">1</span><div class="jc-value">{{ candidate.rasi_h1 }}</div></div>
+            <div class="jc"><span class="jc-num">2</span><div class="jc-value">{{ candidate.rasi_h2 }}</div></div>
+            <div class="jc"><span class="jc-num">3</span><div class="jc-value">{{ candidate.rasi_h3 }}</div></div>
+            <div class="jc"><span class="jc-num">11</span><div class="jc-value">{{ candidate.rasi_h11 }}</div></div>
+            <div class="jc-center">ராசி</div>
+            <div class="jc"><span class="jc-num">4</span><div class="jc-value">{{ candidate.rasi_h4 }}</div></div>
+            <div class="jc"><span class="jc-num">10</span><div class="jc-value">{{ candidate.rasi_h10 }}</div></div>
+            <div class="jc"><span class="jc-num">5</span><div class="jc-value">{{ candidate.rasi_h5 }}</div></div>
+            <div class="jc"><span class="jc-num">9</span><div class="jc-value">{{ candidate.rasi_h9 }}</div></div>
+            <div class="jc"><span class="jc-num">8</span><div class="jc-value">{{ candidate.rasi_h8 }}</div></div>
+            <div class="jc"><span class="jc-num">7</span><div class="jc-value">{{ candidate.rasi_h7 }}</div></div>
+            <div class="jc"><span class="jc-num">6</span><div class="jc-value">{{ candidate.rasi_h6 }}</div></div>
+        </div>
     </div>
-    <div class="jc"><span class="jc-num">4</span><div class="jc-value">{{ candidate.jathagam_h4 }}</div></div>
-
-    <div class="jc"><span class="jc-num">10</span><div class="jc-value">{{ candidate.jathagam_h10 }}</div></div>
-    <div class="jc"><span class="jc-num">5</span><div class="jc-value">{{ candidate.jathagam_h5 }}</div></div>
-
-    <div class="jc"><span class="jc-num">9</span><div class="jc-value">{{ candidate.jathagam_h9 }}</div></div>
-    <div class="jc"><span class="jc-num">8</span><div class="jc-value">{{ candidate.jathagam_h8 }}</div></div>
-    <div class="jc"><span class="jc-num">7</span><div class="jc-value">{{ candidate.jathagam_h7 }}</div></div>
-    <div class="jc"><span class="jc-num">6</span><div class="jc-value">{{ candidate.jathagam_h6 }}</div></div>
-
+    <!-- நவாம்சம் Chart -->
+    <div class="col-6">
+        <div class="jathagam-title">நவாம்சம்</div>
+        <div class="jathagam-grid">
+            <div class="jc"><span class="jc-num">12</span><div class="jc-value">{{ candidate.navamsam_h12 }}</div></div>
+            <div class="jc"><span class="jc-num">1</span><div class="jc-value">{{ candidate.navamsam_h1 }}</div></div>
+            <div class="jc"><span class="jc-num">2</span><div class="jc-value">{{ candidate.navamsam_h2 }}</div></div>
+            <div class="jc"><span class="jc-num">3</span><div class="jc-value">{{ candidate.navamsam_h3 }}</div></div>
+            <div class="jc"><span class="jc-num">11</span><div class="jc-value">{{ candidate.navamsam_h11 }}</div></div>
+            <div class="jc-center">நவாம்சம்</div>
+            <div class="jc"><span class="jc-num">4</span><div class="jc-value">{{ candidate.navamsam_h4 }}</div></div>
+            <div class="jc"><span class="jc-num">10</span><div class="jc-value">{{ candidate.navamsam_h10 }}</div></div>
+            <div class="jc"><span class="jc-num">5</span><div class="jc-value">{{ candidate.navamsam_h5 }}</div></div>
+            <div class="jc"><span class="jc-num">9</span><div class="jc-value">{{ candidate.navamsam_h9 }}</div></div>
+            <div class="jc"><span class="jc-num">8</span><div class="jc-value">{{ candidate.navamsam_h8 }}</div></div>
+            <div class="jc"><span class="jc-num">7</span><div class="jc-value">{{ candidate.navamsam_h7 }}</div></div>
+            <div class="jc"><span class="jc-num">6</span><div class="jc-value">{{ candidate.navamsam_h6 }}</div></div>
+        </div>
+    </div>
 </div>
 {% endif %}

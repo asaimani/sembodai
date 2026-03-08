@@ -191,58 +191,65 @@
         </div>
     </div>
 
-    <!-- Jathagam Chart for Print -->
+    <!-- Jathagam Charts for Print -->
     <div class="section" style="margin-top:12px">
         <div class="section-title">ஜாதக சக்கரம்</div>
-        <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fffdf5">
-            <tr>
-                <td style="width:25%;height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
-                    <span style="font-size:9px;color:#b91c1c">12</span><br>{{ candidate.jathagam_h12 }}
-                </td>
-                <td style="width:25%;height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
-                    <span style="font-size:9px;color:#b91c1c">1 லக்னம்</span><br>{{ candidate.jathagam_h1 }}
-                </td>
-                <td style="width:25%;height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
-                    <span style="font-size:9px;color:#b91c1c">2</span><br>{{ candidate.jathagam_h2 }}
-                </td>
-                <td style="width:25%;height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
-                    <span style="font-size:9px;color:#b91c1c">3</span><br>{{ candidate.jathagam_h3 }}
-                </td>
-            </tr>
-            <tr>
-                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
-                    <span style="font-size:9px;color:#b91c1c">11</span><br>{{ candidate.jathagam_h11 }}
-                </td>
-                <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fef9ee;font-weight:700;color:#7f1d1d;font-size:14px">
-                    ராசி<br><span style="font-size:10px;color:#888">சக்கரம்</span>
-                </td>
-                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
-                    <span style="font-size:9px;color:#b91c1c">4</span><br>{{ candidate.jathagam_h4 }}
-                </td>
-            </tr>
-            <tr>
-                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
-                    <span style="font-size:9px;color:#b91c1c">10</span><br>{{ candidate.jathagam_h10 }}
-                </td>
-                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
-                    <span style="font-size:9px;color:#b91c1c">5</span><br>{{ candidate.jathagam_h5 }}
-                </td>
-            </tr>
-            <tr>
-                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
-                    <span style="font-size:9px;color:#b91c1c">9</span><br>{{ candidate.jathagam_h9 }}
-                </td>
-                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
-                    <span style="font-size:9px;color:#b91c1c">8</span><br>{{ candidate.jathagam_h8 }}
-                </td>
-                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
-                    <span style="font-size:9px;color:#b91c1c">7</span><br>{{ candidate.jathagam_h7 }}
-                </td>
-                <td style="height:60px;border:1px solid #d4a0a0;padding:4px;font-size:11px;font-weight:600;vertical-align:top">
-                    <span style="font-size:9px;color:#b91c1c">6</span><br>{{ candidate.jathagam_h6 }}
-                </td>
-            </tr>
-        </table>
+        <div style="display:flex;gap:2%;justify-content:space-between">
+            
+        <div style="width:48%;display:inline-block;vertical-align:top">
+            <div style="text-align:center;font-weight:700;color:#b91c1c;border-bottom:1px solid #b91c1c;margin-bottom:3px;font-size:11px">ராசி</div>
+            <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fffdf5">
+                <tr>
+                    <td style="width:25%;height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">12</span><br>{{ candidate.rasi_h12 }}</td>
+                    <td style="width:25%;height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">1</span><br>{{ candidate.rasi_h1 }}</td>
+                    <td style="width:25%;height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">2</span><br>{{ candidate.rasi_h2 }}</td>
+                    <td style="width:25%;height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">3</span><br>{{ candidate.rasi_h3 }}</td>
+                </tr>
+                <tr>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">11</span><br>{{ candidate.rasi_h11 }}</td>
+                    <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fef9ee;font-weight:700;color:#7f1d1d;font-size:12px">ராசி</td>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">4</span><br>{{ candidate.rasi_h4 }}</td>
+                </tr>
+                <tr>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">10</span><br>{{ candidate.rasi_h10 }}</td>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">5</span><br>{{ candidate.rasi_h5 }}</td>
+                </tr>
+                <tr>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">9</span><br>{{ candidate.rasi_h9 }}</td>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">8</span><br>{{ candidate.rasi_h8 }}</td>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">7</span><br>{{ candidate.rasi_h7 }}</td>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">6</span><br>{{ candidate.rasi_h6 }}</td>
+                </tr>
+            </table>
+        </div>
+            
+        <div style="width:48%;display:inline-block;vertical-align:top">
+            <div style="text-align:center;font-weight:700;color:#b91c1c;border-bottom:1px solid #b91c1c;margin-bottom:3px;font-size:11px">நவாம்சம்</div>
+            <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fffdf5">
+                <tr>
+                    <td style="width:25%;height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">12</span><br>{{ candidate.navamsam_h12 }}</td>
+                    <td style="width:25%;height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">1</span><br>{{ candidate.navamsam_h1 }}</td>
+                    <td style="width:25%;height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">2</span><br>{{ candidate.navamsam_h2 }}</td>
+                    <td style="width:25%;height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">3</span><br>{{ candidate.navamsam_h3 }}</td>
+                </tr>
+                <tr>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">11</span><br>{{ candidate.navamsam_h11 }}</td>
+                    <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fef9ee;font-weight:700;color:#7f1d1d;font-size:12px">நவாம்சம்</td>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">4</span><br>{{ candidate.navamsam_h4 }}</td>
+                </tr>
+                <tr>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">10</span><br>{{ candidate.navamsam_h10 }}</td>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">5</span><br>{{ candidate.navamsam_h5 }}</td>
+                </tr>
+                <tr>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">9</span><br>{{ candidate.navamsam_h9 }}</td>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">8</span><br>{{ candidate.navamsam_h8 }}</td>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">7</span><br>{{ candidate.navamsam_h7 }}</td>
+                    <td style="height:50px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">6</span><br>{{ candidate.navamsam_h6 }}</td>
+                </tr>
+            </table>
+        </div>
+        </div>
     </div>
 
     <div class="footer">
