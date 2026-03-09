@@ -59,7 +59,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <span>
             {% if gender == 'M' %}<i class="fas fa-male me-2"></i>ஆண்{% elif gender == 'F' %}<i class="fas fa-female me-2"></i>பெண்{% else %}<i class="fas fa-users me-2"></i>அனைத்து{% endif %}
-            விண்ணப்பங்கள் ({{ candidates.count }})
+            விண்ணப்பங்கள் ({{ candidates|length }})
         </span>
         <div class="d-flex gap-2">
             <a href="{% url 'candidate_add' %}?gender={% if gender %}{{ gender }}{% else %}M{% endif %}" class="btn btn-sm btn-light">
@@ -86,10 +86,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for c in candidates %}
+                {% for g, c in candidates %}
                 <tr {% if c.is_premium_expired %}class="table-warning"{% endif %}>
                     <td>
-                        <a href="{% url 'candidate_detail' c.pk %}" class="fw-bold text-danger text-decoration-none">{{ c.uid }}</a>
+                        <a href="{% url 'candidate_detail' g c.pk %}" class="fw-bold text-danger text-decoration-none">{{ c.uid }}</a>
                         {% if c.is_new %}<span class="badge bg-success ms-1" style="font-size:9px">புதிது</span>{% endif %}
                     </td>
                     <td class="fw-500">{{ c.name }}</td>
@@ -108,7 +108,7 @@
                     <td>
                         {% if c.is_premium_expired %}
                             <span class="badge badge-expired">காலாவதி</span>
-                        {% elif c.status == 'active' %}
+                        {% elif c.status.code == 'active' %}
                             <span class="badge badge-active">செயலில்</span>
                         {% else %}
                             <span class="badge bg-secondary">செயலற்று</span>
@@ -116,9 +116,9 @@
                     </td>
                     <td>
                         <div class="d-flex gap-1">
-                            <a href="{% url 'candidate_detail' c.pk %}" class="btn btn-sm btn-outline-primary" title="பார்க்க"><i class="fas fa-eye"></i></a>
-                            <a href="{% url 'candidate_edit' c.pk %}" class="btn btn-sm btn-outline-warning" title="திருத்த"><i class="fas fa-edit"></i></a>
-                            <a href="{% url 'candidate_print' c.pk %}" class="btn btn-sm btn-outline-dark" title="அச்சிட" target="_blank"><i class="fas fa-print"></i></a>
+                            <a href="{% url 'candidate_detail' g c.pk %}" class="btn btn-sm btn-outline-primary" title="பார்க்க"><i class="fas fa-eye"></i></a>
+                            <a href="{% url 'candidate_edit' g c.pk %}" class="btn btn-sm btn-outline-warning" title="திருத்த"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'candidate_print' g c.pk %}" class="btn btn-sm btn-outline-dark" title="அச்சிட" target="_blank"><i class="fas fa-print"></i></a>
                         </div>
                     </td>
                 </tr>

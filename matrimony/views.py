@@ -59,7 +59,7 @@ def candidate_list(request):
     rasi_id = request.GET.get('rasi', '')
     nachathiram_id = request.GET.get('nachathiram', '')
     salary_min = request.GET.get('salary_min', '')
-    status_filter = request.GET.get('status', 'active')
+    status_filter = request.GET.get('status', '')
 
     def apply_filters(qs):
         if search:
@@ -136,6 +136,9 @@ def candidate_add(request):
     FormClass = MaleCandidateForm if is_male else FemaleCandidateForm
 
     if request.method == 'POST':
+        gender = request.POST.get('_gender', gender)  # preserve gender on POST
+        is_male = gender == 'M'
+        FormClass = MaleCandidateForm if is_male else FemaleCandidateForm
         form = FormClass(request.POST)
         photos = request.FILES.getlist('photos')
         is_paid = request.POST.get('is_paid', 'true') == 'true'
@@ -150,6 +153,18 @@ def candidate_add(request):
                 messages.warning(request, 'விண்ணப்பம் நிலுவை பட்டியலில் சேர்க்கப்பட்டது.')
                 return redirect('candidate_list')
 
+            # Always force active status if form submitted with active or empty
+            from .models import CandidateStatus
+            status_id = request.POST.get('status', '')
+            if status_id:
+                try:
+                    candidate.status = CandidateStatus.objects.get(pk=int(status_id))
+                except Exception:
+                    pass
+            if not candidate.status_id:
+                active_status = CandidateStatus.objects.filter(code='active').first()
+                if active_status:
+                    candidate.status = active_status
             candidate.save()
             _save_jathagam(candidate, request.POST)
             _save_photos(candidate, photos, is_male)
@@ -187,11 +202,25 @@ def candidate_edit(request, gender, pk):
     if request.method == 'POST':
         form = FormClass(request.POST, instance=candidate)
         if form.is_valid():
-            form.save()
+            saved = form.save(commit=False)
+            # Explicitly save status from POST
+            from .models import CandidateStatus
+            status_id = request.POST.get('status', '')
+            if status_id:
+                try:
+                    saved.status = CandidateStatus.objects.get(pk=int(status_id))
+                except Exception:
+                    pass
+            elif not saved.status_id:
+                active = CandidateStatus.objects.filter(code='active').first()
+                if active:
+                    saved.status = active
+            saved.save()
+            form.save_m2m()
             photos = request.FILES.getlist('photos')
             existing_count = candidate.photos.count()
             _save_photos(candidate, photos[:max(0, 3 - existing_count)], is_male)
-            _save_jathagam(candidate, request.POST)
+            _save_jathagam(saved, request.POST)
             messages.success(request, 'விண்ணப்பம் புதுப்பிக்கப்பட்டது.')
             return redirect('candidate_detail', gender=gender, pk=candidate.pk)
     else:
@@ -244,6 +273,7 @@ def shadow_list(request):
 
 @login_required
 def delete_photo(request, photo_id):
+    # Accept both GET and POST
     photo = get_object_or_404(CandidatePhoto, pk=photo_id)
     candidate = photo.candidate
     candidate_pk = candidate.pk
@@ -258,6 +288,12 @@ def delete_photo(request, photo_id):
     photo.delete()
     messages.success(request, 'புகைப்படம் நீக்கப்பட்டது.')
     return redirect('candidate_edit', gender=gender, pk=candidate_pk)
+
+
+def get_sub_castes(request):
+    caste_id = request.GET.get('caste_id')
+    sub_castes = SubCaste.objects.filter(caste_id=caste_id).values('id', 'name')
+    return JsonResponse(list(sub_castes), safe=False)
 
 
 def get_nachathirams(request):

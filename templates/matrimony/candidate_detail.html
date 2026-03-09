@@ -4,10 +4,10 @@
 
 {% block content %}
 <div class="d-flex gap-2 mb-3">
-    <a href="{% url 'candidate_edit' candidate.pk %}" class="btn btn-warning btn-sm">
+    <a href="{% url 'candidate_edit' gender candidate.pk %}" class="btn btn-warning btn-sm">
         <i class="fas fa-edit me-1"></i>திருத்து
     </a>
-    <a href="{% url 'candidate_print' candidate.pk %}" class="btn btn-dark btn-sm" target="_blank">
+    <a href="{% url 'candidate_print' gender candidate.pk %}" class="btn btn-dark btn-sm" target="_blank">
         <i class="fas fa-print me-1"></i>அச்சிடு
     </a>
     <a href="{% url 'candidate_list' %}?gender={{ candidate.gender }}" class="btn btn-outline-secondary btn-sm">
@@ -60,10 +60,13 @@
             <div class="card-body">
                 <div class="row g-2">
                     {% include 'matrimony/_detail_row.html' with label="வயது" value=candidate.age %}
+                    {% load matrimony_tags %}
                     {% include 'matrimony/_detail_row.html' with label="பிறந்த தேதி" value=candidate.date_of_birth|date:"d/m/Y" %}
+                    {% if candidate.birth_time %}{% include 'matrimony/_detail_row.html' with label="பிறந்த நேரம்" value=candidate.birth_time|time:"h:i A" %}{% endif %}
                     {% include 'matrimony/_detail_row.html' with label="உயரம்" value=candidate.height %}
                     {% include 'matrimony/_detail_row.html' with label="சாதி" value=candidate.caste %}
                     {% include 'matrimony/_detail_row.html' with label="உட்சாதி" value=candidate.sub_caste %}
+                    {% include 'matrimony/_detail_row.html' with label="நிறம்" value=candidate.complexion %}
                     {% include 'matrimony/_detail_row.html' with label="மாவட்டம்" value=candidate.district %}
                     {% include 'matrimony/_detail_row.html' with label="மாநிலம்" value=candidate.state %}
                 </div>
@@ -76,8 +79,16 @@
                 <div class="row g-2">
                     {% include 'matrimony/_detail_row.html' with label="ராசி" value=candidate.rasi %}
                     {% include 'matrimony/_detail_row.html' with label="நட்சத்திரம்" value=candidate.nachathiram %}
-                    {% include 'matrimony/_detail_row.html' with label="செவ்வாய் தோஷம்" value=candidate.get_sevadosham_display %}
+                    {% include 'matrimony/_detail_row.html' with label="செவ்வாய் தோஷம்" value=candidate.sevadosham %}
                     {% include 'matrimony/_detail_row.html' with label="ராகு/கேது" value=candidate.ragu_kethu %}
+                    {% include 'matrimony/_detail_row.html' with label="தமிழ் வருடம்" value=candidate.tamil_year %}
+                    {% include 'matrimony/_detail_row.html' with label="தமிழ் மாதம்" value=candidate.tamil_month %}
+                    {% include 'matrimony/_detail_row.html' with label="தமிழ் தேதி" value=candidate.tamil_day %}
+                    {% include 'matrimony/_detail_row.html' with label="சொந்த வீடு" value=candidate.own_house %}
+                    {% include 'matrimony/_detail_row.html' with label="பிறப்பு வரிசை" value=candidate.birth_order %}
+                    {% include 'matrimony/_detail_row.html' with label="திசை இருப்பு" value=candidate.thisai_iruppu %}
+                    {% include 'matrimony/_detail_row.html' with label="பிறந்த ஊர்" value=candidate.birth_place %}
+                    {% include 'matrimony/_detail_row.html' with label="பூர்வீகம்" value=candidate.native_place %}
                     {% include 'matrimony/_detail_row.html' with label="ஜாதகம்" value=candidate.jathagam %}
                 </div>
             </div>
@@ -122,27 +133,10 @@
             <div class="card-header"><i class="fas fa-star me-2"></i>ஜாதக சக்கரம்</div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         {% include 'matrimony/_jathagam_chart.html' with form_mode=False %}
                     </div>
-                    <div class="col-md-6">
-                        <table class="table table-sm">
-                            <tbody>
-                                <tr><td class="text-muted small">வீடு 1 (லக்னம்)</td><td class="fw-bold">{{ candidate.jathagam_h1|default:"-" }}</td></tr>
-                                <tr><td class="text-muted small">வீடு 2</td><td class="fw-bold">{{ candidate.jathagam_h2|default:"-" }}</td></tr>
-                                <tr><td class="text-muted small">வீடு 3</td><td class="fw-bold">{{ candidate.jathagam_h3|default:"-" }}</td></tr>
-                                <tr><td class="text-muted small">வீடு 4</td><td class="fw-bold">{{ candidate.jathagam_h4|default:"-" }}</td></tr>
-                                <tr><td class="text-muted small">வீடு 5</td><td class="fw-bold">{{ candidate.jathagam_h5|default:"-" }}</td></tr>
-                                <tr><td class="text-muted small">வீடு 6</td><td class="fw-bold">{{ candidate.jathagam_h6|default:"-" }}</td></tr>
-                                <tr><td class="text-muted small">வீடு 7</td><td class="fw-bold">{{ candidate.jathagam_h7|default:"-" }}</td></tr>
-                                <tr><td class="text-muted small">வீடு 8</td><td class="fw-bold">{{ candidate.jathagam_h8|default:"-" }}</td></tr>
-                                <tr><td class="text-muted small">வீடு 9</td><td class="fw-bold">{{ candidate.jathagam_h9|default:"-" }}</td></tr>
-                                <tr><td class="text-muted small">வீடு 10</td><td class="fw-bold">{{ candidate.jathagam_h10|default:"-" }}</td></tr>
-                                <tr><td class="text-muted small">வீடு 11</td><td class="fw-bold">{{ candidate.jathagam_h11|default:"-" }}</td></tr>
-                                <tr><td class="text-muted small">வீடு 12</td><td class="fw-bold">{{ candidate.jathagam_h12|default:"-" }}</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+
                 </div>
             </div>
         </div>

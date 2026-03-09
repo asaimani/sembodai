@@ -12,5 +12,6 @@ urlpatterns = [
     path('candidates/<str:gender>/<int:pk>/print/', views.candidate_print, name='candidate_print'),
     path('shadow/', views.shadow_list, name='shadow_list'),
     path('api/nachathirams/', views.get_nachathirams, name='get_nachathirams'),
+    path('api/sub_castes/', views.get_sub_castes, name='get_sub_castes'),
     path('photos/<int:photo_id>/delete/', views.delete_photo, name='delete_photo'),
 ]

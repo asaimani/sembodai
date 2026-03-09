@@ -50,7 +50,7 @@
                         <tbody>
                         {% for c in new_entries %}
                         <tr>
-                            <td><a href="{% url 'candidate_detail' c.pk %}" class="text-decoration-none fw-bold text-danger">{{ c.uid }}</a></td>
+                            <td><a href="{% url 'candidate_detail' c.gender c.pk %}" class="text-decoration-none fw-bold text-danger">{{ c.uid }}</a></td>
                             <td>{{ c.name }}</td>
                             <td>
                                 {% if c.gender == 'M' %}
@@ -89,10 +89,10 @@
                         <tbody>
                         {% for c in expired_entries %}
                         <tr class="table-danger">
-                            <td><a href="{% url 'candidate_detail' c.pk %}" class="text-decoration-none fw-bold text-danger">{{ c.uid }}</a></td>
+                            <td><a href="{% url 'candidate_detail' c.gender c.pk %}" class="text-decoration-none fw-bold text-danger">{{ c.uid }}</a></td>
                             <td>{{ c.name }}</td>
                             <td>{{ c.premium_end_date|date:"d/m/Y" }}</td>
-                            <td><a href="{% url 'candidate_edit' c.pk %}" class="btn btn-sm btn-outline-danger">புதுப்பி</a></td>
+                            <td><a href="{% url 'candidate_edit' c.gender c.pk %}" class="btn btn-sm btn-outline-danger">புதுப்பி</a></td>
                         </tr>
                         {% endfor %}
                         </tbody>

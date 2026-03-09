@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 from matrimony.models import (Rasi, Nachathiram, Profession, JathagamType,
-                               Planet, Sevadosham, CandidateStatus, State, District)
+                               Planet, Sevadosham, CandidateStatus, State, District,
+                               TamilYear, TamilMonth, TamilDay, OwnHouse, BirthOrder,
+                               Complexion, Caste, SubCaste, Height)
 
 class Command(BaseCommand):
     help = 'Load initial lookup data'
@@ -116,5 +118,76 @@ class Command(BaseCommand):
             state, _ = State.objects.get_or_create(name=state_name)
             for d in districts:
                 District.objects.get_or_create(name=d, defaults={'state': state})
+
+
+        # ── Tamil Years (60 year cycle) ──
+        tamil_years = [
+            'பிரபவ','விபவ','சுக்ல','பிரமோதூத','பிரஜோத்பத்தி','ஆங்கீரஸ','ஸ்ரீமுக','பவ',
+            'யுவ','தாது','ஈஸ்வர','வெகுதான்ய','பிரமாதி','விக்கிரம','விஷு','சித்திரபானு',
+            'சுபானு','தாரண','பார்த்திப','வியய','சர்வஜித்','சர்வதாரி','விரோதி','விக்ருதி',
+            'கர','நந்தன','விஜய','ஜய','மன்மத','துர்முகி','ஹேவிளம்பி','விளம்பி',
+            'விகாரி','சார்வரி','பிலவ','சுபகிருது','சோபகிருது','குரோதி','விஸ்வாவசு','பராபவ',
+            'பிலவங்க','கீலக','சௌம்ய','சாதாரண','விரோதகிருது','பரிதாபி','பிரமாதீச','ஆனந்த',
+            'ராட்சஸ','நள','பிங்கள','காளயுக்தி','சித்தார்த்தி','ரௌத்திரி','துர்மதி','துந்துபி',
+            'ருத்ரோத்காரி','ரக்தாட்சி','குரோதன','அட்சய'
+        ]
+        for i, y in enumerate(tamil_years, 1):
+            TamilYear.objects.get_or_create(name=y, defaults={'order': i})
+
+        # ── Tamil Months ──
+        tamil_months = [
+            'சித்திரை','வைகாசி','ஆனி','ஆடி','ஆவணி','புரட்டாசி',
+            'ஐப்பசி','கார்த்திகை','மார்கழி','தை','மாசி','பங்குனி'
+        ]
+        for i, m in enumerate(tamil_months, 1):
+            TamilMonth.objects.get_or_create(name=m, defaults={'order': i})
+
+        # ── Tamil Days (days of week) ──
+        tamil_days = [
+            (1, 'ஞாயிற்றுக்கிழமை'),
+            (2, 'திங்கட்கிழமை'),
+            (3, 'செவ்வாய்க்கிழமை'),
+            (4, 'புதன்கிழமை'),
+            (5, 'வியாழக்கிழமை'),
+            (6, 'வெள்ளிக்கிழமை'),
+            (7, 'சனிக்கிழமை'),
+        ]
+        for order, name in tamil_days:
+            TamilDay.objects.get_or_create(name=name, defaults={'order': order})
+
+        # ── Own House ──
+        for order, code, name in [
+            (1, 'yes', 'உண்டு'),
+            (2, 'no',  'இல்லை'),
+        ]:
+            OwnHouse.objects.get_or_create(code=code, defaults={'name': name, 'order': order})
+
+
+        # ── Birth Order 1-10 ──
+        for i in range(1, 11):
+            BirthOrder.objects.get_or_create(name=str(i), defaults={'order': i})
+
+
+        # ── Complexion ──
+        for i, name in enumerate(['மாநிறம்','கோதுமை நிறம்','வெண்மை நிறம்','கருப்பு நிறம்','சிவப்பு நிறம்'], 1):
+            Complexion.objects.get_or_create(name=name, defaults={'order': i})
+
+        # ── Height 4.1 to 7.0 ──
+        heights = []
+        for feet in range(4, 8):
+            max_inch = 12 if feet < 7 else 1
+            for inch in range(0, max_inch):
+                heights.append(f"{feet}.{inch:02d}")
+        for i, h in enumerate(heights, 1):
+            Height.objects.get_or_create(name=h, defaults={'order': i})
+
+        # ── Caste & SubCaste ──
+        caste_data = {
+            'வன்னியர்': ['படையாட்சி','கவுண்டர்','வன்னியர்','பல்லி வன்னியர்','நல்லி வன்னியர்','பாடி வன்னியர்']
+        }
+        for caste_name, sub_castes in caste_data.items():
+            caste, _ = Caste.objects.get_or_create(name=caste_name)
+            for i, sc in enumerate(sub_castes, 1):
+                SubCaste.objects.get_or_create(name=sc, caste=caste, defaults={'order': i})
 
         self.stdout.write(self.style.SUCCESS('✅ All lookup data loaded successfully!'))

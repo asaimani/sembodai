@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import (State, District, Rasi, Nachathiram, Profession,
                      JathagamType, Planet, Sevadosham, CandidateStatus,
+                     TamilYear, TamilMonth, TamilDay, OwnHouse, BirthOrder,
+                     Complexion, Caste, SubCaste, Height,
                      MaleCandidate, FemaleCandidate, CandidatePhoto,
                      AdminProfile, ShadowCandidate)
 
@@ -59,6 +61,43 @@ class FemaleCandidateAdmin(admin.ModelAdmin):
 @admin.register(CandidatePhoto)
 class CandidatePhotoAdmin(admin.ModelAdmin):
     list_display = ['id', 'male_candidate', 'female_candidate', 'is_primary']
+
+@admin.register(Complexion)
+class ComplexionAdmin(admin.ModelAdmin):
+    list_display = ['order', 'name']
+
+@admin.register(Height)
+class HeightAdmin(admin.ModelAdmin):
+    list_display = ['order', 'name']
+
+@admin.register(Caste)
+class CasteAdmin(admin.ModelAdmin):
+    list_display = ['order', 'name']
+
+@admin.register(SubCaste)
+class SubCasteAdmin(admin.ModelAdmin):
+    list_display = ['caste', 'name']
+    list_filter = ['caste']
+
+@admin.register(BirthOrder)
+class BirthOrderAdmin(admin.ModelAdmin):
+    list_display = ['order', 'name']
+
+@admin.register(TamilYear)
+class TamilYearAdmin(admin.ModelAdmin):
+    list_display = ['order', 'name']
+
+@admin.register(TamilMonth)
+class TamilMonthAdmin(admin.ModelAdmin):
+    list_display = ['order', 'name']
+
+@admin.register(TamilDay)
+class TamilDayAdmin(admin.ModelAdmin):
+    list_display = ['order', 'name']
+
+@admin.register(OwnHouse)
+class OwnHouseAdmin(admin.ModelAdmin):
+    list_display = ['code', 'name']
 
 admin.site.register(AdminProfile)
 admin.site.register(ShadowCandidate)

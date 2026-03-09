@@ -1,4 +1,5 @@
 from django import template
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -36,4 +37,18 @@ def planet_select(name, candidate, planets):
     for p in planets:
         selected = 'selected' if p.pk == current_id else ''
         options += f'<option value="{p.pk}" {selected}>{p.code}</option>'
-    return f'<select name="{name}" class="jathagam-select">{options}</select>'
+    return mark_safe(f'<select name="{name}" class="jathagam-select">{options}</select>')
+
+@register.filter
+def format_12hr(time_val):
+    """Convert time to 12hr AM/PM format"""
+    if not time_val:
+        return ''
+    try:
+        hour = time_val.hour
+        minute = time_val.minute
+        am_pm = 'AM' if hour < 12 else 'PM'
+        hour12 = hour % 12 or 12
+        return f"{hour12:02d}:{minute:02d} {am_pm}"
+    except Exception:
+        return str(time_val)

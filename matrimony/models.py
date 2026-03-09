@@ -62,6 +62,63 @@ class CandidateStatus(models.Model):
     class Meta: verbose_name = "நிலை"; ordering = ['order']
 
 
+
+class TamilYear(models.Model):
+    name  = models.CharField(max_length=50, verbose_name="தமிழ் வருடம்")
+    order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "தமிழ் வருடம்"; ordering = ['order']
+
+class TamilMonth(models.Model):
+    name  = models.CharField(max_length=50, verbose_name="தமிழ் மாதம்")
+    order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "தமிழ் மாதம்"; ordering = ['order']
+
+class TamilDay(models.Model):
+    name  = models.CharField(max_length=50, verbose_name="தமிழ் தேதி")
+    order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "தமிழ் தேதி"; ordering = ['order']
+
+class OwnHouse(models.Model):
+    code  = models.CharField(max_length=10, unique=True, verbose_name="குறியீடு")
+    name  = models.CharField(max_length=50, verbose_name="பெயர்")
+    order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "சொந்த வீடு"; ordering = ['order']
+
+class BirthOrder(models.Model):
+    name  = models.CharField(max_length=10, verbose_name="பிறப்பு வரிசை")
+    order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "பிறப்பு வரிசை"; ordering = ['order']
+
+class Complexion(models.Model):
+    name  = models.CharField(max_length=50, verbose_name="நிறம்")
+    order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "நிறம்"; ordering = ['order']
+
+class Caste(models.Model):
+    name  = models.CharField(max_length=100, verbose_name="சாதி")
+    order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "சாதி"; ordering = ['order']
+
+class SubCaste(models.Model):
+    caste = models.ForeignKey(Caste, on_delete=models.CASCADE, related_name='sub_castes', verbose_name="சாதி")
+    name  = models.CharField(max_length=100, verbose_name="உட்சாதி")
+    order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "உட்சாதி"; ordering = ['order', 'name']
+
+class Height(models.Model):
+    name  = models.CharField(max_length=20, verbose_name="உயரம்")
+    order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "உயரம்"; ordering = ['order']
+
 class AdminProfile(models.Model):
     user     = models.OneToOneField(User, on_delete=models.CASCADE)
     location = models.CharField(max_length=200, verbose_name="இருப்பிடம்")
@@ -78,22 +135,24 @@ class BaseCandidateModel(models.Model):
     uid                      = models.CharField(max_length=20, unique=True, editable=False)
     name                     = models.CharField(max_length=200, verbose_name="பெயர்")
     date_of_birth            = models.DateField(verbose_name="பிறந்த தேதி")
-    rasi                     = models.ForeignKey(Rasi, on_delete=models.SET_NULL, null=True, verbose_name="ராசி")
-    nachathiram              = models.ForeignKey(Nachathiram, on_delete=models.SET_NULL, null=True, verbose_name="நட்சத்திரம்")
-    profession               = models.ForeignKey(Profession, on_delete=models.SET_NULL, null=True, verbose_name="தொழில்")
+    birth_time               = models.TimeField(null=True, blank=True, verbose_name="பிறந்த நேரம்")
+    rasi                     = models.ForeignKey(Rasi, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="ராசி")
+    nachathiram              = models.ForeignKey(Nachathiram, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="நட்சத்திரம்")
+    profession               = models.ForeignKey(Profession, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="தொழில்")
     profession_comments      = models.TextField(blank=True, verbose_name="தொழில் விவரம்")
-    educational_qualification= models.CharField(max_length=200, verbose_name="கல்வித் தகுதி")
+    educational_qualification= models.CharField(max_length=200, blank=True, verbose_name="கல்வித் தகுதி")
     annual_income            = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name="வருடாந்திர வருமானம்")
     monthly_salary           = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="மாத சம்பளம்")
-    height                   = models.CharField(max_length=20, verbose_name="உயரம்")
-    caste                    = models.CharField(max_length=100, verbose_name="சாதி")
-    sub_caste                = models.CharField(max_length=100, blank=True, verbose_name="உட்சாதி")
+    height                   = models.ForeignKey('Height', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="உயரம்")
+    caste                    = models.ForeignKey('Caste', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="சாதி")
+    sub_caste                = models.ForeignKey('SubCaste', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="உட்சாதி")
+    complexion               = models.ForeignKey('Complexion', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="நிறம்")
     sevadosham               = models.ForeignKey(Sevadosham, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="செவ்வாய் தோஷம்")
     ragu_kethu               = models.CharField(max_length=50, blank=True, verbose_name="ராகு/கேது")
     property_value           = models.CharField(max_length=200, blank=True, verbose_name="சொத்து மதிப்பு")
     jathagam_type            = models.ForeignKey(JathagamType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="ஜாதகம் வகை")
-    state                    = models.ForeignKey(State, on_delete=models.SET_NULL, null=True, verbose_name="மாநிலம்")
-    district                 = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, verbose_name="மாவட்டம்")
+    state                    = models.ForeignKey(State, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="மாநிலம்")
+    district                 = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="மாவட்டம்")
     status                   = models.ForeignKey(CandidateStatus, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="நிலை")
     premium_start_date       = models.DateField(null=True, blank=True, verbose_name="பிரீமியம் தொடக்க தேதி")
     premium_end_date         = models.DateField(null=True, blank=True, verbose_name="பிரீமியம் முடிவு தேதி")
@@ -137,6 +196,16 @@ class BaseCandidateModel(models.Model):
     mother_name       = models.CharField(max_length=200, blank=True, verbose_name="தாய் பெயர்")
     mother_profession = models.ForeignKey(Profession, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="தாய் தொழில்")
     siblings_info     = models.TextField(blank=True, verbose_name="உடன்பிறந்தோர் விவரம்")
+
+    # Tamil calendar & property
+    tamil_year  = models.ForeignKey('TamilYear',  on_delete=models.SET_NULL, null=True, blank=True, verbose_name="தமிழ் வருடம்")
+    tamil_month = models.ForeignKey('TamilMonth', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="தமிழ் மாதம்")
+    tamil_day   = models.ForeignKey('TamilDay',   on_delete=models.SET_NULL, null=True, blank=True, verbose_name="தமிழ் தேதி")
+    own_house    = models.ForeignKey('OwnHouse',   on_delete=models.SET_NULL, null=True, blank=True, verbose_name="சொந்த வீடு")
+    birth_order  = models.ForeignKey('BirthOrder', on_delete=models.SET_NULL, null=True, blank=False, verbose_name="பிறப்பு வரிசை")
+    thisai_iruppu= models.CharField(max_length=100, blank=True, verbose_name="திசை இருப்பு")
+    birth_place  = models.CharField(max_length=200, blank=True, verbose_name="பிறந்த ஊர்")
+    native_place = models.CharField(max_length=200, blank=True, verbose_name="பூர்வீகம்")
 
     @property
     def age(self):

@@ -1,7 +1,9 @@
 from django import forms
 from .models import (MaleCandidate, FemaleCandidate, Rasi, Nachathiram,
                      Profession, JathagamType, Planet, Sevadosham,
-                     CandidateStatus, State, District)
+                     CandidateStatus, State, District,
+                     TamilYear, TamilMonth, TamilDay, OwnHouse, BirthOrder,
+                     Complexion, Caste, SubCaste, Height)
 
 COMMON_EXCLUDE = ['uid', 'created_by', 'created_at', 'updated_at', 'is_new', 'is_paid',
                   'rasi_h1','rasi_h2','rasi_h3','rasi_h4','rasi_h5','rasi_h6',
@@ -33,6 +35,19 @@ COMMON_WIDGETS = {
     'mother_name':               forms.TextInput(attrs={'class': 'form-control'}),
     'mother_profession':         forms.Select(attrs={'class': 'form-select'}),
     'siblings_info':             forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+    'tamil_year':                forms.Select(attrs={'class': 'form-select'}),
+    'tamil_month':               forms.Select(attrs={'class': 'form-select'}),
+    'tamil_day':                 forms.Select(attrs={'class': 'form-select'}),
+    'own_house':                 forms.Select(attrs={'class': 'form-select'}),
+    'birth_time':                forms.TimeInput(attrs={'class': 'form-control', 'placeholder': '10:45 AM', 'type': 'time'}),
+    'complexion':                forms.Select(attrs={'class': 'form-select'}),
+    'height':                    forms.Select(attrs={'class': 'form-select'}),
+    'caste':                     forms.Select(attrs={'class': 'form-select', 'id': 'id_caste'}),
+    'sub_caste':                 forms.Select(attrs={'class': 'form-select', 'id': 'id_sub_caste'}),
+    'birth_order':               forms.Select(attrs={'class': 'form-select'}),
+    'thisai_iruppu':             forms.TextInput(attrs={'class': 'form-control'}),
+    'birth_place':               forms.TextInput(attrs={'class': 'form-control'}),
+    'native_place':              forms.TextInput(attrs={'class': 'form-control'}),
 }
 
 
@@ -51,11 +66,24 @@ class BaseCandidateForm(forms.ModelForm):
     )
 
 
+def _get_active_status():
+    from .models import CandidateStatus
+    try:
+        return CandidateStatus.objects.get(code='active')
+    except Exception:
+        return None
+
+
 class MaleCandidateForm(BaseCandidateForm):
     class Meta:
         model = MaleCandidate
         exclude = COMMON_EXCLUDE
         widgets = COMMON_WIDGETS
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not kwargs.get('instance'):
+            self.fields['status'].initial = _get_active_status()
 
 
 class FemaleCandidateForm(BaseCandidateForm):
@@ -63,3 +91,8 @@ class FemaleCandidateForm(BaseCandidateForm):
         model = FemaleCandidate
         exclude = COMMON_EXCLUDE
         widgets = COMMON_WIDGETS
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not kwargs.get('instance'):
+            self.fields['status'].initial = _get_active_status()

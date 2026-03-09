@@ -4,6 +4,13 @@
 
 {% block content %}
 <form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="_gender" value="{{ gender }}">
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <strong>சேமிக்க முடியவில்லை — பிழைகள்:</strong>
+        {{ form.errors }}
+    </div>
+    {% endif %}
 {% csrf_token %}
 
 <!-- Payment Option -->
@@ -29,9 +36,10 @@
 <div class="form-section">
     <div class="form-section-title"><i class="fas fa-user me-2"></i>அடிப்படை விவரங்கள்</div>
     <div class="row g-3">
-        <div class="col-md-6">
-            <label class="form-label">பாலினம் *</label>
-            {{ form.gender }}
+        <div class="col-md-12">
+            <div class="alert {% if gender == 'M' %}alert-primary{% else %}alert-danger{% endif %} py-2 mb-0">
+                <strong>{% if gender == 'M' %}🧔 ஆண் விண்ணப்பம்{% else %}👩 பெண் விண்ணப்பம்{% endif %}</strong>
+            </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">பெயர் *</label>
@@ -40,6 +48,11 @@
         <div class="col-md-4">
             <label class="form-label">பிறந்த தேதி *</label>
             {{ form.date_of_birth }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">பிறந்த நேரம்</label>
+            {{ form.birth_time }}
+            <small class="text-muted">eg. 10:45 AM</small>
         </div>
         <div class="col-md-4">
             <label class="form-label">உயரம்</label>
@@ -52,6 +65,10 @@
         <div class="col-md-4">
             <label class="form-label">உட்சாதி</label>
             {{ form.sub_caste }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">நிறம்</label>
+            {{ form.complexion }}
         </div>
         <div class="col-md-4">
             <label class="form-label">மாநிலம்</label>
@@ -83,6 +100,34 @@
         <div class="col-md-3">
             <label class="form-label">ராகு/கேது</label>
             {{ form.ragu_kethu }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">பிறந்த ஊர் *</label>
+            {{ form.birth_place }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">பூர்வீகம் *</label>
+            {{ form.native_place }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">தமிழ் வருடம்</label>
+            {{ form.tamil_year }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">தமிழ் மாதம்</label>
+            {{ form.tamil_month }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">தமிழ் தேதி</label>
+            {{ form.tamil_day }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">பிறப்பு வரிசை *</label>
+            {{ form.birth_order }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">திசை இருப்பு *</label>
+            {{ form.thisai_iruppu }}
         </div>
     </div>
 </div>
@@ -125,6 +170,10 @@
         <div class="col-md-4">
             <label class="form-label">சொத்து மதிப்பு</label>
             {{ form.property_value }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">சொந்த வீடு</label>
+            {{ form.own_house }}
         </div>
     </div>
 </div>
@@ -189,10 +238,9 @@
                 {% for photo in candidate.photos.all %}
                 <div style="position:relative;display:inline-block;margin:4px">
                     <img src="{{ photo.photo.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0">
-                    <form method="post" action="{% url 'delete_photo' photo.id %}" style="display:inline" onsubmit="return confirm('இந்த புகைப்படத்தை நீக்கவா?')">
-                        {% csrf_token %}
-                        <button type="submit" style="position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1">✕</button>
-                    </form>
+                    <a href="{% url 'delete_photo' photo.id %}" 
+                       onclick="return confirm('இந்த புகைப்படத்தை நீக்கவா?')"
+                       style="position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1;text-decoration:none;display:flex;align-items:center;justify-content:center;">✕</a>
                 </div>
                 {% endfor %}
             </div>
@@ -209,6 +257,41 @@
         <i class="fas fa-save me-1"></i>சேமி
     </button>
 </div>
+
+<script>
+// Dynamic sub_caste based on caste
+document.addEventListener('DOMContentLoaded', function() {
+    const casteSelect = document.getElementById('id_caste');
+    const subCasteSelect = document.getElementById('id_sub_caste');
+
+    function loadSubCastes(casteId, selectedId) {
+        subCasteSelect.innerHTML = '<option value="">---------</option>';
+        if (!casteId) return;
+        fetch(`/api/sub_castes/?caste_id=${casteId}`)
+            .then(r => r.json())
+            .then(data => {
+                data.forEach(sc => {
+                    const opt = document.createElement('option');
+                    opt.value = sc.id;
+                    opt.text = sc.name;
+                    if (selectedId && sc.id == selectedId) opt.selected = true;
+                    subCasteSelect.appendChild(opt);
+                });
+            });
+    }
+
+    if (casteSelect) {
+        casteSelect.addEventListener('change', function() {
+            loadSubCastes(this.value, null);
+        });
+        // On edit — load existing sub_castes
+        const currentSubCaste = subCasteSelect.value;
+        if (casteSelect.value) {
+            loadSubCastes(casteSelect.value, currentSubCaste);
+        }
+    }
+});
+</script>
 </form>
 {% endblock %}
 
