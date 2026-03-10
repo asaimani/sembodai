@@ -178,32 +178,105 @@
     </div>
 </div>
 
-<!-- Family -->
+
+
+<!-- Family Members -->
 <div class="form-section">
-    <div class="form-section-title"><i class="fas fa-home me-2"></i>குடும்ப விவரங்கள்</div>
-    <div class="row g-3">
-        <div class="col-md-6">
-            <label class="form-label">தந்தை பெயர்</label>
-            {{ form.father_name }}
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">தந்தை தொழில்</label>
-            {{ form.father_profession }}
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">தாய் பெயர்</label>
-            {{ form.mother_name }}
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">தாய் தொழில்</label>
-            {{ form.mother_profession }}
-        </div>
-        <div class="col-12">
-            <label class="form-label">உடன்பிறந்தோர் விவரம்</label>
-            {{ form.siblings_info }}
-        </div>
+    <div class="form-section-title d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-users me-2"></i>குடும்பத்தினர் விவரம்</span>
+        <button type="button" class="btn btn-sm btn-success" id="add-family-row" onclick="addFamilyRow()">
+            <i class="fas fa-plus me-1"></i>சேர்
+        </button>
     </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-sm" id="family-table">
+            <thead style="background:#8b1a1a;color:white">
+                <tr>
+                    <th style="width:5%">#</th>
+                    <th>பெயர்</th>
+                    <th>படிப்பு</th>
+                    <th>உறவு</th>
+                    <th>திருமணம்</th>
+                    <th>பணி விவரம்</th>
+                    <th style="width:5%"></th>
+                </tr>
+            </thead>
+            <tbody id="family-tbody">
+                {% for fm in family_members %}
+                <tr class="family-row">
+                    <td class="row-num text-center fw-bold text-muted"></td>
+                    <td><input type="text" name="family_name_{{ forloop.counter }}" class="form-control form-control-sm" value="{{ fm.name }}" placeholder="பெயர்"></td>
+                    <td><input type="text" name="family_education_{{ forloop.counter }}" class="form-control form-control-sm" value="{{ fm.education }}" placeholder="படிப்பு"></td>
+                    <td>
+                        <select name="family_relation_{{ forloop.counter }}" class="form-select form-select-sm">
+                            <option value="">-</option>
+                            {% for r in relations %}
+                            <option value="{{ r.id }}" {% if fm.relation_id == r.id %}selected{% endif %}>{{ r.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select name="family_marital_{{ forloop.counter }}" class="form-select form-select-sm">
+                            <option value="">-</option>
+                            {% for m in marital_statuses %}
+                            <option value="{{ m.id }}" {% if fm.marital_status_id == m.id %}selected{% endif %}>{{ m.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td><input type="text" name="family_job_{{ forloop.counter }}" class="form-control form-control-sm" value="{{ fm.job_info }}" placeholder="பணி விவரம்"></td>
+                    <td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="removeFamilyRow(this)"><i class="fas fa-times"></i></button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <small class="text-muted">அதிகபட்சம் 5 நபர்கள் சேர்க்கலாம்</small>
 </div>
+
+<script>
+var relationOptions = `{% for r in relations %}<option value="{{ r.id }}">{{ r.name }}</option>{% endfor %}`;
+var maritalOptions  = `{% for m in marital_statuses %}<option value="{{ m.id }}">{{ m.name }}</option>{% endfor %}`;
+var familyCount = {{ family_members|length }};
+
+function updateRowNumbers() {
+    document.querySelectorAll('#family-tbody .family-row').forEach(function(row, i) {
+        row.querySelector('.row-num').textContent = i + 1;
+        // Update name attributes with correct index
+        var idx = i + 1;
+        row.querySelectorAll('input, select').forEach(function(el) {
+            el.name = el.name.replace(/_\d+$/, '_' + idx);
+        });
+    });
+}
+
+function addFamilyRow() {
+    var tbody = document.getElementById('family-tbody');
+    var count = tbody.querySelectorAll('.family-row').length;
+    if (count >= 5) { alert('அதிகபட்சம் 5 நபர்கள் மட்டுமே சேர்க்கலாம்!'); return; }
+    var idx = count + 1;
+    var row = document.createElement('tr');
+    row.className = 'family-row';
+    row.innerHTML = `
+        <td class="row-num text-center fw-bold text-muted">${idx}</td>
+        <td><input type="text" name="family_name_${idx}" class="form-control form-control-sm" placeholder="பெயர்"></td>
+        <td><input type="text" name="family_education_${idx}" class="form-control form-control-sm" placeholder="படிப்பு"></td>
+        <td><select name="family_relation_${idx}" class="form-select form-select-sm"><option value="">-</option>${relationOptions}</select></td>
+        <td><select name="family_marital_${idx}" class="form-select form-select-sm"><option value="">-</option>${maritalOptions}</select></td>
+        <td><input type="text" name="family_job_${idx}" class="form-control form-control-sm" placeholder="பணி விவரம்"></td>
+        <td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="removeFamilyRow(this)"><i class="fas fa-times"></i></button></td>
+    `;
+    tbody.appendChild(row);
+    updateRowNumbers();
+}
+
+function removeFamilyRow(btn) {
+    btn.closest('tr').remove();
+    updateRowNumbers();
+}
+
+// Number existing rows on load
+document.addEventListener('DOMContentLoaded', updateRowNumbers);
+</script>
 
 <!-- Premium & Status -->
 <div class="form-section">

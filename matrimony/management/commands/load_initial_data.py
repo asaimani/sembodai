@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from matrimony.models import (Rasi, Nachathiram, Profession, JathagamType,
                                Planet, Sevadosham, CandidateStatus, State, District,
                                TamilYear, TamilMonth, TamilDay, OwnHouse, BirthOrder,
-                               Complexion, Caste, SubCaste, Height)
+                               Complexion, Caste, SubCaste, Height, Relation, MaritalStatus)
 
 class Command(BaseCommand):
     help = 'Load initial lookup data'
@@ -189,5 +189,18 @@ class Command(BaseCommand):
             caste, _ = Caste.objects.get_or_create(name=caste_name)
             for i, sc in enumerate(sub_castes, 1):
                 SubCaste.objects.get_or_create(name=sc, caste=caste, defaults={'order': i})
+
+
+        # ── Relation (உறவு) ──
+        relations = [
+            (1, 'தந்தை'), (2, 'தாய்'), (3, 'அண்ணன்'), (4, 'தம்பி'),
+            (5, 'அக்கா'), (6, 'தங்கை'), (7, 'பிற'),
+        ]
+        for order, name in relations:
+            Relation.objects.get_or_create(name=name, defaults={'order': order})
+
+        # ── Marital Status (திருமண நிலை) ──
+        for order, name in [(1, 'திருமணமானவர்'), (2, 'திருமணமாகாதவர்'), (3, 'விதவை/விதுரர்'), (4, 'விவாகரத்து')]:
+            MaritalStatus.objects.get_or_create(name=name, defaults={'order': order})
 
         self.stdout.write(self.style.SUCCESS('✅ All lookup data loaded successfully!'))

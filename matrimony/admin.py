@@ -2,8 +2,8 @@ from django.contrib import admin
 from .models import (State, District, Rasi, Nachathiram, Profession,
                      JathagamType, Planet, Sevadosham, CandidateStatus,
                      TamilYear, TamilMonth, TamilDay, OwnHouse, BirthOrder,
-                     Complexion, Caste, SubCaste, Height,
-                     MaleCandidate, FemaleCandidate, CandidatePhoto,
+                     Complexion, Caste, SubCaste, Height, Relation, MaritalStatus,
+                     FamilyMember, MaleCandidate, FemaleCandidate, CandidatePhoto,
                      AdminProfile, ShadowCandidate)
 
 @admin.register(Planet)
@@ -101,3 +101,16 @@ class OwnHouseAdmin(admin.ModelAdmin):
 
 admin.site.register(AdminProfile)
 admin.site.register(ShadowCandidate)
+
+
+@admin.register(Relation)
+class RelationAdmin(admin.ModelAdmin):
+    list_display = ['order', 'name']
+
+@admin.register(MaritalStatus)
+class MaritalStatusAdmin(admin.ModelAdmin):
+    list_display = ['order', 'name']
+
+@admin.register(FamilyMember)
+class FamilyMemberAdmin(admin.ModelAdmin):
+    list_display = ['candidate_gender', 'candidate_id', 'name', 'relation', 'marital_status', 'job_info']

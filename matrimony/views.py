@@ -129,7 +129,27 @@ def _save_photos(candidate, files, is_male):
             CandidatePhoto.objects.create(female_candidate=candidate, photo=photo, is_primary=(i == 0))
 
 
-@login_required
+def _save_family_members(candidate, post_data):
+    gender = 'M' if isinstance(candidate, MaleCandidate) else 'F'
+    # Delete existing and re-save
+    FamilyMember.objects.filter(candidate_gender=gender, candidate_id=candidate.pk).delete()
+    for i in range(1, 6):
+        name = post_data.get(f'family_name_{i}', '').strip()
+        if not name:
+            continue
+        relation_id = post_data.get(f'family_relation_{i}', '') or None
+        marital_id  = post_data.get(f'family_marital_{i}', '') or None
+        FamilyMember.objects.create(
+            candidate_gender = gender,
+            candidate_id     = candidate.pk,
+            name             = name,
+            education        = post_data.get(f'family_education_{i}', '').strip(),
+            relation_id      = relation_id,
+            marital_status_id= marital_id,
+            job_info         = post_data.get(f'family_job_{i}', '').strip(),
+            order            = i,
+        )
+
 def candidate_add(request):
     gender = request.GET.get('gender', 'M')
     is_male = gender == 'M'
@@ -167,17 +187,21 @@ def candidate_add(request):
                     candidate.status = active_status
             candidate.save()
             _save_jathagam(candidate, request.POST)
+            _save_family_members(candidate, request.POST)
             _save_photos(candidate, photos, is_male)
             messages.success(request, f'விண்ணப்பம் வெற்றிகரமாக சேர்க்கப்பட்டது. UID: {candidate.uid}')
             return redirect('candidate_detail', gender=gender, pk=candidate.pk)
     else:
         form = FormClass()
 
-    from .models import Planet
+    from .models import Planet, Relation, MaritalStatus
     return render(request, 'matrimony/candidate_form.html', {
         'form': form, 'gender': gender,
         'title': 'புதிய விண்ணப்பம்',
         'planets': Planet.objects.all(),
+        'relations': Relation.objects.all(),
+        'marital_statuses': MaritalStatus.objects.all(),
+        'family_members': [],
     })
 
 
@@ -190,7 +214,9 @@ def _get_candidate(gender, pk):
 @login_required
 def candidate_detail(request, gender, pk):
     candidate = _get_candidate(gender, pk)
-    return render(request, 'matrimony/candidate_detail.html', {'candidate': candidate, 'gender': gender})
+    gender_code = 'M' if gender == 'M' else 'F'
+    family_members = FamilyMember.objects.filter(candidate_gender=gender_code, candidate_id=candidate.pk)
+    return render(request, 'matrimony/candidate_detail.html', {'candidate': candidate, 'gender': gender, 'family_members': family_members})
 
 
 @login_required
@@ -221,16 +247,22 @@ def candidate_edit(request, gender, pk):
             existing_count = candidate.photos.count()
             _save_photos(candidate, photos[:max(0, 3 - existing_count)], is_male)
             _save_jathagam(saved, request.POST)
+            _save_family_members(saved, request.POST)
             messages.success(request, 'விண்ணப்பம் புதுப்பிக்கப்பட்டது.')
             return redirect('candidate_detail', gender=gender, pk=candidate.pk)
     else:
         form = FormClass(instance=candidate)
 
-    from .models import Planet
+    from .models import Planet, Relation, MaritalStatus
+    gender_code = 'M' if is_male else 'F'
+    family_members = list(FamilyMember.objects.filter(candidate_gender=gender_code, candidate_id=candidate.pk))
     return render(request, 'matrimony/candidate_form.html', {
         'form': form, 'candidate': candidate, 'gender': gender,
         'title': 'திருத்து',
         'planets': Planet.objects.all(),
+        'relations': Relation.objects.all(),
+        'marital_statuses': MaritalStatus.objects.all(),
+        'family_members': family_members,
     })
 
 
@@ -257,11 +289,14 @@ def candidate_print(request, gender, pk):
         except Exception:
             photo_base64 = None
 
+    gender_code = 'M' if gender == 'M' else 'F'
+    family_members = FamilyMember.objects.filter(candidate_gender=gender_code, candidate_id=candidate.pk)
     return render(request, 'matrimony/candidate_print.html', {
         'candidate': candidate,
         'admin_profile': admin_profile,
         'photo_base64': photo_base64,
         'gender': gender,
+        'family_members': family_members,
     })
 
 

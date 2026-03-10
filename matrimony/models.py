@@ -119,6 +119,19 @@ class Height(models.Model):
     def __str__(self): return self.name
     class Meta: verbose_name = "உயரம்"; ordering = ['order']
 
+
+class Relation(models.Model):
+    name  = models.CharField(max_length=50, verbose_name="உறவு")
+    order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "உறவு"; ordering = ['order']
+
+class MaritalStatus(models.Model):
+    name  = models.CharField(max_length=50, verbose_name="திருமண நிலை")
+    order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "திருமண நிலை"; ordering = ['order']
+
 class AdminProfile(models.Model):
     user     = models.OneToOneField(User, on_delete=models.CASCADE)
     location = models.CharField(max_length=200, verbose_name="இருப்பிடம்")
@@ -191,11 +204,6 @@ class BaseCandidateModel(models.Model):
     navamsam_h12 = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="நவாம்சம் வீடு 12")
 
     # Family
-    father_name       = models.CharField(max_length=200, blank=True, verbose_name="தந்தை பெயர்")
-    father_profession = models.ForeignKey(Profession, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="தந்தை தொழில்")
-    mother_name       = models.CharField(max_length=200, blank=True, verbose_name="தாய் பெயர்")
-    mother_profession = models.ForeignKey(Profession, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="தாய் தொழில்")
-    siblings_info     = models.TextField(blank=True, verbose_name="உடன்பிறந்தோர் விவரம்")
 
     # Tamil calendar & property
     tamil_year  = models.ForeignKey('TamilYear',  on_delete=models.SET_NULL, null=True, blank=True, verbose_name="தமிழ் வருடம்")
@@ -278,6 +286,25 @@ class CandidatePhoto(models.Model):
 
     class Meta: verbose_name = "புகைப்படம்"
 
+
+
+class FamilyMember(models.Model):
+    GENDER_CHOICES = [('M', 'ஆண்'), ('F', 'பெண்')]
+    candidate_gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    candidate_id     = models.PositiveIntegerField()
+    name             = models.CharField(max_length=200, verbose_name="பெயர்")
+    education        = models.CharField(max_length=200, blank=True, verbose_name="படிப்பு")
+    relation         = models.ForeignKey(Relation, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="உறவு")
+    marital_status   = models.ForeignKey(MaritalStatus, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="திருமணம்")
+    job_info         = models.CharField(max_length=200, blank=True, verbose_name="பணி விவரம்")
+    order            = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = "குடும்பத்தினர்"
+
+    def __str__(self):
+        return f"{self.name} ({self.relation})"
 
 class ShadowCandidate(models.Model):
     original_data = models.JSONField()
