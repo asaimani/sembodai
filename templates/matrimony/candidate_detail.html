@@ -60,7 +60,6 @@
                 <div class="row g-2">
                     {% include 'matrimony/_detail_row.html' with label="வயது" value=candidate.age %}
                     {% include 'matrimony/_detail_row.html' with label="பிறந்த தேதி" value=candidate.date_of_birth|date:"d/m/Y" %}
-                    {% if candidate.birth_time %}{% include 'matrimony/_detail_row.html' with label="பிறந்த நேரம்" value=candidate.birth_time|time:"h:i A" %}{% endif %}
                     {% if candidate.birth_place %}{% include 'matrimony/_detail_row.html' with label="பிறந்த ஊர்" value=candidate.birth_place %}{% endif %}
                     {% if candidate.native_place %}{% include 'matrimony/_detail_row.html' with label="பூர்வீகம்" value=candidate.native_place %}{% endif %}
                     {% if candidate.height %}{% include 'matrimony/_detail_row.html' with label="உயரம்" value=candidate.height %}{% endif %}
@@ -82,6 +81,7 @@
             <div class="card-header">ஜோதிட விவரங்கள்</div>
             <div class="card-body">
                 <div class="row g-2">
+                    {% if candidate.birth_time %}{% include 'matrimony/_detail_row.html' with label="பிறந்த நேரம்" value=candidate.birth_time|time:"h:i A" %}{% endif %}
                     {% if candidate.rasi %}{% include 'matrimony/_detail_row.html' with label="ராசி" value=candidate.rasi %}{% endif %}
                     {% if candidate.nachathiram %}{% include 'matrimony/_detail_row.html' with label="நட்சத்திரம்" value=candidate.nachathiram %}{% endif %}
                     {% if candidate.sevadosham %}{% include 'matrimony/_detail_row.html' with label="செவ்வாய் தோஷம்" value=candidate.sevadosham %}{% endif %}

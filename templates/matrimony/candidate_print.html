@@ -69,7 +69,6 @@
                 <tr><td>பெயர்</td><td>{{ candidate.name }}</td></tr>
                 <tr><td>வயது</td><td>{{ candidate.age }} வயது</td></tr>
                 <tr><td>பிறந்த தேதி</td><td>{{ candidate.date_of_birth|date:"d/m/Y" }}</td></tr>
-                {% if candidate.birth_time %}<tr><td>பிறந்த நேரம்</td><td>{{ candidate.birth_time|time:"h:i A" }}</td></tr>{% endif %}
                 {% if candidate.birth_place %}<tr><td>பிறந்த ஊர்</td><td>{{ candidate.birth_place }}</td></tr>{% endif %}
                 {% if candidate.native_place %}<tr><td>பூர்வீகம்</td><td>{{ candidate.native_place }}</td></tr>{% endif %}
                 {% if candidate.height %}<tr><td>உயரம்</td><td>{{ candidate.height }}</td></tr>{% endif %}
@@ -90,6 +89,7 @@
         <div class="section">
             <div class="section-title">ஜோதிட விவரங்கள்</div>
             <table class="info-table">
+                {% if candidate.birth_time %}<tr><td>பிறந்த நேரம்</td><td>{{ candidate.birth_time|time:"h:i A" }}</td></tr>{% endif %}
                 {% if candidate.rasi %}<tr><td>ராசி</td><td>{{ candidate.rasi }}</td></tr>{% endif %}
                 {% if candidate.nachathiram %}<tr><td>நட்சத்திரம்</td><td>{{ candidate.nachathiram }}</td></tr>{% endif %}
                 {% if candidate.sevadosham %}<tr><td>செவ்வாய் தோஷம்</td><td>{{ candidate.sevadosham }}</td></tr>{% endif %}
