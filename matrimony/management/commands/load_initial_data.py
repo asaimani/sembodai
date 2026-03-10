@@ -172,18 +172,18 @@ class Command(BaseCommand):
         for i, name in enumerate(['மாநிறம்','கோதுமை நிறம்','வெண்மை நிறம்','கருப்பு நிறம்','சிவப்பு நிறம்'], 1):
             Complexion.objects.get_or_create(name=name, defaults={'order': i})
 
-        # ── Height 4.1 to 7.0 ──
+        # ── Height 4.0 to 7.0 ──
         heights = []
         for feet in range(4, 8):
             max_inch = 12 if feet < 7 else 1
             for inch in range(0, max_inch):
-                heights.append(f"{feet}.{inch:02d}")
+                heights.append(f"{feet}.{inch}")
         for i, h in enumerate(heights, 1):
             Height.objects.get_or_create(name=h, defaults={'order': i})
 
         # ── Caste & SubCaste ──
         caste_data = {
-            'வன்னியர்': ['படையாட்சி','கவுண்டர்','வன்னியர்','பல்லி வன்னியர்','நல்லி வன்னியர்','பாடி வன்னியர்']
+            'வன்னியர்': ['படையாட்சி','கவுண்டர்','வன்னியர்','பல்லி வன்னியர்','நல்லி வன்னியர்','பாடி வன்னியர்'],
         }
         for caste_name, sub_castes in caste_data.items():
             caste, _ = Caste.objects.get_or_create(name=caste_name)
