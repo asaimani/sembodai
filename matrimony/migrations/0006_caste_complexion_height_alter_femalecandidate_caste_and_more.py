@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=50, verbose_name='நிறம்')),
                 ('order', models.PositiveIntegerField(default=0)),
-            ],
+            ], 
             options={
                 'verbose_name': 'நிறம்',
                 'ordering': ['order'],
