@@ -338,6 +338,8 @@ def candidate_delete(request, gender, pk):
         candidate = get_object_or_404(FemaleCandidate, pk=pk)
     if request.method == 'POST':
         import os
+        # Delete family members
+        FamilyMember.objects.filter(candidate_gender=gender, candidate_id=pk).delete()
         # Delete photo files from disk
         for photo in candidate.photos.all():
             if photo.photo and os.path.isfile(photo.photo.path):
