@@ -278,6 +278,81 @@ function removeFamilyRow(btn) {
 document.addEventListener('DOMContentLoaded', updateRowNumbers);
 </script>
 
+
+<!-- Address -->
+<div class="form-section">
+    <div class="form-section-title"><i class="fas fa-map-marker-alt me-2"></i>முகவரி விவரங்கள்</div>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">பெயர்</label>
+            <select name="address_name" class="form-select" id="id_address_name">
+                <option value="">---------</option>
+                {% if candidate %}
+                    <option value="{{ candidate.name }}" {% if form.instance.address_name == candidate.name %}selected{% endif %}>{{ candidate.name }}</option>
+                    {% for fm in family_members %}
+                    <option value="{{ fm.name }}" {% if form.instance.address_name == fm.name %}selected{% endif %}>{{ fm.name }}</option>
+                    {% endfor %}
+                {% endif %}
+                {% if form.instance.address_name and form.instance.address_name not in address_name_choices %}
+                    <option value="{{ form.instance.address_name }}" selected>{{ form.instance.address_name }}</option>
+                {% endif %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">கைபேசி எண்</label>
+            {{ form.mobile_number }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">வாட்ஸ்அப் எண்</label>
+            {{ form.whatsapp_number }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">முகவரி வரி 1</label>
+            {{ form.address_line1 }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">முகவரி வரி 2</label>
+            {{ form.address_line2 }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">முகவரி வரி 3</label>
+            {{ form.address_line3 }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">பின்கோட்</label>
+            {{ form.pincode }}
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-populate address name dropdown with family members added dynamically
+function updateAddressNameDropdown() {
+    const select = document.getElementById('id_address_name');
+    if (!select) return;
+    // Keep existing options, add new family member names
+    const familyRows = document.querySelectorAll('#family-tbody .family-row');
+    // Remove old dynamic options (data-dynamic)
+    select.querySelectorAll('option[data-dynamic]').forEach(o => o.remove());
+    familyRows.forEach(row => {
+        const nameInput = row.querySelector('input[name^="family_name_"]');
+        if (nameInput && nameInput.value.trim()) {
+            const opt = document.createElement('option');
+            opt.value = nameInput.value.trim();
+            opt.text = nameInput.value.trim();
+            opt.setAttribute('data-dynamic', '1');
+            select.appendChild(opt);
+        }
+    });
+}
+// Update on family name change
+document.addEventListener('input', function(e) {
+    if (e.target && e.target.name && e.target.name.startsWith('family_name_')) {
+        updateAddressNameDropdown();
+    }
+});
+</script>
+
 <!-- Premium & Status -->
 <div class="form-section">
     <div class="form-section-title"><i class="fas fa-crown me-2"></i>பிரீமியம் விவரம்</div>

@@ -79,10 +79,15 @@ class Command(BaseCommand):
             Planet.objects.get_or_create(code=code, defaults={'name': name, 'order': order})
 
         # ── Sevadosham ──
+        # Clear old entries first
+        Sevadosham.objects.filter(code__in=['yes','partial']).delete()
         for order, code, name in [
-            (1, 'yes',     'உண்டு'),
-            (2, 'no',      'இல்லை'),
-            (3, 'partial', 'பாதி'),
+            (1, 'house2',  '2-ல் செவ்வாய்'),
+            (2, 'house4',  '4-ல் செவ்வாய்'),
+            (3, 'house7',  '7-ல் செவ்வாய்'),
+            (4, 'house8',  '8-ல் செவ்வாய்'),
+            (5, 'house12', '12-ல் செவ்வாய்'),
+            (6, 'no',      'இல்லை'),
         ]:
             Sevadosham.objects.get_or_create(code=code, defaults={'name': name, 'order': order})
 

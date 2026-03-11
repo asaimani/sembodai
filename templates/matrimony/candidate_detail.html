@@ -153,6 +153,25 @@
     </div>
     {% endif %}
 
+
+    <!-- Address -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-map-marker-alt me-2"></i>முகவரி விவரங்கள்</div>
+            <div class="card-body">
+                <div class="row g-2">
+                    {% if candidate.address_name %}{% include 'matrimony/_detail_row.html' with label="பெயர்" value=candidate.address_name %}{% endif %}
+                    {% if candidate.mobile_number %}{% include 'matrimony/_detail_row.html' with label="கைபேசி எண்" value=candidate.mobile_number %}{% endif %}
+                    {% if candidate.whatsapp_number %}{% include 'matrimony/_detail_row.html' with label="வாட்ஸ்அப் எண்" value=candidate.whatsapp_number %}{% endif %}
+                    {% if candidate.address_line1 %}{% include 'matrimony/_detail_row.html' with label="முகவரி வரி 1" value=candidate.address_line1 %}{% endif %}
+                    {% if candidate.address_line2 %}{% include 'matrimony/_detail_row.html' with label="முகவரி வரி 2" value=candidate.address_line2 %}{% endif %}
+                    {% if candidate.address_line3 %}{% include 'matrimony/_detail_row.html' with label="முகவரி வரி 3" value=candidate.address_line3 %}{% endif %}
+                    {% if candidate.pincode %}{% include 'matrimony/_detail_row.html' with label="பின்கோட்" value=candidate.pincode %}{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Premium -->
     <div class="col-12">
         <div class="card">

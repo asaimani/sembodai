@@ -14,11 +14,6 @@
         .header .subtitle { color: #666; font-size: 11px; margin-top: 3px; }
         .header .admin-address { font-size: 10px; color: #333; margin-top: 5px; border-top: 1px solid #f0c0c0; padding-top: 5px; }
         .uid-banner { background: #8b1a1a; color: #fff; text-align: center; padding: 6px; font-size: 14px; font-weight: 700; margin-bottom: 12px; border-radius: 4px; }
-        .top-section { display: flex; gap: 12px; margin-bottom: 12px; }
-        .photo-box { width: 110px; flex-shrink: 0; text-align: center; }
-        .photo-box img { width: 100px; height: 120px; object-fit: cover; border: 2px solid #b91c1c; }
-        .photo-placeholder { width: 100px; height: 120px; border: 2px dashed #b91c1c; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #ccc; }
-        .info-grid { flex: 1; }
         .section-title { background: #8b1a1a; color: #fff; padding: 4px 10px; font-size: 11px; font-weight: 600; margin-bottom: 6px; }
         table.info-table { width: 100%; border-collapse: collapse; }
         table.info-table td { padding: 3px 6px; font-size: 11px; border-bottom: 1px solid #f0e0e0; }
@@ -28,7 +23,14 @@
         .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
         .footer { border-top: 2px solid #b91c1c; margin-top: 15px; padding-top: 6px; text-align: center; font-size: 10px; color: #999; }
         .ornament { color: #b91c1c; font-size: 12px; }
+        .photo-box img { width: 110px; height: 130px; object-fit: cover; border: 2px solid #b91c1c; }
+        .photo-placeholder { width: 110px; height: 130px; border: 2px dashed #b91c1c; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #ccc; }
+        @page { margin: 10mm; size: A4; }
         @media print {
+            @top-left { content: none; }
+            @top-right { content: none; }
+            @bottom-left { content: none; }
+            @bottom-right { content: none; }
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .no-print { display: none !important; }
             .page { margin: 0; padding: 8mm; }
@@ -37,33 +39,37 @@
 </head>
 <body>
 <div class="no-print" style="text-align:center;padding:10px;background:#f8f8f8">
+    <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:8px 16px;display:inline-block;margin-bottom:8px;font-size:12px;color:#856404">
+        ⚠️ அச்சிடுவதற்கு முன்: Print dialog → <strong>More settings</strong> → <strong>Headers and footers</strong> → <strong>uncheck</strong> செய்யவும்
+    </div><br>
     <button onclick="window.print()" style="background:#b91c1c;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit">🖨️ அச்சிடு</button>
     <button onclick="window.close()" style="background:#666;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px">✖ மூடு</button>
 </div>
 
 <div class="page">
+
     <!-- Header -->
     <div class="header">
-        <h1>💒 செம்போடையார் வன்னியர் திருமண மையம்</h1>
-        <div class="subtitle">வாழ்க்கை துணை தேடல் - சேவை</div>
-        {% if admin_profile %}<div class="admin-address">📍 {{ admin_profile.address }} | 📞 {{ admin_profile.phone }}</div>{% endif %}
+        <table style="width:100%;border:none;border-collapse:collapse;">
+            <tr>
+                <td style="width:80%;text-align:center;border:none;padding:0;">
+                    <div style="font-size:17px;font-weight:700;color:#b91c1c;white-space:nowrap;">💒 செம்போடையார் வன்னியர் திருமண தகவல் மையம்</div>
+                    <div style="color:#666;font-size:11px;margin-top:3px;">வாழ்க்கை துணை தேடல் - சேவை</div>
+                    {% if admin_profile %}<div style="font-size:10px;color:#333;margin-top:5px;border-top:1px solid #f0c0c0;padding-top:5px;">📍 {{ admin_profile.address }} | 📞 {{ admin_profile.phone }}</div>{% endif %}
+                </td>
+                <td style="width:20%;text-align:right;vertical-align:top;border:none;padding:0 0 0 4px;">
+                    <div style="font-size:10px;font-weight:700;color:#8b1a1a;white-space:nowrap;">பதிவு எண்: {{ candidate.uid }}</div>
+                    {% if candidate.sub_caste %}<div style="font-size:10px;color:#555;margin-top:4px;white-space:nowrap;">உட்சாதி: {{ candidate.sub_caste }}</div>{% endif %}
+                </td>
+            </tr>
+        </table>
     </div>
 
-    <!-- UID -->
-    <div class="uid-banner">
-        {% if candidate.gender == 'M' %}ஆண் விண்ணப்பதாரர்{% else %}பெண் விண்ணப்பதாரர்{% endif %} - {{ candidate.uid }}
-    </div>
+    <!-- ROW 1: அடிப்படை (left) | கல்வி + ஜோதிட (right) -->
+    <div class="two-col" style="align-items:start;">
 
-    <!-- Photo + Basic Info -->
-    <div class="top-section">
-        <div class="photo-box">
-            {% if photo_base64 %}
-                <img src="{{ photo_base64 }}" alt="Photo">
-            {% else %}
-                <div class="photo-placeholder">👤</div>
-            {% endif %}
-        </div>
-        <div class="info-grid">
+        <!-- LEFT: அடிப்படை விவரங்கள் -->
+        <div class="section">
             <div class="section-title">அடிப்படை விவரங்கள்</div>
             <table class="info-table">
                 <tr><td>பெயர்</td><td>{{ candidate.name }}</td></tr>
@@ -81,101 +87,36 @@
                 {% if candidate.own_house %}<tr><td>சொந்த வீடு</td><td>{{ candidate.own_house }}</td></tr>{% endif %}
             </table>
         </div>
-    </div>
 
-    <!-- Two Column: Astrology + Education -->
-    <div class="two-col">
-        <!-- Astrology -->
-        <div class="section">
-            <div class="section-title">ஜோதிட விவரங்கள்</div>
-            <table class="info-table">
-                {% if candidate.birth_time %}<tr><td>பிறந்த நேரம்</td><td>{{ candidate.birth_time|time:"h:i A" }}</td></tr>{% endif %}
-                {% if candidate.rasi %}<tr><td>ராசி</td><td>{{ candidate.rasi }}</td></tr>{% endif %}
-                {% if candidate.nachathiram %}<tr><td>நட்சத்திரம்</td><td>{{ candidate.nachathiram }}</td></tr>{% endif %}
-                {% if candidate.sevadosham %}<tr><td>செவ்வாய் தோஷம்</td><td>{{ candidate.sevadosham }}</td></tr>{% endif %}
-                {% if candidate.ragu_kethu %}<tr><td>ராகு/கேது</td><td>{{ candidate.ragu_kethu }}</td></tr>{% endif %}
-                {% if candidate.tamil_year %}<tr><td>தமிழ் வருடம்</td><td>{{ candidate.tamil_year }}</td></tr>{% endif %}
-                {% if candidate.tamil_month %}<tr><td>தமிழ் மாதம்</td><td>{{ candidate.tamil_month }}</td></tr>{% endif %}
-                {% if candidate.tamil_day %}<tr><td>தமிழ் தேதி</td><td>{{ candidate.tamil_day }}</td></tr>{% endif %}
-                {% if candidate.thisai_iruppu %}<tr><td>திசை இருப்பு</td><td>{{ candidate.thisai_iruppu }}</td></tr>{% endif %}
-            </table>
-        </div>
-
-        <!-- Education & Job -->
-        <div class="section">
-            <div class="section-title">கல்வி மற்றும் தொழில்</div>
-            <table class="info-table">
-                {% if candidate.educational_qualification %}<tr><td>கல்வி</td><td>{{ candidate.educational_qualification }}</td></tr>{% endif %}
-                {% if candidate.profession %}<tr><td>தொழில்</td><td>{{ candidate.profession }}</td></tr>{% endif %}
-                {% if candidate.monthly_income %}<tr><td>மாத சம்பளம்</td><td>₹{{ candidate.monthly_income }}</td></tr>{% endif %}
-                {% if candidate.annual_income %}<tr><td>வருட வருமானம்</td><td>₹{{ candidate.annual_income }}</td></tr>{% endif %}
-                {% if candidate.property_value %}<tr><td>சொத்து மதிப்பு</td><td>{{ candidate.property_value }}</td></tr>{% endif %}
-            </table>
-        </div>
-    </div>
-
-    <!-- Jathagam Charts -->
-    <div class="section">
-        <div class="section-title">ஜாதக சக்கரம்</div>
-        <div style="display:flex;gap:2%;justify-content:space-between">
-            <!-- Rasi -->
-            <div style="width:48%">
-                <div style="text-align:center;font-weight:700;color:#8b1a1a;font-size:11px;margin-bottom:3px">ராசி</div>
-                <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fffdf5">
-                    <tr>
-                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">12</span><br>{{ candidate.rasi_h12.code|default:"" }}</td>
-                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">1</span><br>{{ candidate.rasi_h1.code|default:"" }}</td>
-                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">2</span><br>{{ candidate.rasi_h2.code|default:"" }}</td>
-                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">3</span><br>{{ candidate.rasi_h3.code|default:"" }}</td>
-                    </tr>
-                    <tr>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">11</span><br>{{ candidate.rasi_h11.code|default:"" }}</td>
-                        <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fef9ee;font-weight:700;color:#7f1d1d;font-size:11px">ராசி</td>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">4</span><br>{{ candidate.rasi_h4.code|default:"" }}</td>
-                    </tr>
-                    <tr>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">10</span><br>{{ candidate.rasi_h10.code|default:"" }}</td>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">5</span><br>{{ candidate.rasi_h5.code|default:"" }}</td>
-                    </tr>
-                    <tr>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">9</span><br>{{ candidate.rasi_h9.code|default:"" }}</td>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">8</span><br>{{ candidate.rasi_h8.code|default:"" }}</td>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">7</span><br>{{ candidate.rasi_h7.code|default:"" }}</td>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">6</span><br>{{ candidate.rasi_h6.code|default:"" }}</td>
-                    </tr>
+        <!-- RIGHT: தொழில் + ஜோதிட -->
+        <div>
+            <div class="section">
+                <table class="info-table" style="margin-bottom:8px;">
+                    {% if candidate.educational_qualification %}<tr><td>கல்வி</td><td>{{ candidate.educational_qualification }}</td></tr>{% endif %}
+                    {% if candidate.profession %}<tr><td>தொழில்</td><td>{{ candidate.profession }}</td></tr>{% endif %}
+                    {% if candidate.monthly_income %}<tr><td>மாத சம்பளம்</td><td>₹{{ candidate.monthly_income }}</td></tr>{% endif %}
+                    {% if candidate.annual_income %}<tr><td>வருட வருமானம்</td><td>₹{{ candidate.annual_income }}</td></tr>{% endif %}
+                    {% if candidate.property_value %}<tr><td>சொத்து மதிப்பு</td><td>{{ candidate.property_value }}</td></tr>{% endif %}
                 </table>
             </div>
-            <!-- Navamsam -->
-            <div style="width:48%">
-                <div style="text-align:center;font-weight:700;color:#8b1a1a;font-size:11px;margin-bottom:3px">நவாம்சம்</div>
-                <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fffdf5">
-                    <tr>
-                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">12</span><br>{{ candidate.navamsam_h12.code|default:"" }}</td>
-                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">1</span><br>{{ candidate.navamsam_h1.code|default:"" }}</td>
-                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">2</span><br>{{ candidate.navamsam_h2.code|default:"" }}</td>
-                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">3</span><br>{{ candidate.navamsam_h3.code|default:"" }}</td>
-                    </tr>
-                    <tr>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">11</span><br>{{ candidate.navamsam_h11.code|default:"" }}</td>
-                        <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fef9ee;font-weight:700;color:#7f1d1d;font-size:11px">நவாம்சம்</td>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">4</span><br>{{ candidate.navamsam_h4.code|default:"" }}</td>
-                    </tr>
-                    <tr>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">10</span><br>{{ candidate.navamsam_h10.code|default:"" }}</td>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">5</span><br>{{ candidate.navamsam_h5.code|default:"" }}</td>
-                    </tr>
-                    <tr>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">9</span><br>{{ candidate.navamsam_h9.code|default:"" }}</td>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">8</span><br>{{ candidate.navamsam_h8.code|default:"" }}</td>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">7</span><br>{{ candidate.navamsam_h7.code|default:"" }}</td>
-                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">6</span><br>{{ candidate.navamsam_h6.code|default:"" }}</td>
-                    </tr>
+            <div class="section">
+                <div class="section-title">ஜோதிட விவரங்கள்</div>
+                <table class="info-table">
+                    {% if candidate.birth_time %}<tr><td>பிறந்த நேரம்</td><td>{{ candidate.birth_time|time:"h:i A" }}</td></tr>{% endif %}
+                    {% if candidate.rasi %}<tr><td>ராசி</td><td>{{ candidate.rasi }}</td></tr>{% endif %}
+                    {% if candidate.nachathiram %}<tr><td>நட்சத்திரம்</td><td>{{ candidate.nachathiram }}</td></tr>{% endif %}
+                    {% if candidate.sevadosham %}<tr><td>செவ்வாய் தோஷம்</td><td>{{ candidate.sevadosham }}</td></tr>{% endif %}
+                    {% if candidate.ragu_kethu %}<tr><td>ராகு/கேது</td><td>{{ candidate.ragu_kethu }}</td></tr>{% endif %}
+                    {% if candidate.tamil_year %}<tr><td>தமிழ் வருடம்</td><td>{{ candidate.tamil_year }}</td></tr>{% endif %}
+                    {% if candidate.tamil_month %}<tr><td>தமிழ் மாதம்</td><td>{{ candidate.tamil_month }}</td></tr>{% endif %}
+                    {% if candidate.tamil_day %}<tr><td>தமிழ் தேதி</td><td>{{ candidate.tamil_day }}</td></tr>{% endif %}
+                    {% if candidate.thisai_iruppu %}<tr><td>திசை இருப்பு</td><td>{{ candidate.thisai_iruppu }}</td></tr>{% endif %}
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Family Members -->
+    <!-- ROW 2: குடும்பத்தினர் விவரம் -->
     {% if family_members %}
     <div class="section">
         <div class="section-title">குடும்பத்தினர் விவரம்</div>
@@ -206,10 +147,98 @@
     </div>
     {% endif %}
 
+    <!-- ROW 3: ஜாதக சக்கரம் -->
+    <div class="section">
+        <div class="section-title">ஜாதக சக்கரம்</div>
+        <div style="display:flex;gap:2%;justify-content:space-between">
+            <!-- Rasi -->
+            <div style="width:48%">
+                <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fffdf5">
+                    <tr>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">12</span><br>{{ candidate.rasi_h12.code|default:"" }}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">1</span><br>{{ candidate.rasi_h1.code|default:"" }}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">2</span><br>{{ candidate.rasi_h2.code|default:"" }}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">3</span><br>{{ candidate.rasi_h3.code|default:"" }}</td>
+                    </tr>
+                    <tr>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">11</span><br>{{ candidate.rasi_h11.code|default:"" }}</td>
+                        <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fef9ee;font-weight:700;color:#7f1d1d;font-size:11px">ராசி</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">4</span><br>{{ candidate.rasi_h4.code|default:"" }}</td>
+                    </tr>
+                    <tr>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">10</span><br>{{ candidate.rasi_h10.code|default:"" }}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">5</span><br>{{ candidate.rasi_h5.code|default:"" }}</td>
+                    </tr>
+                    <tr>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">9</span><br>{{ candidate.rasi_h9.code|default:"" }}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">8</span><br>{{ candidate.rasi_h8.code|default:"" }}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">7</span><br>{{ candidate.rasi_h7.code|default:"" }}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">6</span><br>{{ candidate.rasi_h6.code|default:"" }}</td>
+                    </tr>
+                </table>
+            </div>
+            <!-- Navamsam -->
+            <div style="width:48%">
+                <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fffdf5">
+                    <tr>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">12</span><br>{{ candidate.navamsam_h12.code|default:"" }}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">1</span><br>{{ candidate.navamsam_h1.code|default:"" }}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">2</span><br>{{ candidate.navamsam_h2.code|default:"" }}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">3</span><br>{{ candidate.navamsam_h3.code|default:"" }}</td>
+                    </tr>
+                    <tr>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">11</span><br>{{ candidate.navamsam_h11.code|default:"" }}</td>
+                        <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fef9ee;font-weight:700;color:#7f1d1d;font-size:11px">நவாம்சம்</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">4</span><br>{{ candidate.navamsam_h4.code|default:"" }}</td>
+                    </tr>
+                    <tr>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">10</span><br>{{ candidate.navamsam_h10.code|default:"" }}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">5</span><br>{{ candidate.navamsam_h5.code|default:"" }}</td>
+                    </tr>
+                    <tr>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">9</span><br>{{ candidate.navamsam_h9.code|default:"" }}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">8</span><br>{{ candidate.navamsam_h8.code|default:"" }}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">7</span><br>{{ candidate.navamsam_h7.code|default:"" }}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:top"><span style="font-size:8px;color:#b91c1c">6</span><br>{{ candidate.navamsam_h6.code|default:"" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW 4: முகவரி (left) | Photo (right) -->
+    <div class="two-col" style="align-items:start;">
+
+        <!-- LEFT: முகவரி விவரங்கள் -->
+        <div class="section">
+            <div class="section-title">முகவரி விவரங்கள்</div>
+            <table class="info-table">
+                {% if candidate.address_name %}<tr><td>பெயர்</td><td>{{ candidate.address_name }}</td></tr>{% endif %}
+                {% if candidate.mobile_number %}<tr><td>கைபேசி எண்</td><td>{{ candidate.mobile_number }}</td></tr>{% endif %}
+                {% if candidate.whatsapp_number %}<tr><td>வாட்ஸ்அப் எண்</td><td>{{ candidate.whatsapp_number }}</td></tr>{% endif %}
+                {% if candidate.address_line1 %}<tr><td>முகவரி வரி 1</td><td>{{ candidate.address_line1 }}</td></tr>{% endif %}
+                {% if candidate.address_line2 %}<tr><td>முகவரி வரி 2</td><td>{{ candidate.address_line2 }}</td></tr>{% endif %}
+                {% if candidate.address_line3 %}<tr><td>முகவரி வரி 3</td><td>{{ candidate.address_line3 }}</td></tr>{% endif %}
+                {% if candidate.pincode %}<tr><td>பின்கோட்</td><td>{{ candidate.pincode }}</td></tr>{% endif %}
+            </table>
+        </div>
+
+        <!-- RIGHT: Photo -->
+        <div style="text-align:right;">
+            {% if candidate.photos.first %}
+                <img src="{{ candidate.photos.first.photo.url }}" class="photo-box" style="width:130px;height:155px;object-fit:cover;border:2px solid #b91c1c;">
+            {% else %}
+                <div class="photo-placeholder" style="width:130px;height:155px;display:inline-flex;align-items:center;justify-content:center;border:2px dashed #b91c1c;font-size:40px;color:#ccc;">👤</div>
+            {% endif %}
+        </div>
+
+    </div>
+
     <div class="footer">
         <span class="ornament">❦ ❦ ❦</span><br>
         செம்போடையார் வன்னியர் திருமண மையம் — திருமண சேவை
     </div>
+
 </div>
 </body>
 </html>

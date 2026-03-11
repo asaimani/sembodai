@@ -161,7 +161,7 @@ class BaseCandidateModel(models.Model):
     sub_caste                = models.ForeignKey('SubCaste', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="உட்சாதி")
     complexion               = models.ForeignKey('Complexion', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="நிறம்")
     sevadosham               = models.ForeignKey(Sevadosham, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="செவ்வாய் தோஷம்")
-    ragu_kethu               = models.CharField(max_length=50, blank=True, verbose_name="ராகு/கேது")
+    ragu_kethu               = models.ForeignKey('OwnHouse', on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராகு/கேது")
     property_value           = models.CharField(max_length=200, blank=True, verbose_name="சொத்து மதிப்பு")
     jathagam_type            = models.ForeignKey(JathagamType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="ஜாதகம் வகை")
     state                    = models.ForeignKey(State, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="மாநிலம்")
@@ -214,6 +214,15 @@ class BaseCandidateModel(models.Model):
     thisai_iruppu= models.CharField(max_length=100, blank=True, verbose_name="திசை இருப்பு")
     birth_place  = models.CharField(max_length=200, blank=True, verbose_name="பிறந்த ஊர்")
     native_place = models.CharField(max_length=200, blank=True, verbose_name="பூர்வீகம்")
+
+    # முகவரி விவரங்கள்
+    address_name    = models.CharField(max_length=200, blank=True, verbose_name="பெயர்")
+    address_line1   = models.CharField(max_length=200, blank=True, verbose_name="முகவரி வரி 1")
+    address_line2   = models.CharField(max_length=200, blank=True, verbose_name="முகவரி வரி 2")
+    address_line3   = models.CharField(max_length=200, blank=True, verbose_name="முகவரி வரி 3")
+    pincode         = models.CharField(max_length=6, blank=True, verbose_name="பின்கோட்")
+    mobile_number   = models.CharField(max_length=15, blank=True, verbose_name="கைபேசி எண்")
+    whatsapp_number = models.CharField(max_length=15, blank=True, verbose_name="வாட்ஸ்அப் எண்")
 
     @property
     def age(self):
