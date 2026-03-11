@@ -306,6 +306,28 @@ def shadow_list(request):
     return render(request, 'matrimony/shadow_list.html', {'shadows': shadows})
 
 
+
+@login_required
+def candidate_delete(request, gender, pk):
+    if not request.user.is_superuser:
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden("அனுமதி இல்லை")
+    if gender == 'M':
+        candidate = get_object_or_404(MaleCandidate, pk=pk)
+    else:
+        candidate = get_object_or_404(FemaleCandidate, pk=pk)
+    if request.method == 'POST':
+        import os
+        # Delete photo files from disk
+        for photo in candidate.photos.all():
+            if photo.photo and os.path.isfile(photo.photo.path):
+                os.remove(photo.photo.path)
+        candidate.delete()
+        return redirect('candidate_list')
+    return render(request, 'matrimony/candidate_confirm_delete.html', {
+        'candidate': candidate, 'gender': gender
+    })
+
 @login_required
 def delete_photo(request, photo_id):
     # Accept both GET and POST

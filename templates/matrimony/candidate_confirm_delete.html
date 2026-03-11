@@ -1,0 +1,31 @@
+{% extends 'matrimony/base.html' %}
+{% block title %}நீக்கு - {{ candidate.name }}{% endblock %}
+{% block page_title %}விண்ணப்பதாரர் நீக்கம்{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <i class="fas fa-exclamation-triangle me-2"></i>உறுதிப்படுத்தல்
+            </div>
+            <div class="card-body text-center">
+                <p class="fs-5 mb-1">இந்த விண்ணப்பதாரர் நிரந்தரமாக நீக்கப்படும்!</p>
+                <p class="fw-bold text-danger fs-4">{{ candidate.name }} ({{ candidate.uid }})</p>
+                <p class="text-muted">இந்த செயலை மீட்டெடுக்க முடியாது.</p>
+                <div class="d-flex gap-3 justify-content-center mt-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="fas fa-trash me-2"></i>ஆம், நீக்கு
+                        </button>
+                    </form>
+                    <a href="{% url 'candidate_detail' gender candidate.pk %}" class="btn btn-outline-secondary px-4">
+                        <i class="fas fa-times me-2"></i>ரத்து செய்
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
