@@ -256,7 +256,12 @@ class MaleCandidate(BaseCandidateModel):
 
     def save(self, *args, **kwargs):
         if not self.uid:
-            self.uid = f"M{str(uuid.uuid4().int)[:6]}"
+            count = MaleCandidate.objects.count() + 1
+            uid = f"M{count:07d}"
+            while MaleCandidate.objects.filter(uid=uid).exists():
+                count += 1
+                uid = f"M{count:07d}"
+            self.uid = uid
         super().save(*args, **kwargs)
 
     class Meta:
@@ -270,7 +275,12 @@ class FemaleCandidate(BaseCandidateModel):
 
     def save(self, *args, **kwargs):
         if not self.uid:
-            self.uid = f"F{str(uuid.uuid4().int)[:6]}"
+            count = FemaleCandidate.objects.count() + 1
+            uid = f"F{count:07d}"
+            while FemaleCandidate.objects.filter(uid=uid).exists():
+                count += 1
+                uid = f"F{count:07d}"
+            self.uid = uid
         super().save(*args, **kwargs)
 
     class Meta:
