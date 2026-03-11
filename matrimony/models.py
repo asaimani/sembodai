@@ -306,6 +306,17 @@ class CandidatePhoto(models.Model):
     class Meta: verbose_name = "புகைப்படம்"
 
 
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+
+
+@receiver(post_delete, sender=CandidatePhoto)
+def delete_photo_file(sender, instance, **kwargs):
+    """Auto-delete photo file from disk when CandidatePhoto record is deleted"""
+    import os
+    if instance.photo and os.path.isfile(instance.photo.path):
+        os.remove(instance.photo.path)
+
 
 class FamilyMember(models.Model):
     GENDER_CHOICES = [('M', 'ஆண்'), ('F', 'பெண்')]
@@ -329,4 +340,4 @@ class ShadowCandidate(models.Model):
     original_data = models.JSONField()
     created_at    = models.DateTimeField(auto_now_add=True)
     notes         = models.TextField(blank=True)
-    class Meta: verbose_name = "நிலுவை விண்ணப்பம்"
+    class Meta: verbose_name = "நிலுவை விண்ணப்பம்" 
