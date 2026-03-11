@@ -122,11 +122,20 @@ def _save_jathagam(candidate, post_data):
 
 
 def _save_photos(candidate, files, is_male):
-    for i, photo in enumerate(files[:3]):
-        if is_male:
-            CandidatePhoto.objects.create(male_candidate=candidate, photo=photo, is_primary=(i == 0))
-        else:
-            CandidatePhoto.objects.create(female_candidate=candidate, photo=photo, is_primary=(i == 0))
+    if not files:
+        return
+    # Only 1 photo allowed - delete existing first
+    for existing in candidate.photos.all():
+        import os
+        if existing.photo and os.path.isfile(existing.photo.path):
+            os.remove(existing.photo.path)
+        existing.delete()
+    # Save only first photo, renamed to UID
+    photo = files[0]
+    if is_male:
+        CandidatePhoto.objects.create(male_candidate=candidate, photo=photo, is_primary=True)
+    else:
+        CandidatePhoto.objects.create(female_candidate=candidate, photo=photo, is_primary=True)
 
 
 def _save_family_members(candidate, post_data):
@@ -244,8 +253,7 @@ def candidate_edit(request, gender, pk):
             saved.save()
             form.save_m2m()
             photos = request.FILES.getlist('photos')
-            existing_count = candidate.photos.count()
-            _save_photos(candidate, photos[:max(0, 3 - existing_count)], is_male)
+            _save_photos(candidate, photos, is_male)
             _save_jathagam(saved, request.POST)
             _save_family_members(saved, request.POST)
             messages.success(request, 'விண்ணப்பம் புதுப்பிக்கப்பட்டது.')
