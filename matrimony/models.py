@@ -292,16 +292,44 @@ class FemaleCandidate(BaseCandidateModel):
 #  PHOTO
 # ─────────────────────────────────────────────
 
+def candidate_photo_upload(instance, filename):
+    import os
+    candidate = instance.male_candidate or instance.female_candidate
+    uid = candidate.uid if candidate else 'unknown'
+    return f'photos/{uid}.jpg'
+
+
 class CandidatePhoto(models.Model):
     male_candidate   = models.ForeignKey(MaleCandidate,   on_delete=models.CASCADE, null=True, blank=True, related_name='photos')
     female_candidate = models.ForeignKey(FemaleCandidate, on_delete=models.CASCADE, null=True, blank=True, related_name='photos')
-    photo       = models.ImageField(upload_to='photos/')
+    photo       = models.ImageField(upload_to=candidate_photo_upload)
     is_primary  = models.BooleanField(default=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     @property
     def candidate(self):
         return self.male_candidate or self.female_candidate
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Compress photo after saving
+        if self.photo:
+            try:
+                from PIL import Image
+                import os
+                path = self.photo.path
+                img = Image.open(path)
+                # Convert to RGB (handles PNG with transparency)
+                if img.mode in ('RGBA', 'P', 'LA'):
+                    img = img.convert('RGB')
+                # Resize if larger than 800px on any side
+                max_size = 800
+                if img.width > max_size or img.height > max_size:
+                    img.thumbnail((max_size, max_size), Image.LANCZOS)
+                # Save as JPEG with 85% quality (good balance)
+                img.save(path, 'JPEG', quality=85, optimize=True)
+            except Exception:
+                pass
 
     class Meta: verbose_name = "புகைப்படம்"
 

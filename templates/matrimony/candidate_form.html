@@ -377,8 +377,10 @@ document.addEventListener('input', function(e) {
     <div class="form-section-title"><i class="fas fa-camera me-2"></i>புகைப்படங்கள் (அதிகபட்சம் 3)</div>
     <div class="row g-3">
         <div class="col-12">
-            <input type="file" name="photos" class="form-control" accept="image/*">
-            <div class="form-text">JPG, PNG வடிவங்கள் ஏற்கப்படும். அதிகபட்சம் 3 புகைப்படங்கள்.</div>
+            <input type="file" name="photos" class="form-control" accept="image/*" id="photoInput" onchange="validatePhotoSize(this)">
+            <small class="text-muted">அதிகபட்சம் 5MB | JPG, PNG மட்டும்</small>
+            <div id="photoSizeError" class="text-danger small mt-1" style="display:none;">⚠️ புகைப்படம் 5MB-ஐ தாண்டக்கூடாது!</div>
+
         </div>
         {% if candidate %}
         <div class="col-12">

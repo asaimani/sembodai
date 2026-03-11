@@ -121,9 +121,16 @@ def _save_jathagam(candidate, post_data):
     candidate.save()
 
 
+MAX_PHOTO_SIZE_MB = 5  # Maximum upload size in MB
+
 def _save_photos(candidate, files, is_male):
     if not files:
         return
+    photo = files[0]
+    # Validate file size
+    max_bytes = MAX_PHOTO_SIZE_MB * 1024 * 1024
+    if photo.size > max_bytes:
+        raise ValueError(f"புகைப்படம் அளவு {MAX_PHOTO_SIZE_MB}MB-ஐ தாண்டக்கூடாது. தற்போதைய அளவு: {photo.size // (1024*1024)}MB")
     # Only 1 photo allowed - delete existing first
     for existing in candidate.photos.all():
         import os
@@ -131,7 +138,6 @@ def _save_photos(candidate, files, is_male):
             os.remove(existing.photo.path)
         existing.delete()
     # Save only first photo, renamed to UID
-    photo = files[0]
     if is_male:
         CandidatePhoto.objects.create(male_candidate=candidate, photo=photo, is_primary=True)
     else:
@@ -197,7 +203,10 @@ def candidate_add(request):
             candidate.save()
             _save_jathagam(candidate, request.POST)
             _save_family_members(candidate, request.POST)
-            _save_photos(candidate, photos, is_male)
+            try:
+                _save_photos(candidate, photos, is_male)
+            except ValueError as e:
+                messages.error(request, str(e))
             messages.success(request, f'விண்ணப்பம் வெற்றிகரமாக சேர்க்கப்பட்டது. UID: {candidate.uid}')
             return redirect('candidate_detail', gender=gender, pk=candidate.pk)
     else:
@@ -253,7 +262,10 @@ def candidate_edit(request, gender, pk):
             saved.save()
             form.save_m2m()
             photos = request.FILES.getlist('photos')
-            _save_photos(candidate, photos, is_male)
+            try:
+                _save_photos(candidate, photos, is_male)
+            except ValueError as e:
+                messages.error(request, str(e))
             _save_jathagam(saved, request.POST)
             _save_family_members(saved, request.POST)
             messages.success(request, 'விண்ணப்பம் புதுப்பிக்கப்பட்டது.')
