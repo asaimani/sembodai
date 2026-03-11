@@ -108,10 +108,10 @@ class Caste(models.Model):
 
 class SubCaste(models.Model):
     caste = models.ForeignKey(Caste, on_delete=models.CASCADE, related_name='sub_castes', verbose_name="சாதி")
-    name  = models.CharField(max_length=100, verbose_name="உட்சாதி")
+    name  = models.CharField(max_length=100, verbose_name="உட்பிரிவு")
     order = models.PositiveIntegerField(default=0)
     def __str__(self): return self.name
-    class Meta: verbose_name = "உட்சாதி"; ordering = ['order', 'name']
+    class Meta: verbose_name = "உட்பிரிவு"; ordering = ['order', 'name']
 
 class Height(models.Model):
     name  = models.CharField(max_length=20, verbose_name="உயரம்")
@@ -158,7 +158,7 @@ class BaseCandidateModel(models.Model):
     monthly_salary           = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="மாத சம்பளம்")
     height                   = models.ForeignKey('Height', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="உயரம்")
     caste                    = models.ForeignKey('Caste', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="சாதி")
-    sub_caste                = models.ForeignKey('SubCaste', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="உட்சாதி")
+    sub_caste                = models.ForeignKey('SubCaste', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="உட்பிரிவு")
     complexion               = models.ForeignKey('Complexion', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="நிறம்")
     sevadosham               = models.ForeignKey(Sevadosham, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="செவ்வாய் தோஷம்")
     ragu_kethu               = models.ForeignKey('OwnHouse', on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராகு/கேது")

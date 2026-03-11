@@ -59,7 +59,7 @@
                 </td>
                 <td style="width:20%;text-align:right;vertical-align:top;border:none;padding:0 0 0 4px;">
                     <div style="font-size:10px;font-weight:700;color:#8b1a1a;white-space:nowrap;">பதிவு எண்: {{ candidate.uid }}</div>
-                    {% if candidate.sub_caste %}<div style="font-size:10px;color:#555;margin-top:4px;white-space:nowrap;">உட்சாதி: {{ candidate.sub_caste }}</div>{% endif %}
+                    {% if candidate.sub_caste %}<div style="font-size:10px;color:#555;margin-top:4px;white-space:nowrap;">உட்பிரிவு: {{ candidate.sub_caste }}</div>{% endif %}
                 </td>
             </tr>
         </table>
@@ -80,7 +80,7 @@
                 {% if candidate.height %}<tr><td>உயரம்</td><td>{{ candidate.height }}</td></tr>{% endif %}
                 {% if candidate.complexion %}<tr><td>நிறம்</td><td>{{ candidate.complexion }}</td></tr>{% endif %}
                 {% if candidate.caste %}<tr><td>சாதி</td><td>{{ candidate.caste }}</td></tr>{% endif %}
-                {% if candidate.sub_caste %}<tr><td>உட்சாதி</td><td>{{ candidate.sub_caste }}</td></tr>{% endif %}
+                {% if candidate.sub_caste %}<tr><td>உட்பிரிவு</td><td>{{ candidate.sub_caste }}</td></tr>{% endif %}
                 {% if candidate.state %}<tr><td>மாநிலம்</td><td>{{ candidate.state }}</td></tr>{% endif %}
                 {% if candidate.district %}<tr><td>மாவட்டம்</td><td>{{ candidate.district }}</td></tr>{% endif %}
                 {% if candidate.birth_order %}<tr><td>பிறப்பு வரிசை</td><td>{{ candidate.birth_order }}</td></tr>{% endif %}
