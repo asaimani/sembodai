@@ -115,7 +115,7 @@ class Command(BaseCommand):
             'ராஜஸ்தான்': 9,
             'தெலங்கானா': 10,
             'மகாராஷ்ட்ரா': 11,
-
+            
         }
         states_data = {
             'தமிழ்நாடு': [
@@ -149,8 +149,9 @@ class Command(BaseCommand):
                 state.save()
             for i, d in enumerate(districts, start=1):
                 obj, created = District.objects.get_or_create(name=d, defaults={'state': state, 'order': i})
-                if not created and obj.order != i:
+                if not created:
                     obj.order = i
+                    obj.state = state
                     obj.save()
 
 
