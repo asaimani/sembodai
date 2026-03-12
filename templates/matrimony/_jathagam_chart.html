@@ -28,7 +28,6 @@
 {% if form_mode %}
 <div class="row g-2">
     <div class="col-6">
-        <div class="chart-label">ராசி</div>
         <div class="jathagam-grid">
             <div class="jc"><span class="jc-num">12</span>{% planet_select 'rasi_h12' candidate planets %}</div>
             <div class="jc"><span class="jc-num">1</span>{% planet_select 'rasi_h1' candidate planets %}</div>
@@ -46,7 +45,6 @@
         </div>
     </div>
     <div class="col-6">
-        <div class="chart-label">நவாம்சம்</div>
         <div class="jathagam-grid">
             <div class="jc"><span class="jc-num">12</span>{% planet_select 'navamsam_h12' candidate planets %}</div>
             <div class="jc"><span class="jc-num">1</span>{% planet_select 'navamsam_h1' candidate planets %}</div>
@@ -68,7 +66,6 @@
 {% else %}
 <div class="row g-2">
     <div class="col-6">
-        <div class="chart-label">ராசி</div>
         <div class="jathagam-grid">
             <div class="jc"><span class="jc-num">12</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h12' }}</div></div>
             <div class="jc"><span class="jc-num">1</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h1' }}</div></div>
@@ -86,7 +83,6 @@
         </div>
     </div>
     <div class="col-6">
-        <div class="chart-label">நவாம்சம்</div>
         <div class="jathagam-grid">
             <div class="jc"><span class="jc-num">12</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h12' }}</div></div>
             <div class="jc"><span class="jc-num">1</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h1' }}</div></div>
