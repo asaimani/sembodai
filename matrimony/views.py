@@ -369,6 +369,12 @@ def delete_photo(request, photo_id):
     return redirect('candidate_edit', gender=gender, pk=candidate_pk)
 
 
+def get_districts(request):
+    state_id = request.GET.get('state_id')
+    districts = District.objects.filter(state_id=state_id).values('id', 'name').order_by('name')
+    return JsonResponse(list(districts), safe=False)
+
+
 def get_sub_castes(request):
     caste_id = request.GET.get('caste_id')
     sub_castes = SubCaste.objects.filter(caste_id=caste_id).values('id', 'name')

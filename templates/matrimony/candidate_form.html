@@ -68,6 +68,7 @@
         <div class="col-md-4">
             <label class="form-label">மாநிலம்</label>
             {{ form.state }}
+            {# state select gets id=id_state from Django #}
         </div>
         <div class="col-md-4">
             <label class="form-label">மாவட்டம்</label>
@@ -75,6 +76,42 @@
         </div>
     </div>
 </div>
+
+<script>
+(function() {
+    const stateSelect = document.getElementById('id_state');
+    const districtSelect = document.getElementById('id_district');
+    if (!stateSelect || !districtSelect) return;
+
+    const currentDistrict = "{{ form.instance.district_id|default:'' }}";
+
+    function loadDistricts(stateId, selectDistrictId) {
+        districtSelect.innerHTML = '<option value="">---------</option>';
+        if (!stateId) return;
+        fetch('/api/districts/?state_id=' + stateId)
+            .then(r => r.json())
+            .then(data => {
+                data.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.id;
+                    opt.text = d.name;
+                    if (String(d.id) === String(selectDistrictId)) opt.selected = true;
+                    districtSelect.appendChild(opt);
+                });
+            });
+    }
+
+    // On page load - if state already selected, load its districts
+    if (stateSelect.value) {
+        loadDistricts(stateSelect.value, currentDistrict);
+    }
+
+    // On state change
+    stateSelect.addEventListener('change', function() {
+        loadDistricts(this.value, '');
+    });
+})();
+</script>
 
 <!-- Astrology -->
 <div class="form-section">

@@ -13,6 +13,7 @@ urlpatterns = [
     path('shadow/', views.shadow_list, name='shadow_list'),
     path('api/nachathirams/', views.get_nachathirams, name='get_nachathirams'),
     path('api/sub_castes/', views.get_sub_castes, name='get_sub_castes'),
+    path('api/districts/', views.get_districts, name='get_districts'),
     path('photos/<int:photo_id>/delete/', views.delete_photo, name='delete_photo'),
     path('candidates/<str:gender>/<int:pk>/delete/', views.candidate_delete, name='candidate_delete'),
 ]
