@@ -8,15 +8,17 @@ import uuid
 # ─────────────────────────────────────────────
 
 class State(models.Model):
-    name = models.CharField(max_length=100)
+    name  = models.CharField(max_length=100)
+    order = models.IntegerField(default=99)
     def __str__(self): return self.name
-    class Meta: verbose_name = "மாநிலம்"; ordering = ['name']
+    class Meta: verbose_name = "மாநிலம்"; ordering = ['order', 'name']
 
 class District(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
+    name  = models.CharField(max_length=100)
+    order = models.IntegerField(default=99)
     def __str__(self): return self.name
-    class Meta: verbose_name = "மாவட்டம்"; ordering = ['name']
+    class Meta: verbose_name = "மாவட்டம்"; ordering = ['order', 'name']
 
 class Rasi(models.Model):
     name = models.CharField(max_length=50)

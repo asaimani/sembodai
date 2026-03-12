@@ -102,6 +102,21 @@ class Command(BaseCommand):
             CandidateStatus.objects.get_or_create(code=code, defaults={'name': name, 'order': order})
 
         # ── States & Districts (Tamil Nadu + key states) ──
+        # தமிழ்நாடு=1, புதுச்சேரி=2, others=99
+        state_orders = {
+            'தமிழ்நாடு': 1,
+            'புதுச்சேரி': 2,
+            'கேரளா': 3,
+            'கர்நாடகா': 4,
+            'ஆந்திரப்பிரதேசம்': 5,
+            'தில்லி': 6,
+            'மேற்கு வங்காளம்': 7,
+            'குஜராத்': 8,
+            'ராஜஸ்தான்': 9,
+            'தெலங்கானா': 10,
+            'மகாராஷ்ட்ரா': 11,
+
+        }
         states_data = {
             'தமிழ்நாடு': [
                 'மயிலாடுதுறை','திருவாரூர்','நாகப்பட்டினம்','தஞ்சாவூர்','கடலூர்',
@@ -127,9 +142,16 @@ class Command(BaseCommand):
             'ராஜஸ்தான்': ['ஜெய்ப்பூர்'],
         }
         for state_name, districts in states_data.items():
-            state, _ = State.objects.get_or_create(name=state_name)
-            for d in districts:
-                District.objects.get_or_create(name=d, defaults={'state': state})
+            order = state_orders.get(state_name, 99)
+            state, created = State.objects.get_or_create(name=state_name)
+            if state.order != order:
+                state.order = order
+                state.save()
+            for i, d in enumerate(districts, start=1):
+                obj, created = District.objects.get_or_create(name=d, defaults={'state': state, 'order': i})
+                if not created and obj.order != i:
+                    obj.order = i
+                    obj.save()
 
 
         # ── Tamil Years (60 year cycle) ──
