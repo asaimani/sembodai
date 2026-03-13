@@ -1,3 +1,4 @@
+{% load static %}
 {% load matrimony_tags %}
 <!DOCTYPE html>
 <html lang="ta">
@@ -53,7 +54,7 @@
         <table style="width:100%;border:none;border-collapse:collapse;">
             <tr>
                 <td style="width:80%;text-align:center;border:none;padding:0;">
-                    <div style="font-size:17px;font-weight:700;color:#b91c1c;white-space:nowrap;">💒 செம்போடையார் வன்னியர் திருமண தகவல் மையம்</div>
+                    <div style="display:flex;align-items:center;gap:10px;white-space:nowrap;"><img src="{% static 'images/logo.jpeg' %}" style="width:50px;height:50px;object-fit:cover;border-radius:50%;"><span style="font-size:17px;font-weight:700;color:#b91c1c;">செம்போடையார் வன்னியர் திருமண தகவல் மையம்</span></div>
                     <div style="color:#666;font-size:11px;margin-top:3px;">வாழ்க்கை துணை தேடல் - சேவை</div>
                     {% if admin_profile %}<div style="font-size:10px;color:#333;margin-top:5px;border-top:1px solid #f0c0c0;padding-top:5px;">📍 {{ admin_profile.address }} | 📞 {{ admin_profile.phone }}</div>{% endif %}
                 </td>

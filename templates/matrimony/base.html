@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ta">
 <head>
@@ -172,7 +173,7 @@
 {% if user.is_authenticated %}
 <div class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-        <span class="brand-icon">💒</span>
+        <img src="{% static 'images/logo.jpeg' %}" alt="Logo" style="width:80px;height:80px;object-fit:cover;border-radius:50%;margin-bottom:8px;">
         <h6>செம்போடையார் வன்னியர்<br>திருமண மையம்</h6>
     </div>
     <nav class="sidebar-nav">
