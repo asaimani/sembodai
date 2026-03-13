@@ -371,7 +371,7 @@ def delete_photo(request, photo_id):
 
 def get_districts(request):
     state_id = request.GET.get('state_id')
-    districts = District.objects.filter(state_id=state_id).values('id', 'name').order_by('name')
+    districts = District.objects.filter(state_id=state_id).values('id', 'name').order_by('order', 'name')
     return JsonResponse(list(districts), safe=False)
 
 
