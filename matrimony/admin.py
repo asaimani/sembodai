@@ -99,7 +99,11 @@ class TamilDayAdmin(admin.ModelAdmin):
 class OwnHouseAdmin(admin.ModelAdmin):
     list_display = ['code', 'name']
 
-admin.site.register(AdminProfile)
+class AdminProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'location', 'phone', 'alt_phone']
+    fields = ['user', 'location', 'address1', 'address2', 'phone', 'alt_phone']
+
+admin.site.register(AdminProfile, AdminProfileAdmin)
 admin.site.register(ShadowCandidate)
 
 
