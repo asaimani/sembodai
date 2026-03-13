@@ -165,7 +165,6 @@ class BaseCandidateModel(models.Model):
     sevadosham               = models.ForeignKey(Sevadosham, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="செவ்வாய் தோஷம்")
     ragu_kethu               = models.ForeignKey('OwnHouse', on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராகு/கேது")
     property_value           = models.CharField(max_length=200, blank=True, verbose_name="சொத்து மதிப்பு")
-    jathagam_type            = models.ForeignKey(JathagamType, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="ஜாதகம் வகை")
     state                    = models.ForeignKey(State, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="மாநிலம்")
     district                 = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="மாவட்டம்")
     status                   = models.ForeignKey(CandidateStatus, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="நிலை")

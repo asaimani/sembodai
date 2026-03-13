@@ -33,7 +33,6 @@ COMMON_WIDGETS = {
     'mobile_number':             forms.TextInput(attrs={'class': 'form-control', 'maxlength': '15', 'inputmode': 'numeric'}),
     'whatsapp_number':           forms.TextInput(attrs={'class': 'form-control', 'maxlength': '15', 'inputmode': 'numeric'}),
     'property_value':            forms.TextInput(attrs={'class': 'form-control'}),
-    'jathagam_type':             forms.Select(attrs={'class': 'form-select'}),
     'state':                     forms.Select(attrs={'class': 'form-select', 'id': 'id_state'}),
     'district':                  forms.Select(attrs={'class': 'form-select', 'id': 'id_district'}),
     'status':                    forms.Select(attrs={'class': 'form-select'}),
