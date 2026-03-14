@@ -490,8 +490,8 @@ function toggleTamil(fid) {
   el.focus();
 }
 
-// Auto enable Tamil for all த fields on page load
-document.addEventListener('DOMContentLoaded', function() {
+// Auto enable Tamil - runs after all scripts load
+window.addEventListener('load', function() {
   tamilFields.forEach(function(fid) { enableTamil(fid); });
 });
 </script>
