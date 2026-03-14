@@ -101,7 +101,7 @@ class OwnHouseAdmin(admin.ModelAdmin):
 
 class AdminProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'location', 'phone', 'alternate_phone']
-    fields = ['user', 'location', 'address_line1', 'address_line2', 'address_line3', 'phone', 'alternate_phone']
+    fields = ['user', 'location', 'address_line1', 'address_line2', 'address_line3', 'phone', 'alternate_phone', 'email']
 
 admin.site.register(AdminProfile, AdminProfileAdmin)
 admin.site.register(ShadowCandidate)

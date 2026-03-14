@@ -56,22 +56,24 @@
                 <td style="width:20%; text-align:left; vertical-align:middle; border:none; padding:0;">
                 <img src="{% static 'images/logoprint.png' %}" alt="Logo" style="width:150px; height:150px; object-fit:contain;">
                 </td>
-                <td style="width:60%;text-align:center;border:none;padding:0;">
-                    <div style="display:flex;align-items:center;gap:12px;">
-                        <div style="text-align:center;">
-                            <div style="font-size:18px;font-weight:700;color:#b91c1c;">செம்போடையார்</div>
-                            <div style="font-size:18px;font-weight:700;color:#b91c1c;">வன்னியர் திருமண தகவல் மையம்</div>
-                        </div>
+                <td style="width:55%;text-align:center;border:none;padding:0;">
+                    <div style="text-align:center;">
+                        <div style="font-size:18px;font-weight:700;color:#b91c1c;">செம்போடையார்</div>
+                        <div style="font-size:18px;font-weight:700;color:#b91c1c;">வன்னியர் திருமண தகவல் மையம்</div>
                     </div>
                     <div style="color:#666;font-size:11px;margin-top:3px;">வாழ்க்கை துணை தேடல் - சேவை</div>
                     {% if admin_profile %}
-                    <div style="font-size:10px;color:#333;margin-top:5px;border-top:1px solid #f0c0c0;padding-top:5px;">
-                        📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}{% if admin_profile.address_line2 %}, {{ admin_profile.address_line2 }}{% endif %}{% if admin_profile.address_line3 %}, {{ admin_profile.address_line3 }}{% endif %} | 📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}
+                    <div style="font-size:11px;color:#333;margin-top:5px;border-top:1px solid #f0c0c0;padding-top:5px;line-height:1.8;">
+                        📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}{% if admin_profile.address_line2 %}, {{ admin_profile.address_line2 }}{% endif %}{% if admin_profile.address_line3 %}, {{ admin_profile.address_line3 }}{% endif %}<br>
+                        📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}<br>
+                        {% if admin_profile.email %}✉ {{ admin_profile.email }}{% endif %}
                     </div>{% endif %}
                 </td>
-                <td style="width:20%;text-align:right;vertical-align:top;border:none;padding:0 0 0 4px;">
-                    <div style="font-size:10px;font-weight:700;color:#8b1a1a;white-space:nowrap;">பதிவு எண்: {{ candidate.uid }}</div>
-                    {% if candidate.sub_caste %}<div style="font-size:10px;color:#555;margin-top:4px;white-space:nowrap;">உட்பிரிவு: {{ candidate.sub_caste }}</div>{% endif %}
+                <td style="width:25%;text-align:right;vertical-align:top;border:none;padding:0 0 0 8px;">
+                    <div style="font-size:13px;font-weight:700;color:#8b1a1a;white-space:nowrap;">பதிவு எண்: {{ candidate.uid }}</div>
+                    {% if candidate.sub_caste %}
+                    <div style="font-size:12px;color:#555;margin-top:4px;white-space:nowrap;">உட்பிரிவு: {{ candidate.sub_caste }}</div>
+                    {% endif %}
                 </td>
             </tr>
         </table>
