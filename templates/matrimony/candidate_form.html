@@ -3,6 +3,26 @@
 {% block page_title %}{{ title }}{% endblock %}
 
 {% block content %}
+<script>
+var BAMINI_MAP = {
+  'f':'க','F':'ங',
+  'r':'ச','R':'ஞ',
+  'j':'ட','J':'ண',
+  'e':'த','E':'ந',
+  'l':'ப','L':'ம',
+  'y':'ய','u':'ர','o':'ல','O':'வ',
+  'i':'ழ','I':'ள','k':'ற','K':'ன',
+  'h':'ா','p':'ி','P':'ீ',
+  '[':'ு','{':'ூ',
+  'n':'ெ','N':'ே','b':'ை',
+  't':'ொ','T':'ோ','s':'ௌ',
+  ';':'்','\\':'ஷ','d':'ஜ','g':'ஹ',']':'ஸ',
+  'a':'அ','A':'ஆ','q':'இ','Q':'ஈ',
+  'w':'உ','W':'ஊ','x':'எ','X':'ஏ',
+  'z':'ஒ','Z':'ஓ','c':'ஐ','C':'ஔ',
+  ' ':' ',
+};
+</script>
 <form method="post" enctype="multipart/form-data">
 
 <input type="hidden" name="_gender" value="{{ gender }}">
@@ -162,7 +182,10 @@ stateSelect.addEventListener('change', function() { loadDistricts(this.value, ''
 {{ form.birth_order }}
 </div>
 <div class="col-md-3">
-<label class="form-label">திசை இருப்பு *</label>
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+<label class="form-label" style="margin:0">திசை இருப்பு *</label>
+<button type="button" id="btn_id_thisai_iruppu" onclick="toggleTamil('id_thisai_iruppu')" style="font-size:11px;padding:1px 8px;border:1px solid #b91c1c;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;">த</button>
+</div>
 {{ form.thisai_iruppu }}
 </div>
 </div>
@@ -192,7 +215,10 @@ stateSelect.addEventListener('change', function() { loadDistricts(this.value, ''
 {{ form.profession }}
 </div>
 <div class="col-md-12">
-<label class="form-label">தொழில் விவரம்</label>
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+<label class="form-label" style="margin:0">தொழில் விவரம்</label>
+<button type="button" id="btn_id_profession_comments" onclick="toggleTamil('id_profession_comments')" style="font-size:11px;padding:1px 8px;border:1px solid #b91c1c;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;">த</button>
+</div>
 {{ form.profession_comments }}
 </div>
 <div class="col-md-4">
@@ -234,7 +260,7 @@ stateSelect.addEventListener('change', function() { loadDistricts(this.value, ''
 <th>படிப்பு</th>
 <th>உறவு</th>
 <th>திருமணம்</th>
-<th>பணி விவரம்</th>
+<th>பணி விவரம் <button type="button" id="btn_job_global" onclick="toggleAllJobTamil()" style="font-size:10px;padding:1px 6px;border:1px solid #fff;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;">த</button></th>
 <th style="width:5%"></th>
 </tr>
 </thead>
@@ -260,7 +286,7 @@ stateSelect.addEventListener('change', function() { loadDistricts(this.value, ''
 {% endfor %}
 </select>
 </td>
-<td><input type="text" name="family_job_{{ forloop.counter }}" class="form-control form-control-sm" value="{{ fm.job_info }}" placeholder="பணி விவரம்"></td>
+<td><input type="text" name="family_job_{{ forloop.counter }}" class="form-control form-control-sm job-field" value="{{ fm.job_info }}" placeholder="பணி விவரம்"></td>
 <td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="removeFamilyRow(this)"><i class="fas fa-times"></i></button></td>
 </tr>
 {% endfor %}
@@ -297,7 +323,7 @@ row.innerHTML = `
 <td><input type="text" name="family_education_${idx}" class="form-control form-control-sm" placeholder="படிப்பு"></td>
 <td><select name="family_relation_${idx}" class="form-select form-select-sm"><option value="">-</option>${relationOptions}</select></td>
 <td><select name="family_marital_${idx}" class="form-select form-select-sm"><option value="">-</option>${maritalOptions}</select></td>
-<td><input type="text" name="family_job_${idx}" class="form-control form-control-sm" placeholder="பணி விவரம்"></td>
+<td><input type="text" name="family_job_${idx}" class="form-control form-control-sm job-field" placeholder="பணி விவரம்"></td>
 <td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="removeFamilyRow(this)"><i class="fas fa-times"></i></button></td>
 `;
 tbody.appendChild(row);
@@ -475,33 +501,85 @@ errorDiv.style.display = 'none';
 }
 </script>
 
+
+
+<script>
+// Job field Tamil toggle - simple data attribute approach
+function toggleJobTamil(btn) {
+  var input = btn.previousElementSibling;
+  var isOn = input.dataset.tamil === 'true';
+  isOn = !isOn;
+  input.dataset.tamil = isOn ? 'true' : 'false';
+  btn.style.background = isOn ? '#b91c1c' : '#fff';
+  btn.style.color = isOn ? '#fff' : '#b91c1c';
+  input.focus();
+}
+
+function handleJobKeydown(e) {
+  var input = e.target;
+  if (input.dataset.tamil !== 'true') return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (['Backspace','Delete','Tab','Enter','Escape',
+       'ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(e.key)) return;
+  if (e.key.length !== 1) return;
+  e.preventDefault();
+  var key = e.shiftKey ? e.key.toUpperCase() : e.key;
+  var ch = (BAMINI_MAP[key] !== undefined) ? BAMINI_MAP[key] : e.key;
+  var s = input.selectionStart, en = input.selectionEnd;
+  input.value = input.value.slice(0,s) + ch + input.value.slice(en);
+  input.selectionStart = input.selectionEnd = s + ch.length;
+}
+
+// Setup all job fields - auto Tamil ON
+function setupJobFields() {
+  document.querySelectorAll('.job-field').forEach(function(input) {
+    if (!input._jobSetup) {
+      input._jobSetup = true;
+      input.dataset.tamil = 'true';
+      input.addEventListener('keydown', handleJobKeydown);
+    }
+  });
+}
+
+window.addEventListener('load', setupJobFields);
+</script>
+
+<script>
+var jobTamilEnabled = true; // ON by default
+
+function toggleAllJobTamil() {
+  jobTamilEnabled = !jobTamilEnabled;
+  var btn = document.getElementById('btn_job_global');
+  btn.style.background = jobTamilEnabled ? '#b91c1c' : '#fff';
+  btn.style.color = jobTamilEnabled ? '#fff' : '#b91c1c';
+}
+
+// Single event listener on table for all job fields
+document.addEventListener('keydown', function(e) {
+  if (!jobTamilEnabled) return;
+  if (!e.target.classList.contains('job-field')) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (['Backspace','Delete','Tab','Enter','Escape',
+       'ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(e.key)) return;
+  if (e.key.length !== 1) return;
+  e.preventDefault();
+  var key = e.shiftKey ? e.key.toUpperCase() : e.key;
+  var ch = (BAMINI_MAP[key] !== undefined) ? BAMINI_MAP[key] : e.key;
+  var input = e.target;
+  var s = input.selectionStart, en = input.selectionEnd;
+  input.value = input.value.slice(0,s) + ch + input.value.slice(en);
+  input.selectionStart = input.selectionEnd = s + ch.length;
+});
+</script>
 </form>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 // Bamini Unicode keyboard mapping
-const BAMINI_MAP = {
-  'f':'க','F':'ங',
-  'r':'ச','R':'ஞ',
-  'j':'ட','J':'ண',
-  'e':'த','E':'ந',
-  'l':'ப','L':'ம',
-  'y':'ய','u':'ர','o':'ல','O':'வ',
-  'i':'ழ','I':'ள','k':'ற','K':'ன',
-  'h':'ா','p':'ி','P':'ீ',
-  '[':'ு','{':'ூ',
-  'n':'ெ','N':'ே','b':'ை',
-  't':'ொ','T':'ோ','s':'ௌ',
-  ';':'்','\\':'ஷ','d':'ஜ','g':'ஹ',']':'ஸ',
-  'a':'அ','A':'ஆ','q':'இ','Q':'ஈ',
-  'w':'உ','W':'ஊ','x':'எ','X':'ஏ',
-  'z':'ஒ','Z':'ஓ','c':'ஐ','C':'ஔ',
-  ' ':' ',
-};
 
 var tamilOn = {};
-var tamilFieldIds = ['id_name','id_birth_place','id_native_place','id_property_value'];
+var tamilFieldIds = ['id_name','id_birth_place','id_native_place','id_property_value','id_thisai_iruppu','id_profession_comments'];
 
 function setupBamini(fid) {
   var el = document.getElementById(fid);
