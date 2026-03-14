@@ -63,10 +63,7 @@ var BAMINI_MAP = {
 </div>
 </div>
 <div class="col-md-6">
-<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-<label class="form-label" style="margin:0">பெயர் *</label>
-<button type="button" id="btn_id_name" onclick="toggleTamil('id_name')" style="font-size:11px;padding:1px 8px;border:1px solid #b91c1c;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;">த</button>
-</div>
+<label class="form-label">பெயர் * <button type="button" id="btn_id_name" onclick="toggleTamil('id_name')" class="btn-tamil">த</button></label>
 {{ form.name }}
 </div>
 <div class="col-md-4">
@@ -156,17 +153,11 @@ stateSelect.addEventListener('change', function() { loadDistricts(this.value, ''
 <small class="text-muted">eg. 10:45 AM</small>
 </div>
 <div class="col-md-3">
-<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-<label class="form-label" style="margin:0">பிறந்த ஊர் *</label>
-<button type="button" id="btn_id_birth_place" onclick="toggleTamil('id_birth_place')" style="font-size:11px;padding:1px 8px;border:1px solid #b91c1c;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;">த</button>
-</div>
+<label class="form-label">பிறந்த ஊர் * <button type="button" id="btn_id_birth_place" onclick="toggleTamil('id_birth_place')" class="btn-tamil">த</button></label>
 {{ form.birth_place }}
 </div>
 <div class="col-md-3">
-<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-<label class="form-label" style="margin:0">பூர்வீகம் *</label>
-<button type="button" id="btn_id_native_place" onclick="toggleTamil('id_native_place')" style="font-size:11px;padding:1px 8px;border:1px solid #b91c1c;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;">த</button>
-</div>
+<label class="form-label">பூர்வீகம் * <button type="button" id="btn_id_native_place" onclick="toggleTamil('id_native_place')" class="btn-tamil">த</button></label>
 {{ form.native_place }}
 </div>
 <div class="col-md-3">
@@ -190,9 +181,7 @@ stateSelect.addEventListener('change', function() { loadDistricts(this.value, ''
 {{ form.birth_order }}
 </div>
 <div class="col-md-3">
-<label class="form-label">திசை இருப்பு *
-<button type="button" id="btn_id_thisai_iruppu" onclick="toggleTamil('id_thisai_iruppu')" style="font-size:11px;padding:1px 8px;border:1px solid #b91c1c;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;margin-left:4px;">த</button>
-</label>
+<label class="form-label">திசை இருப்பு * <button type="button" id="btn_id_thisai_iruppu" onclick="toggleTamil('id_thisai_iruppu')" class="btn-tamil">த</button></label>
 {{ form.thisai_iruppu }}
 </div>
 </div>
@@ -222,10 +211,7 @@ stateSelect.addEventListener('change', function() { loadDistricts(this.value, ''
 {{ form.profession }}
 </div>
 <div class="col-md-12">
-<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-<label class="form-label" style="margin:0">தொழில் விவரம்</label>
-<button type="button" id="btn_id_profession_comments" onclick="toggleTamil('id_profession_comments')" style="font-size:11px;padding:1px 8px;border:1px solid #b91c1c;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;">த</button>
-</div>
+<label class="form-label">தொழில் விவரம் <button type="button" id="btn_id_profession_comments" onclick="toggleTamil('id_profession_comments')" class="btn-tamil">த</button></label>
 {{ form.profession_comments }}
 </div>
 <div class="col-md-4">
@@ -237,10 +223,7 @@ stateSelect.addEventListener('change', function() { loadDistricts(this.value, ''
 {{ form.annual_income }}
 </div>
 <div class="col-md-4">
-<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-<label class="form-label" style="margin:0">சொத்து மதிப்பு</label>
-<button type="button" id="btn_id_property_value" onclick="toggleTamil('id_property_value')" style="font-size:11px;padding:1px 8px;border:1px solid #b91c1c;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;">த</button>
-</div>
+<label class="form-label">சொத்து மதிப்பு <button type="button" id="btn_id_property_value" onclick="toggleTamil('id_property_value')" class="btn-tamil">த</button></label>
 {{ form.property_value }}
 </div>
 <div class="col-md-3">
@@ -578,6 +561,9 @@ document.addEventListener('keydown', function(e) {
   input.selectionStart = input.selectionEnd = s + ch.length;
 });
 </script>
+<style>
+.btn-tamil { font-size:11px; padding:1px 8px; border:1px solid #b91c1c; background:#b91c1c; color:#fff; border-radius:3px; cursor:pointer; margin-left:4px; vertical-align:middle; }
+</style>
 </form>
 {% endblock %}
 
