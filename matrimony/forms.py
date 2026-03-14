@@ -14,7 +14,6 @@ COMMON_EXCLUDE = ['uid', 'created_by', 'created_at', 'updated_at', 'is_new', 'is
 COMMON_WIDGETS = {
     'name':                      forms.TextInput(attrs={'class': 'form-control'}),
     'rasi':                      forms.Select(attrs={'class': 'form-select', 'id': 'id_rasi'}),
-    'lagnam':                    forms.Select(attrs={'class': 'form-select', 'id': 'id_lagnam'}),
     'nachathiram':               forms.Select(attrs={'class': 'form-select', 'id': 'id_nachathiram'}),
     'profession':                forms.Select(attrs={'class': 'form-select'}),
     'profession_comments':       forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
