@@ -142,6 +142,7 @@ class AdminProfile(models.Model):
     address_line3  = models.CharField(max_length=200, blank=True, verbose_name="முகவரி வரி 3")
     phone          = models.CharField(max_length=15, verbose_name="தொலைபேசி")
     alternate_phone= models.CharField(max_length=15, blank=True, verbose_name="மாற்று தொலைபேசி")
+    email          = models.EmailField(blank=True, verbose_name="மின்னஞ்சல்")
     def __str__(self): return f"{self.user.get_full_name()} - {self.location}"
 
 
