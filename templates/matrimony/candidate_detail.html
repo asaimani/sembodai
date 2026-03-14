@@ -89,6 +89,7 @@
                     {% if candidate.birth_time %}{% include 'matrimony/_detail_row.html' with label="பிறந்த நேரம்" value=candidate.birth_time|time:"h:i A" %}{% endif %}
                     {% if candidate.rasi %}{% include 'matrimony/_detail_row.html' with label="ராசி" value=candidate.rasi %}{% endif %}
                     {% if candidate.nachathiram %}{% include 'matrimony/_detail_row.html' with label="நட்சத்திரம்" value=candidate.nachathiram %}{% endif %}
+                    {% if candidate.lagnam %}{% include 'matrimony/_detail_row.html' with label="லக்னம்" value=candidate.lagnam %}{% endif %}
                     {% if candidate.sevadosham %}{% include 'matrimony/_detail_row.html' with label="செவ்வாய் தோஷம்" value=candidate.sevadosham %}{% endif %}
                     {% if candidate.ragu_kethu %}{% include 'matrimony/_detail_row.html' with label="ராகு/கேது" value=candidate.ragu_kethu %}{% endif %}
                     {% if candidate.tamil_year %}{% include 'matrimony/_detail_row.html' with label="தமிழ் வருடம்" value=candidate.tamil_year %}{% endif %}
