@@ -5,445 +5,503 @@
 {% block content %}
 <form method="post" enctype="multipart/form-data">
 
-    <input type="hidden" name="_gender" value="{{ gender }}">
-    {% if form.errors %}
-    <div class="alert alert-danger">
-        <strong>சேமிக்க முடியவில்லை — பிழைகள்:</strong>
-        {{ form.errors }}
-    </div>
-    {% endif %}
+<input type="hidden" name="_gender" value="{{ gender }}">
+{% if form.errors %}
+<div class="alert alert-danger">
+<strong>சேமிக்க முடியவில்லை — பிழைகள்:</strong>
+{{ form.errors }}
+</div>
+{% endif %}
 {% csrf_token %}
 
 <!-- Payment Option -->
 <div class="form-section">
-    <div class="form-section-title"><i class="fas fa-rupee-sign me-2"></i>கட்டண விவரம்</div>
-    <div class="row g-3">
-        <div class="col-12">
-            <div class="d-flex gap-3">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="is_paid" id="paid_yes" value="true" checked>
-                    <label class="form-check-label" for="paid_yes">✅ கட்டணம் செலுத்தியது (முதன்மை பட்டியல்)</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="is_paid" id="paid_no" value="false">
-                    <label class="form-check-label" for="paid_no">⏳ கட்டணம் நிலுவை (நிழல் பட்டியல்)</label>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="form-section-title"><i class="fas fa-rupee-sign me-2"></i>கட்டண விவரம்</div>
+<div class="row g-3">
+<div class="col-12">
+<div class="d-flex gap-3">
+<div class="form-check">
+<input class="form-check-input" type="radio" name="is_paid" id="paid_yes" value="true" {% if not candidate or candidate.is_paid %}checked{% endif %}>
+<label class="form-check-label" for="paid_yes">✅ கட்டணம் செலுத்தியது (முதன்மை பட்டியல்)</label>
+</div>
+<div class="form-check">
+<input class="form-check-input" type="radio" name="is_paid" id="paid_no" value="false" {% if candidate and not candidate.is_paid %}checked{% endif %}>
+<label class="form-check-label" for="paid_no">⏳ கட்டணம் நிலுவை (நிழல் பட்டியல்)</label>
+</div>
+</div>
+</div>
+</div>
 </div>
 
 <!-- Basic Info -->
 <div class="form-section">
-    <div class="form-section-title"><i class="fas fa-user me-2"></i>அடிப்படை விவரங்கள்</div>
-    <div class="row g-3">
-        <div class="col-md-12">
-            <div class="alert {% if gender == 'M' %}alert-primary{% else %}alert-danger{% endif %} py-2 mb-0">
-                <strong>{% if gender == 'M' %}🧔 ஆண் விண்ணப்பம்{% else %}👩 பெண் விண்ணப்பம்{% endif %}</strong>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><label class="form-label" style="margin:0">பெயர் *</label><button type="button" id="btn_id_name" onclick="toggleTamil('id_name')" style="font-size:12px;padding:2px 10px;border:1px solid #b91c1c;background:#fff;color:#b91c1c;border-radius:3px;cursor:pointer;z-index:10;position:relative;">த</button></div>
-            {{ form.name }}
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">பிறந்த தேதி *</label>
-            {{ form.date_of_birth }}
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">உயரம்</label>
-            {{ form.height }}
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">சாதி</label>
-            {{ form.caste }}
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">உட்பிரிவு</label>
-            {{ form.sub_caste }}
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">நிறம்</label>
-            {{ form.complexion }}
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">மாநிலம்</label>
-            {{ form.state }}
-            {# state select gets id=id_state from Django #}
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">மாவட்டம்</label>
-            {{ form.district }}
-        </div>
-    </div>
+<div class="form-section-title"><i class="fas fa-user me-2"></i>அடிப்படை விவரங்கள்</div>
+<div class="row g-3">
+<div class="col-md-12">
+<div class="alert {% if gender == 'M' %}alert-primary{% else %}alert-danger{% endif %} py-2 mb-0">
+<strong>{% if gender == 'M' %}🧔 ஆண் விண்ணப்பம்{% else %}👩 பெண் விண்ணப்பம்{% endif %}</strong>
+</div>
+</div>
+<div class="col-md-6">
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+<label class="form-label" style="margin:0">பெயர் *</label>
+<button type="button" id="btn_id_name" onclick="toggleTamil('id_name')" style="font-size:11px;padding:1px 8px;border:1px solid #b91c1c;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;">த</button>
+</div>
+{{ form.name }}
+</div>
+<div class="col-md-4">
+<label class="form-label">பிறந்த தேதி *</label>
+{{ form.date_of_birth }}
+</div>
+<div class="col-md-4">
+<label class="form-label">உயரம்</label>
+{{ form.height }}
+</div>
+<div class="col-md-4">
+<label class="form-label">சாதி</label>
+{{ form.caste }}
+</div>
+<div class="col-md-4">
+<label class="form-label">உட்பிரிவு</label>
+{{ form.sub_caste }}
+</div>
+<div class="col-md-4">
+<label class="form-label">நிறம்</label>
+{{ form.complexion }}
+</div>
+<div class="col-md-4">
+<label class="form-label">மாநிலம்</label>
+{{ form.state }}
+</div>
+<div class="col-md-4">
+<label class="form-label">மாவட்டம்</label>
+{{ form.district }}
+</div>
+</div>
 </div>
 
 <script>
 (function() {
-    const stateSelect = document.getElementById('id_state');
-    const districtSelect = document.getElementById('id_district');
-    if (!stateSelect || !districtSelect) return;
-
-    const currentDistrict = "{{ form.instance.district_id|default:'' }}";
-
-    function loadDistricts(stateId, selectDistrictId) {
-        districtSelect.innerHTML = '<option value="">---------</option>';
-        if (!stateId) return;
-        fetch('/api/districts/?state_id=' + stateId)
-            .then(r => r.json())
-            .then(data => {
-                data.forEach(d => {
-                    const opt = document.createElement('option');
-                    opt.value = d.id;
-                    opt.text = d.name;
-                    if (String(d.id) === String(selectDistrictId)) opt.selected = true;
-                    districtSelect.appendChild(opt);
-                });
-            });
-    }
-
-    // On page load - if state already selected, load its districts
-    if (stateSelect.value) {
-        loadDistricts(stateSelect.value, currentDistrict);
-    }
-
-    // On state change
-    stateSelect.addEventListener('change', function() {
-        loadDistricts(this.value, '');
-    });
+const stateSelect = document.getElementById('id_state');
+const districtSelect = document.getElementById('id_district');
+if (!stateSelect || !districtSelect) return;
+const currentDistrict = "{{ form.instance.district_id|default:'' }}";
+function loadDistricts(stateId, selectDistrictId) {
+districtSelect.innerHTML = '<option value="">---------</option>';
+if (!stateId) return;
+fetch('/api/districts/?state_id=' + stateId)
+.then(r => r.json())
+.then(data => {
+data.forEach(d => {
+const opt = document.createElement('option');
+opt.value = d.id;
+opt.text = d.name;
+if (String(d.id) === String(selectDistrictId)) opt.selected = true;
+districtSelect.appendChild(opt);
+});
+});
+}
+if (stateSelect.value) { loadDistricts(stateSelect.value, currentDistrict); }
+stateSelect.addEventListener('change', function() { loadDistricts(this.value, ''); });
 })();
 </script>
 
 <!-- Astrology -->
 <div class="form-section">
-    <div class="form-section-title"><i class="fas fa-star me-2"></i>ஜோதிட விவரங்கள்</div>
-    <div class="row g-3">
-        <div class="col-md-3">
-            <label class="form-label">ராசி</label>
-            {{ form.rasi }}
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">நட்சத்திரம்</label>
-            {{ form.nachathiram }}
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">செவ்வாய் தோஷம்</label>
-            {{ form.sevadosham }}
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">ராகு/கேது</label>
-            {{ form.ragu_kethu }}
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">பிறந்த நேரம்</label>
-            {{ form.birth_time }}
-            <small class="text-muted">eg. 10:45 AM</small>
-        </div>
-        <div class="col-md-3">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><label class="form-label" style="margin:0">பிறந்த ஊர் *</label><button type="button" id="btn_id_birth_place" onclick="toggleTamil('id_birth_place')" style="font-size:12px;padding:2px 10px;border:1px solid #b91c1c;background:#fff;color:#b91c1c;border-radius:3px;cursor:pointer;z-index:10;position:relative;">த</button></div>
-            {{ form.birth_place }}
-        </div>
-        <div class="col-md-3">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><label class="form-label" style="margin:0">பூர்வீகம் *</label><button type="button" id="btn_id_native_place" onclick="toggleTamil('id_native_place')" style="font-size:12px;padding:2px 10px;border:1px solid #b91c1c;background:#fff;color:#b91c1c;border-radius:3px;cursor:pointer;z-index:10;position:relative;">த</button></div>
-            {{ form.native_place }}
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">தமிழ் வருடம்</label>
-            {{ form.tamil_year }}
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">தமிழ் மாதம்</label>
-            {{ form.tamil_month }}
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">தமிழ் தேதி</label>
-            {{ form.tamil_day }}
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">பிறப்பு வரிசை *</label>
-            {{ form.birth_order }}
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">திசை இருப்பு *</label>
-            {{ form.thisai_iruppu }}
-        </div>
-    </div>
+<div class="form-section-title"><i class="fas fa-star me-2"></i>ஜோதிட விவரங்கள்</div>
+<div class="row g-3">
+<div class="col-md-3">
+<label class="form-label">ராசி</label>
+{{ form.rasi }}
+</div>
+<div class="col-md-3">
+<label class="form-label">நட்சத்திரம்</label>
+{{ form.nachathiram }}
+</div>
+<div class="col-md-3">
+<label class="form-label">செவ்வாய் தோஷம்</label>
+{{ form.sevadosham }}
+</div>
+<div class="col-md-3">
+<label class="form-label">ராகு/கேது</label>
+{{ form.ragu_kethu }}
+</div>
+<div class="col-md-3">
+<label class="form-label">பிறந்த நேரம்</label>
+{{ form.birth_time }}
+<small class="text-muted">eg. 10:45 AM</small>
+</div>
+<div class="col-md-3">
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+<label class="form-label" style="margin:0">பிறந்த ஊர் *</label>
+<button type="button" id="btn_id_birth_place" onclick="toggleTamil('id_birth_place')" style="font-size:11px;padding:1px 8px;border:1px solid #b91c1c;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;">த</button>
+</div>
+{{ form.birth_place }}
+</div>
+<div class="col-md-3">
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+<label class="form-label" style="margin:0">பூர்வீகம் *</label>
+<button type="button" id="btn_id_native_place" onclick="toggleTamil('id_native_place')" style="font-size:11px;padding:1px 8px;border:1px solid #b91c1c;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;">த</button>
+</div>
+{{ form.native_place }}
+</div>
+<div class="col-md-3">
+<label class="form-label">தமிழ் வருடம்</label>
+{{ form.tamil_year }}
+</div>
+<div class="col-md-3">
+<label class="form-label">தமிழ் மாதம்</label>
+{{ form.tamil_month }}
+</div>
+<div class="col-md-3">
+<label class="form-label">தமிழ் தேதி</label>
+{{ form.tamil_day }}
+</div>
+<div class="col-md-3">
+<label class="form-label">பிறப்பு வரிசை *</label>
+{{ form.birth_order }}
+</div>
+<div class="col-md-3">
+<label class="form-label">திசை இருப்பு *</label>
+{{ form.thisai_iruppu }}
+</div>
+</div>
 </div>
 
 <!-- Jathagam Chart -->
 <div class="form-section">
-    <div class="row g-2 mb-2">
-        <div class="col-md-3">
-            <label class="form-label fw-500">ஜாதகம் வகை</label>
-            {{ form.jathagam }}
-        </div>
-    </div>
-    {% include 'matrimony/_jathagam_chart.html' with form_mode=True %}
+<div class="row g-2 mb-2">
+<div class="col-md-3">
+<label class="form-label fw-500">ஜாதகம் வகை</label>
+{{ form.jathagam }}
+</div>
+</div>
+{% include 'matrimony/_jathagam_chart.html' with form_mode=True %}
 </div>
 
 <!-- Education & Career -->
 <div class="form-section">
-    <div class="form-section-title"><i class="fas fa-graduation-cap me-2"></i>கல்வி மற்றும் தொழில்</div>
-    <div class="row g-3">
-        <div class="col-md-6">
-            <label class="form-label">கல்வித் தகுதி</label>
-            {{ form.educational_qualification }}
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">தொழில்</label>
-            {{ form.profession }}
-        </div>
-        <div class="col-md-12">
-            <label class="form-label">தொழில் விவரம்</label>
-            {{ form.profession_comments }}
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">மாத சம்பளம் (₹)</label>
-            {{ form.monthly_salary }}
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">வருடாந்திர வருமானம் (₹)</label>
-            {{ form.annual_income }}
-        </div>
-        <div class="col-md-4">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><label class="form-label" style="margin:0">சொத்து மதிப்பு</label><button type="button" id="btn_id_property_value" onclick="toggleTamil('id_property_value')" style="font-size:12px;padding:2px 10px;border:1px solid #b91c1c;background:#fff;color:#b91c1c;border-radius:3px;cursor:pointer;z-index:10;position:relative;">த</button></div>
-            {{ form.property_value }}
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">சொந்த வீடு</label>
-            {{ form.own_house }}
-        </div>
-    </div>
+<div class="form-section-title"><i class="fas fa-graduation-cap me-2"></i>கல்வி மற்றும் தொழில்</div>
+<div class="row g-3">
+<div class="col-md-6">
+<label class="form-label">கல்வித் தகுதி</label>
+{{ form.educational_qualification }}
 </div>
-
-
+<div class="col-md-6">
+<label class="form-label">தொழில்</label>
+{{ form.profession }}
+</div>
+<div class="col-md-12">
+<label class="form-label">தொழில் விவரம்</label>
+{{ form.profession_comments }}
+</div>
+<div class="col-md-4">
+<label class="form-label">மாத சம்பளம் (₹)</label>
+{{ form.monthly_salary }}
+</div>
+<div class="col-md-4">
+<label class="form-label">வருடாந்திர வருமானம் (₹)</label>
+{{ form.annual_income }}
+</div>
+<div class="col-md-4">
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+<label class="form-label" style="margin:0">சொத்து மதிப்பு</label>
+<button type="button" id="btn_id_property_value" onclick="toggleTamil('id_property_value')" style="font-size:11px;padding:1px 8px;border:1px solid #b91c1c;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;">த</button>
+</div>
+{{ form.property_value }}
+</div>
+<div class="col-md-3">
+<label class="form-label">சொந்த வீடு</label>
+{{ form.own_house }}
+</div>
+</div>
+</div>
 
 <!-- Family Members -->
 <div class="form-section">
-    <div class="form-section-title d-flex justify-content-between align-items-center">
-        <span><i class="fas fa-users me-2"></i>குடும்பத்தினர் விவரம்</span>
-        <button type="button" class="btn btn-sm btn-success" id="add-family-row" onclick="addFamilyRow()">
-            <i class="fas fa-plus me-1"></i>சேர்
-        </button>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-bordered table-sm" id="family-table">
-            <thead style="background:#8b1a1a;color:white">
-                <tr>
-                    <th style="width:5%">#</th>
-                    <th>பெயர்</th>
-                    <th>படிப்பு</th>
-                    <th>உறவு</th>
-                    <th>திருமணம்</th>
-                    <th>பணி விவரம்</th>
-                    <th style="width:5%"></th>
-                </tr>
-            </thead>
-            <tbody id="family-tbody">
-                {% for fm in family_members %}
-                <tr class="family-row">
-                    <td class="row-num text-center fw-bold text-muted"></td>
-                    <td><input type="text" name="family_name_{{ forloop.counter }}" class="form-control form-control-sm" value="{{ fm.name }}" placeholder="பெயர்"></td>
-                    <td><input type="text" name="family_education_{{ forloop.counter }}" class="form-control form-control-sm" value="{{ fm.education }}" placeholder="படிப்பு"></td>
-                    <td>
-                        <select name="family_relation_{{ forloop.counter }}" class="form-select form-select-sm">
-                            <option value="">-</option>
-                            {% for r in relations %}
-                            <option value="{{ r.id }}" {% if fm.relation_id == r.id %}selected{% endif %}>{{ r.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td>
-                        <select name="family_marital_{{ forloop.counter }}" class="form-select form-select-sm">
-                            <option value="">-</option>
-                            {% for m in marital_statuses %}
-                            <option value="{{ m.id }}" {% if fm.marital_status_id == m.id %}selected{% endif %}>{{ m.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td><input type="text" name="family_job_{{ forloop.counter }}" class="form-control form-control-sm" value="{{ fm.job_info }}" placeholder="பணி விவரம்"></td>
-                    <td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="removeFamilyRow(this)"><i class="fas fa-times"></i></button></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <small class="text-muted">அதிகபட்சம் 5 நபர்கள் சேர்க்கலாம்</small>
+<div class="form-section-title d-flex justify-content-between align-items-center">
+<span><i class="fas fa-users me-2"></i>குடும்பத்தினர் விவரம்</span>
+<button type="button" class="btn btn-sm btn-success" id="add-family-row" onclick="addFamilyRow()">
+<i class="fas fa-plus me-1"></i>சேர்
+</button>
+</div>
+<div class="table-responsive">
+<table class="table table-bordered table-sm" id="family-table">
+<thead style="background:#8b1a1a;color:white">
+<tr>
+<th style="width:5%">#</th>
+<th>பெயர்</th>
+<th>படிப்பு</th>
+<th>உறவு</th>
+<th>திருமணம்</th>
+<th>பணி விவரம்</th>
+<th style="width:5%"></th>
+</tr>
+</thead>
+<tbody id="family-tbody">
+{% for fm in family_members %}
+<tr class="family-row">
+<td class="row-num text-center fw-bold text-muted"></td>
+<td><input type="text" name="family_name_{{ forloop.counter }}" class="form-control form-control-sm" value="{{ fm.name }}" placeholder="பெயர்"></td>
+<td><input type="text" name="family_education_{{ forloop.counter }}" class="form-control form-control-sm" value="{{ fm.education }}" placeholder="படிப்பு"></td>
+<td>
+<select name="family_relation_{{ forloop.counter }}" class="form-select form-select-sm">
+<option value="">-</option>
+{% for r in relations %}
+<option value="{{ r.id }}" {% if fm.relation_id == r.id %}selected{% endif %}>{{ r.name }}</option>
+{% endfor %}
+</select>
+</td>
+<td>
+<select name="family_marital_{{ forloop.counter }}" class="form-select form-select-sm">
+<option value="">-</option>
+{% for m in marital_statuses %}
+<option value="{{ m.id }}" {% if fm.marital_status_id == m.id %}selected{% endif %}>{{ m.name }}</option>
+{% endfor %}
+</select>
+</td>
+<td><input type="text" name="family_job_{{ forloop.counter }}" class="form-control form-control-sm" value="{{ fm.job_info }}" placeholder="பணி விவரம்"></td>
+<td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="removeFamilyRow(this)"><i class="fas fa-times"></i></button></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+<small class="text-muted">அதிகபட்சம் 5 நபர்கள் சேர்க்கலாம்</small>
 </div>
 
 <script>
 var relationOptions = `{% for r in relations %}<option value="{{ r.id }}">{{ r.name }}</option>{% endfor %}`;
 var maritalOptions  = `{% for m in marital_statuses %}<option value="{{ m.id }}">{{ m.name }}</option>{% endfor %}`;
-var familyCount = {{ family_members|length }};
 
 function updateRowNumbers() {
-    document.querySelectorAll('#family-tbody .family-row').forEach(function(row, i) {
-        row.querySelector('.row-num').textContent = i + 1;
-        // Update name attributes with correct index
-        var idx = i + 1;
-        row.querySelectorAll('input, select').forEach(function(el) {
-            el.name = el.name.replace(/_\d+$/, '_' + idx);
-        });
-    });
+document.querySelectorAll('#family-tbody .family-row').forEach(function(row, i) {
+row.querySelector('.row-num').textContent = i + 1;
+var idx = i + 1;
+row.querySelectorAll('input, select').forEach(function(el) {
+el.name = el.name.replace(/_\d+$/, '_' + idx);
+});
+});
 }
 
 function addFamilyRow() {
-    var tbody = document.getElementById('family-tbody');
-    var count = tbody.querySelectorAll('.family-row').length;
-    if (count >= 5) { alert('அதிகபட்சம் 5 நபர்கள் மட்டுமே சேர்க்கலாம்!'); return; }
-    var idx = count + 1;
-    var row = document.createElement('tr');
-    row.className = 'family-row';
-    row.innerHTML = `
-        <td class="row-num text-center fw-bold text-muted">${idx}</td>
-        <td><input type="text" name="family_name_${idx}" class="form-control form-control-sm" placeholder="பெயர்"></td>
-        <td><input type="text" name="family_education_${idx}" class="form-control form-control-sm" placeholder="படிப்பு"></td>
-        <td><select name="family_relation_${idx}" class="form-select form-select-sm"><option value="">-</option>${relationOptions}</select></td>
-        <td><select name="family_marital_${idx}" class="form-select form-select-sm"><option value="">-</option>${maritalOptions}</select></td>
-        <td><input type="text" name="family_job_${idx}" class="form-control form-control-sm" placeholder="பணி விவரம்"></td>
-        <td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="removeFamilyRow(this)"><i class="fas fa-times"></i></button></td>
-    `;
-    tbody.appendChild(row);
-    updateRowNumbers();
+var tbody = document.getElementById('family-tbody');
+var count = tbody.querySelectorAll('.family-row').length;
+if (count >= 5) { alert('அதிகபட்சம் 5 நபர்கள் மட்டுமே சேர்க்கலாம்!'); return; }
+var idx = count + 1;
+var row = document.createElement('tr');
+row.className = 'family-row';
+row.innerHTML = `
+<td class="row-num text-center fw-bold text-muted">${idx}</td>
+<td><input type="text" name="family_name_${idx}" class="form-control form-control-sm" placeholder="பெயர்"></td>
+<td><input type="text" name="family_education_${idx}" class="form-control form-control-sm" placeholder="படிப்பு"></td>
+<td><select name="family_relation_${idx}" class="form-select form-select-sm"><option value="">-</option>${relationOptions}</select></td>
+<td><select name="family_marital_${idx}" class="form-select form-select-sm"><option value="">-</option>${maritalOptions}</select></td>
+<td><input type="text" name="family_job_${idx}" class="form-control form-control-sm" placeholder="பணி விவரம்"></td>
+<td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="removeFamilyRow(this)"><i class="fas fa-times"></i></button></td>
+`;
+tbody.appendChild(row);
+updateRowNumbers();
 }
 
 function removeFamilyRow(btn) {
-    btn.closest('tr').remove();
-    updateRowNumbers();
+btn.closest('tr').remove();
+updateRowNumbers();
 }
 
-// Number existing rows on load
+document.addEventListener('DOMContentLoaded', updateRowNumbers);
+</script>
+
+<!-- Address -->
+<div class="form-section">
+<div class="form-section-title"><i class="fas fa-map-marker-alt me-2"></i>முகவரி விவரங்கள்</div>
+<div class="row g-3">
+<div class="col-md-4">
+<label class="form-label">பெயர்</label>
+<select name="address_name" class="form-select" id="id_address_name">
+<option value="">---------</option>
+{% if candidate %}
+<option value="{{ candidate.name }}" {% if form.instance.address_name == candidate.name %}selected{% endif %}>{{ candidate.name }}</option>
+{% for fm in family_members %}
+<option value="{{ fm.name }}" {% if form.instance.address_name == fm.name %}selected{% endif %}>{{ fm.name }}</option>
+{% endfor %}
+{% endif %}
+{% if form.instance.address_name and form.instance.address_name not in address_name_choices %}
+<option value="{{ form.instance.address_name }}" selected>{{ form.instance.address_name }}</option>
+{% endif %}
+</select>
+</div>
+<div class="col-md-4">
+<label class="form-label">கைபேசி எண்</label>
+{{ form.mobile_number }}
+</div>
+<div class="col-md-4">
+<label class="form-label">வாட்ஸ்அப் எண்</label>
+{{ form.whatsapp_number }}
+</div>
+<div class="col-md-4">
+<label class="form-label">முகவரி வரி 1</label>
+{{ form.address_line1 }}
+</div>
+<div class="col-md-4">
+<label class="form-label">முகவரி வரி 2</label>
+{{ form.address_line2 }}
+</div>
+<div class="col-md-4">
+<label class="form-label">முகவரி வரி 3</label>
+{{ form.address_line3 }}
+</div>
+<div class="col-md-3">
+<label class="form-label">பின்கோட்</label>
+{{ form.pincode }}
+</div>
+</div>
+</div>
+
+<script>
+function updateAddressNameDropdown() {
+const select = document.getElementById('id_address_name');
+if (!select) return;
+select.querySelectorAll('option[data-dynamic]').forEach(o => o.remove());
+document.querySelectorAll('#family-tbody .family-row').forEach(row => {
+const nameInput = row.querySelector('input[name^="family_name_"]');
+if (nameInput && nameInput.value.trim()) {
+const opt = document.createElement('option');
+opt.value = nameInput.value.trim();
+opt.text = nameInput.value.trim();
+opt.setAttribute('data-dynamic', '1');
+select.appendChild(opt);
 }
-// Update on family name change
+});
+}
 document.addEventListener('input', function(e) {
-    if (e.target && e.target.name && e.target.name.startsWith('family_name_')) {
-        updateAddressNameDropdown();
-    }
+if (e.target && e.target.name && e.target.name.startsWith('family_name_')) {
+updateAddressNameDropdown();
+}
 });
 </script>
 
 <!-- Premium & Status -->
 <div class="form-section">
-    <div class="form-section-title"><i class="fas fa-crown me-2"></i>பிரீமியம் விவரம்</div>
-    <div class="row g-3">
-        <div class="col-md-3">
-            <label class="form-label">தொடக்க தேதி</label>
-            {{ form.premium_start_date }}
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">முடிவு தேதி</label>
-            {{ form.premium_end_date }}
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">நிலை</label>
-            {{ form.status }}
-        </div>
-    </div>
+<div class="form-section-title"><i class="fas fa-crown me-2"></i>பிரீமியம் விவரம்</div>
+<div class="row g-3">
+<div class="col-md-3">
+<label class="form-label">தொடக்க தேதி</label>
+{{ form.premium_start_date }}
+</div>
+<div class="col-md-3">
+<label class="form-label">முடிவு தேதி</label>
+{{ form.premium_end_date }}
+</div>
+<div class="col-md-3">
+<label class="form-label">நிலை</label>
+{{ form.status }}
+</div>
+</div>
 </div>
 
 <!-- Photos -->
 <div class="form-section">
-    <div class="form-section-title"><i class="fas fa-camera me-2"></i>புகைப்படங்கள் (அதிகபட்சம் 3)</div>
-    <div class="row g-3">
-        <div class="col-12">
-            <input type="file" name="photos" class="form-control" accept="image/*" id="photoInput" onchange="validatePhotoSize(this)">
-            <small class="text-muted">அதிகபட்சம் 5MB | JPG, PNG மட்டும்</small>
-            <div id="photoSizeError" class="text-danger small mt-1" style="display:none;">⚠️ புகைப்படம் 5MB-ஐ தாண்டக்கூடாது!</div>
-
-        </div>
-        {% if candidate %}
-        <div class="col-12">
-            <div class="d-flex gap-2 flex-wrap">
-                {% for photo in candidate.photos.all %}
-                <div style="position:relative;display:inline-block;margin:4px">
-                    <img src="{{ photo.photo.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0">
-                    <a href="{% url 'delete_photo' photo.id %}" 
-                       onclick="return confirm('இந்த புகைப்படத்தை நீக்கவா?')"
-                       style="position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1;text-decoration:none;display:flex;align-items:center;justify-content:center;">✕</a>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-    </div>
+<div class="form-section-title"><i class="fas fa-camera me-2"></i>புகைப்படம் (அதிகபட்சம் 1)</div>
+<div class="row g-3">
+<div class="col-12">
+<input type="file" name="photos" class="form-control" accept="image/*" id="photoInput" onchange="validatePhotoSize(this)">
+<small class="text-muted">அதிகபட்சம் 5MB | JPG, PNG மட்டும்</small>
+<div id="photoSizeError" class="text-danger small mt-1" style="display:none;">⚠️ புகைப்படம் 5MB-ஐ தாண்டக்கூடாது!</div>
+</div>
+{% if candidate %}
+<div class="col-12">
+<div class="d-flex gap-2 flex-wrap">
+{% for photo in candidate.photos.all %}
+<div style="position:relative;display:inline-block;margin:4px">
+<img src="{{ photo.photo.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0">
+<a href="{% url 'delete_photo' photo.id %}"
+onclick="return confirm('இந்த புகைப்படத்தை நீக்கவா?')"
+style="position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1;text-decoration:none;display:flex;align-items:center;justify-content:center;">✕</a>
+</div>
+{% endfor %}
+</div>
+</div>
+{% endif %}
+</div>
 </div>
 
 <div class="d-flex gap-2 justify-content-end">
-    <a href="{% url 'candidate_list' %}" class="btn btn-outline-secondary">
-        <i class="fas fa-times me-1"></i>ரத்து செய்
-    </a>
-    <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save me-1"></i>சேமி
-    </button>
+<a href="{% url 'candidate_list' %}" class="btn btn-outline-secondary">
+<i class="fas fa-times me-1"></i>ரத்து செய்
+</a>
+<button type="submit" class="btn btn-primary">
+<i class="fas fa-save me-1"></i>சேமி
+</button>
 </div>
 
 <script>
 // Dynamic sub_caste based on caste
-            });
-    }
-
-    if (casteSelect) {
-        casteSelect.addEventListener('change', function() {
-            loadSubCastes(this.value, null);
-        });
-        // On edit — load existing sub_castes
-        const currentSubCaste = subCasteSelect.value;
-        if (casteSelect.value) {
-            loadSubCastes(casteSelect.value, currentSubCaste);
-        }
-    }
+document.addEventListener('DOMContentLoaded', function() {
+const casteSelect = document.getElementById('id_caste');
+const subCasteSelect = document.getElementById('id_sub_caste');
+function loadSubCastes(casteId, selectedId) {
+subCasteSelect.innerHTML = '<option value="">---------</option>';
+if (!casteId) return;
+fetch(`/api/sub_castes/?caste_id=${casteId}`)
+.then(r => r.json())
+.then(data => {
+data.forEach(sc => {
+const opt = document.createElement('option');
+opt.value = sc.id;
+opt.text = sc.name;
+if (selectedId && sc.id == selectedId) opt.selected = true;
+subCasteSelect.appendChild(opt);
 });
+});
+}
+if (casteSelect) {
+casteSelect.addEventListener('change', function() { loadSubCastes(this.value, null); });
+const currentSubCaste = subCasteSelect.value;
+if (casteSelect.value) { loadSubCastes(casteSelect.value, currentSubCaste); }
+}
+});
+
+// Photo size validation
+function validatePhotoSize(input) {
+const maxSize = 5 * 1024 * 1024;
+const errorDiv = document.getElementById('photoSizeError');
+if (input.files[0] && input.files[0].size > maxSize) {
+errorDiv.style.display = 'block';
+input.value = '';
+} else {
+errorDiv.style.display = 'none';
+}
+}
 </script>
 
+</form>
+{% endblock %}
 
-
-
-
+{% block extra_js %}
 <script>
-// Bamini Unicode mapping
+// Bamini Unicode keyboard mapping
 const BAMINI_MAP = {
   'f':'க','F':'ங',
   'r':'ச','R':'ஞ',
   'j':'ட','J':'ண',
   'e':'த','E':'ந',
   'l':'ப','L':'ம',
-  'y':'ய',
-  'u':'ர',
-  'o':'ல',
-  'O':'வ',
-  'i':'ழ',
-  'I':'ள',
-  'k':'ற',
-  'K':'ன',
-  'h':'ா',
-  'p':'ி',
-  'P':'ீ',
-  '[':'ு',
-  '{':'ூ',
-  'n':'ெ',
-  'N':'ே',
-  'b':'ை',
-  't':'ொ',
-  'T':'ோ',
-  's':'ௌ',
-  ';':'்',
-  '\\':'ஷ',
-  'd':'ஜ',
-  'g':'ஹ',
-  ']':'ஸ',
-  // Vowels standalone
-  'a':'அ','A':'ஆ',
-  'q':'இ','Q':'ஈ',
-  'w':'உ','W':'ஊ',
-  'x':'எ','X':'ஏ',
-  'z':'ஒ','Z':'ஓ',
-  'c':'ஐ','C':'ஔ',
+  'y':'ய','u':'ர','o':'ல','O':'வ',
+  'i':'ழ','I':'ள','k':'ற','K':'ன',
+  'h':'ா','p':'ி','P':'ீ',
+  '[':'ு','{':'ூ',
+  'n':'ெ','N':'ே','b':'ை',
+  't':'ொ','T':'ோ','s':'ௌ',
+  ';':'்','\\':'ஷ','d':'ஜ','g':'ஹ',']':'ஸ',
+  'a':'அ','A':'ஆ','q':'இ','Q':'ஈ',
+  'w':'உ','W':'ஊ','x':'எ','X':'ஏ',
+  'z':'ஒ','Z':'ஓ','c':'ஐ','C':'ஔ',
   ' ':' ',
 };
 
-// Tamil ON by default for all த fields
 var tamilOn = {};
-var tamilFields = ['id_name','id_birth_place','id_native_place','id_property_value'];
+var tamilFieldIds = ['id_name','id_birth_place','id_native_place','id_property_value'];
 
 function setupBamini(fid) {
   var el = document.getElementById(fid);
@@ -453,8 +511,7 @@ function setupBamini(fid) {
     if (!tamilOn[fid]) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (['Backspace','Delete','Tab','Enter','Escape',
-         'ArrowLeft','ArrowRight','ArrowUp','ArrowDown',
-         'Home','End'].includes(e.key)) return;
+         'ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(e.key)) return;
     if (e.key.length !== 1) return;
     e.preventDefault();
     var key = e.shiftKey ? e.key.toUpperCase() : e.key;
@@ -465,37 +522,64 @@ function setupBamini(fid) {
   });
 }
 
-function enableTamil(fid) {
-  tamilOn[fid] = true;
-  var btn = document.getElementById('btn_' + fid);
-  if (btn) { btn.style.background = '#b91c1c'; btn.style.color = '#fff'; btn.title = 'Tamil ON - click for English'; }
-  setupBamini(fid);
-}
-
 function toggleTamil(fid) {
   tamilOn[fid] = !tamilOn[fid];
   var btn = document.getElementById('btn_' + fid);
   var el = document.getElementById(fid);
   if (!el) return;
   if (tamilOn[fid]) {
-    btn.style.background = '#b91c1c';
-    btn.style.color = '#fff';
-    btn.title = 'Tamil ON - click for English';
+    btn.style.background = '#b91c1c'; btn.style.color = '#fff';
     setupBamini(fid);
   } else {
-    btn.style.background = '#fff';
-    btn.style.color = '#b91c1c';
-    btn.title = 'English ON - click for Tamil';
+    btn.style.background = '#fff'; btn.style.color = '#b91c1c';
   }
   el.focus();
 }
 
-// Auto enable Tamil - runs after all scripts load
+// Auto enable Tamil on page load
 window.addEventListener('load', function() {
-  tamilFields.forEach(function(fid) { enableTamil(fid); });
+  tamilFieldIds.forEach(function(fid) {
+    tamilOn[fid] = true;
+    setupBamini(fid);
+    var btn = document.getElementById('btn_' + fid);
+    if (btn) { btn.style.background = '#b91c1c'; btn.style.color = '#fff'; }
+  });
 });
 </script>
-</form>
+
+<script>
+// Rasi → Nachathiram dynamic load
+document.addEventListener('DOMContentLoaded', function() {
+    var rasiSelect = document.getElementById('id_rasi');
+    var nachSelect = document.getElementById('id_nachathiram');
+    if (!rasiSelect || !nachSelect) return;
+
+    var currentNach = "{{ form.instance.nachathiram_id|default:'' }}";
+
+    function loadNachathirams(rasiId, selectedId) {
+        nachSelect.innerHTML = '<option value="">---------</option>';
+        if (!rasiId) return;
+        fetch('/api/nachathirams/?rasi_id=' + rasiId)
+            .then(r => r.json())
+            .then(data => {
+                data.forEach(function(n) {
+                    var opt = document.createElement('option');
+                    opt.value = n.id;
+                    opt.text = n.name;
+                    if (String(n.id) === String(selectedId)) opt.selected = true;
+                    nachSelect.appendChild(opt);
+                });
+            });
+    }
+
+    // Load on page load if rasi already selected
+    if (rasiSelect.value) {
+        loadNachathirams(rasiSelect.value, currentNach);
+    }
+
+    rasiSelect.addEventListener('change', function() {
+        loadNachathirams(this.value, '');
+    });
+});
+</script>
 {% endblock %}
-
-
