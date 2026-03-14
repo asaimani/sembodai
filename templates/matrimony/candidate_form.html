@@ -4,6 +4,7 @@
 
 {% block content %}
 <form method="post" enctype="multipart/form-data">
+
     <input type="hidden" name="_gender" value="{{ gender }}">
     {% if form.errors %}
     <div class="alert alert-danger">
@@ -42,7 +43,7 @@
             </div>
         </div>
         <div class="col-md-6">
-            <label class="form-label">பெயர் *</label>
+            <label class="form-label">பெயர் * <button type="button" onclick="toggleTamil('id_name')" id="btn_id_name" style="font-size:10px;padding:1px 6px;border:1px solid #b91c1c;background:#fff;color:#b91c1c;border-radius:3px;cursor:pointer;margin-left:4px;">த</button></label>
             {{ form.name }}
         </div>
         <div class="col-md-4">
@@ -139,11 +140,11 @@
             <small class="text-muted">eg. 10:45 AM</small>
         </div>
         <div class="col-md-3">
-            <label class="form-label">பிறந்த ஊர் *</label>
+            <label class="form-label">பிறந்த ஊர் * <button type="button" onclick="toggleTamil('id_birth_place')" id="btn_id_birth_place" style="font-size:10px;padding:1px 6px;border:1px solid #b91c1c;background:#fff;color:#b91c1c;border-radius:3px;cursor:pointer;margin-left:4px;">த</button></label>
             {{ form.birth_place }}
         </div>
         <div class="col-md-3">
-            <label class="form-label">பூர்வீகம் *</label>
+            <label class="form-label">பூர்வீகம் * <button type="button" onclick="toggleTamil('id_native_place')" id="btn_id_native_place" style="font-size:10px;padding:1px 6px;border:1px solid #b91c1c;background:#fff;color:#b91c1c;border-radius:3px;cursor:pointer;margin-left:4px;">த</button></label>
             {{ form.native_place }}
         </div>
         <div class="col-md-3">
@@ -205,7 +206,7 @@
             {{ form.annual_income }}
         </div>
         <div class="col-md-4">
-            <label class="form-label">சொத்து மதிப்பு</label>
+            <label class="form-label">சொத்து மதிப்பு <button type="button" onclick="toggleTamil('id_property_value')" id="btn_id_property_value" style="font-size:10px;padding:1px 6px;border:1px solid #b91c1c;background:#fff;color:#b91c1c;border-radius:3px;cursor:pointer;margin-left:4px;">த</button></label>
             {{ form.property_value }}
         </div>
         <div class="col-md-3">
@@ -483,6 +484,46 @@ document.addEventListener('DOMContentLoaded', function() {
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://www.google.com/jsapi"></script>
+<script>
+// Per-field Tamil toggle
+var activeFields = {};
+var controls = {};
+
+google.load("elements", "1", {packages: "transliteration"});
+
+google.setOnLoadCallback(function() {
+    ['id_name', 'id_birth_place', 'id_native_place', 'id_property_value'].forEach(function(fieldId) {
+        var options = {
+            sourceLanguage: google.elements.transliteration.LanguageCode.ENGLISH,
+            destinationLanguage: [google.elements.transliteration.LanguageCode.TAMIL],
+            transliterationEnabled: false
+        };
+        var ctrl = new google.elements.transliteration.TransliterationControl(options);
+        ctrl.makeTransliteratable([fieldId]);
+        ctrl.disableTransliteration();
+        controls[fieldId] = ctrl;
+        activeFields[fieldId] = false;
+    });
+});
+
+function toggleTamil(fieldId) {
+    if (!controls[fieldId]) return;
+    activeFields[fieldId] = !activeFields[fieldId];
+    var btn = document.getElementById('btn_' + fieldId);
+    if (activeFields[fieldId]) {
+        controls[fieldId].enableTransliteration();
+        btn.style.background = '#b91c1c';
+        btn.style.color = '#fff';
+        btn.title = 'தமிழ் உள்ளீடு ON - கிளிக் செய்து OFF செய்யலாம்';
+    } else {
+        controls[fieldId].disableTransliteration();
+        btn.style.background = '#fff';
+        btn.style.color = '#b91c1c';
+        btn.title = 'தமிழ் உள்ளீடு OFF - கிளிக் செய்து ON செய்யலாம்';
+    }
+}
+</script>
 <script>
 // Rasi → Nachathiram dynamic load
 $('#id_rasi').change(function() {
