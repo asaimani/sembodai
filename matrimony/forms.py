@@ -2,7 +2,7 @@ from django import forms
 from .models import (MaleCandidate, FemaleCandidate, Rasi, Nachathiram,
                      Profession, JathagamType, Planet, Sevadosham,
                      CandidateStatus, State, District,
-                     TamilYear, TamilMonth, TamilDay, OwnHouse, BirthOrder,
+                     TamilYear, TamilMonth, TamilKizhamai, TamilDate, OwnHouse, BirthOrder,
                      Complexion, Caste, SubCaste, Height)
 
 COMMON_EXCLUDE = ['uid', 'created_by', 'created_at', 'updated_at', 'is_new', 'is_paid',
@@ -40,7 +40,8 @@ COMMON_WIDGETS = {
     'mother_profession':         forms.Select(attrs={'class': 'form-select'}),
     'tamil_year':                forms.Select(attrs={'class': 'form-select'}),
     'tamil_month':               forms.Select(attrs={'class': 'form-select'}),
-    'tamil_day':                 forms.Select(attrs={'class': 'form-select'}),
+    'tamil_kizhamai':            forms.Select(attrs={'class': 'form-select'}),
+    'tamil_date':                forms.Select(attrs={'class': 'form-select'}),
     'own_house':                 forms.Select(attrs={'class': 'form-select'}),
     'birth_time':                forms.TimeInput(attrs={'class': 'form-control', 'placeholder': '10:45 AM', 'type': 'time'}),
     'complexion':                forms.Select(attrs={'class': 'form-select'}),

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from matrimony.models import (Rasi, Nachathiram, Profession, JathagamType,
                                Planet, Sevadosham, CandidateStatus, State, District,
-                               TamilYear, TamilMonth, TamilDay, OwnHouse, BirthOrder,
+                               TamilYear, TamilMonth, TamilKizhamai, TamilDate, OwnHouse, BirthOrder,
                                Complexion, Caste, SubCaste, Height, Relation, MaritalStatus)
 
 class Command(BaseCommand):
@@ -178,7 +178,7 @@ class Command(BaseCommand):
             TamilMonth.objects.get_or_create(name=m, defaults={'order': i})
 
         # ── Tamil Days (days of week) ──
-        tamil_days = [
+        tamil_kizhamai_list = [
             (1, 'ஞாயிற்றுக்கிழமை'),
             (2, 'திங்கட்கிழமை'),
             (3, 'செவ்வாய்க்கிழமை'),
@@ -187,8 +187,11 @@ class Command(BaseCommand):
             (6, 'வெள்ளிக்கிழமை'),
             (7, 'சனிக்கிழமை'),
         ]
-        for order, name in tamil_days:
-            TamilDay.objects.get_or_create(name=name, defaults={'order': order})
+        for order, name in tamil_kizhamai_list:
+            TamilKizhamai.objects.get_or_create(name=name, defaults={'order': order})
+
+        for i in range(1, 31):
+            TamilDate.objects.get_or_create(name=str(i), defaults={'order': i})
 
         # ── Own House ──
         for order, code, name in [

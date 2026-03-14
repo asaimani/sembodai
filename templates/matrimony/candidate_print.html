@@ -93,44 +93,39 @@
             <div class="section-title">அடிப்படை விவரங்கள்</div>
             <table class="info-table">
                 <tr><td>பெயர்</td><td>{{ candidate.name }}</td></tr>
-                <tr><td>வயது</td><td>{{ candidate.age }} வயது</td></tr>
                 <tr><td>பிறந்த தேதி</td><td>{{ candidate.date_of_birth|date:"d/m/Y" }}</td></tr>
-                {% if candidate.birth_place %}<tr><td>பிறந்த ஊர்</td><td>{{ candidate.birth_place }}</td></tr>{% endif %}
-                {% if candidate.native_place %}<tr><td>பூர்வீகம்</td><td>{{ candidate.native_place }}</td></tr>{% endif %}
-                {% if candidate.height %}<tr><td>உயரம்</td><td>{{ candidate.height }}</td></tr>{% endif %}
+                {% if candidate.educational_qualification %}<tr><td>கல்வி</td><td>{{ candidate.educational_qualification }}</td></tr>{% endif %}
+                {% if candidate.profession %}<tr><td>பணி</td><td>{{ candidate.profession }}</td></tr>{% endif %}
+                {% if candidate.profession_comments %}<tr><td>அலுவலகம்</td><td>{{ candidate.profession_comments }}</td></tr>{% endif %}
+                {% if candidate.monthly_salary %}<tr><td>மாத வருமானம்</td><td>₹{{ candidate.monthly_salary }}</td></tr>{% endif %}
                 {% if candidate.complexion %}<tr><td>நிறம்</td><td>{{ candidate.complexion }}</td></tr>{% endif %}
-                {% if candidate.caste %}<tr><td>சாதி</td><td>{{ candidate.caste }}</td></tr>{% endif %}
-                {% if candidate.sub_caste %}<tr><td>உட்பிரிவு</td><td>{{ candidate.sub_caste }}</td></tr>{% endif %}
-                {% if candidate.state %}<tr><td>மாநிலம்</td><td>{{ candidate.state }}</td></tr>{% endif %}
-                {% if candidate.district %}<tr><td>மாவட்டம்</td><td>{{ candidate.district }}</td></tr>{% endif %}
+                {% if candidate.height %}<tr><td>உயரம்</td><td>{{ candidate.height }}</td></tr>{% endif %}
                 {% if candidate.birth_order %}<tr><td>பிறப்பு வரிசை</td><td>{{ candidate.birth_order }}</td></tr>{% endif %}
                 {% if candidate.own_house %}<tr><td>சொந்த வீடு</td><td>{{ candidate.own_house }}</td></tr>{% endif %}
+                {% if candidate.property_value %}<tr><td>நிலம்</td><td>₹{{ candidate.property_value }}</td></tr>{% endif %}
+                {% if candidate.native_place %}<tr><td>பூர்வீகம்</td><td>{{ candidate.native_place }}</td></tr>{% endif %}
+                
             </table>
         </div>
 
         <!-- RIGHT: தொழில் + ஜோதிட -->
         <div>
-            <div class="section">
-                <table class="info-table" style="margin-bottom:8px;">
-                    {% if candidate.educational_qualification %}<tr><td>கல்வி</td><td>{{ candidate.educational_qualification }}</td></tr>{% endif %}
-                    {% if candidate.profession %}<tr><td>தொழில்</td><td>{{ candidate.profession }}</td></tr>{% endif %}
-                    {% if candidate.monthly_income %}<tr><td>மாத சம்பளம்</td><td>₹{{ candidate.monthly_income }}</td></tr>{% endif %}
-                    {% if candidate.annual_income %}<tr><td>வருட வருமானம்</td><td>₹{{ candidate.annual_income }}</td></tr>{% endif %}
-                    {% if candidate.property_value %}<tr><td>சொத்து மதிப்பு</td><td>{{ candidate.property_value }}</td></tr>{% endif %}
-                </table>
-            </div>
+            
             <div class="section">
                 <div class="section-title">ஜோதிட விவரங்கள்</div>
                 <table class="info-table">
+                    {% if candidate.tamil_year %}<tr><td>தமிழ் வருடம்</td><td>{{ candidate.tamil_year }}</td></tr>{% endif %}
+                    {% if candidate.tamil_month %}<tr><td>தமிழ் மாதம்</td><td>{{ candidate.tamil_month }}</td></tr>{% endif %}
+                    {% if candidate.tamil_date %}<tr><td>தமிழ் தேதி</td><td>{{ candidate.tamil_date }}</td></tr>{% endif %}
+                    {% if candidate.tamil_kizhamai %}<tr><td>தமிழ் கிழமை</td><td>{{ candidate.tamil_kizhamai }}</td></tr>{% endif %}
                     {% if candidate.birth_time %}<tr><td>பிறந்த நேரம்</td><td>{{ candidate.birth_time|time:"h:i A" }}</td></tr>{% endif %}
                     {% if candidate.rasi %}<tr><td>ராசி</td><td>{{ candidate.rasi }}</td></tr>{% endif %}
                     {% if candidate.nachathiram %}<tr><td>நட்சத்திரம்</td><td>{{ candidate.nachathiram }}</td></tr>{% endif %}
+                    {% if candidate.nachathiram %}<tr><td>லக்னம்</td><td>{{ candidate.nachathiram }}</td></tr>{% endif %}
                     {% if candidate.sevadosham %}<tr><td>செவ்வாய் தோஷம்</td><td>{{ candidate.sevadosham }}</td></tr>{% endif %}
                     {% if candidate.ragu_kethu %}<tr><td>ராகு/கேது</td><td>{{ candidate.ragu_kethu }}</td></tr>{% endif %}
-                    {% if candidate.tamil_year %}<tr><td>தமிழ் வருடம்</td><td>{{ candidate.tamil_year }}</td></tr>{% endif %}
-                    {% if candidate.tamil_month %}<tr><td>தமிழ் மாதம்</td><td>{{ candidate.tamil_month }}</td></tr>{% endif %}
-                    {% if candidate.tamil_day %}<tr><td>தமிழ் தேதி</td><td>{{ candidate.tamil_day }}</td></tr>{% endif %}
                     {% if candidate.thisai_iruppu %}<tr><td>திசை இருப்பு</td><td>{{ candidate.thisai_iruppu }}</td></tr>{% endif %}
+                    {% if candidate.birth_place %}<tr><td>பிறந்த ஊர்</td><td>{{ candidate.birth_place }}</td></tr>{% endif %}
                 </table>
             </div>
         </div>
@@ -254,10 +249,7 @@
 
     </div>
 
-    <div class="footer">
-        <span class="ornament">❦ ❦ ❦</span><br>
-        செம்போடையார் வன்னியர் திருமண மையம் — திருமண சேவை
-    </div>
+
 
 </div>
 </body>

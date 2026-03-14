@@ -77,9 +77,15 @@ class TamilMonth(models.Model):
     def __str__(self): return self.name
     class Meta: verbose_name = "தமிழ் மாதம்"; ordering = ['order']
 
-class TamilDay(models.Model):
-    name  = models.CharField(max_length=50, verbose_name="தமிழ் தேதி")
+class TamilKizhamai(models.Model):
+    name  = models.CharField(max_length=50, verbose_name="தமிழ் கிழமை")
     order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "தமிழ் கிழமை"; ordering = ['order']
+
+class TamilDate(models.Model):
+    name  = models.CharField(max_length=10, verbose_name="தமிழ் தேதி")
+    order = models.PositiveIntegerField(default=99)
     def __str__(self): return self.name
     class Meta: verbose_name = "தமிழ் தேதி"; ordering = ['order']
 
@@ -213,7 +219,8 @@ class BaseCandidateModel(models.Model):
     # Tamil calendar & property
     tamil_year  = models.ForeignKey('TamilYear',  on_delete=models.SET_NULL, null=True, blank=True, verbose_name="தமிழ் வருடம்")
     tamil_month = models.ForeignKey('TamilMonth', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="தமிழ் மாதம்")
-    tamil_day   = models.ForeignKey('TamilDay',   on_delete=models.SET_NULL, null=True, blank=True, verbose_name="தமிழ் தேதி")
+    tamil_kizhamai = models.ForeignKey('TamilKizhamai', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="தமிழ் கிழமை")
+    tamil_date     = models.ForeignKey('TamilDate',     on_delete=models.SET_NULL, null=True, blank=True, verbose_name="தமிழ் தேதி")
     own_house    = models.ForeignKey('OwnHouse',   on_delete=models.SET_NULL, null=True, blank=True, verbose_name="சொந்த வீடு")
     birth_order  = models.ForeignKey('BirthOrder', on_delete=models.SET_NULL, null=True, blank=False, verbose_name="பிறப்பு வரிசை")
     thisai_iruppu= models.CharField(max_length=100, blank=True, verbose_name="திசை இருப்பு")
