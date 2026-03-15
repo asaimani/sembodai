@@ -5,11 +5,7 @@ from .models import (MaleCandidate, FemaleCandidate, Rasi, Nachathiram,
                      TamilYear, TamilMonth, TamilKizhamai, TamilDate, OwnHouse, BirthOrder,
                      Complexion, Caste, SubCaste, Height)
 
-COMMON_EXCLUDE = ['uid', 'created_by', 'created_at', 'updated_at', 'is_new', 'is_paid',
-                  'rasi_h1','rasi_h2','rasi_h3','rasi_h4','rasi_h5','rasi_h6',
-                  'rasi_h7','rasi_h8','rasi_h9','rasi_h10','rasi_h11','rasi_h12',
-                  'navamsam_h1','navamsam_h2','navamsam_h3','navamsam_h4','navamsam_h5','navamsam_h6',
-                  'navamsam_h7','navamsam_h8','navamsam_h9','navamsam_h10','navamsam_h11','navamsam_h12']
+COMMON_EXCLUDE = ['uid', 'created_by', 'created_at', 'updated_at', 'is_new', 'is_paid']
 
 COMMON_WIDGETS = {
     'name':                      forms.TextInput(attrs={'class': 'form-control'}),
