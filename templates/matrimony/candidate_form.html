@@ -200,7 +200,7 @@ stateSelect.addEventListener('change', function() { loadDistricts(this.value, ''
 {{ form.jathagam }}
 </div>
 </div>
-{% include 'matrimony/_jathagam_chart.html' with form_mode=True %}
+{% include 'matrimony/_jathagam_chart.html' with form_mode=True planets=planets jathagam_map=jathagam_map %}
 </div>
 
 <!-- Education & Career -->
@@ -251,7 +251,7 @@ stateSelect.addEventListener('change', function() { loadDistricts(this.value, ''
 <thead style="background:#8b1a1a;color:white">
 <tr>
 <th style="width:5%">#</th>
-<th>பெயர்</th>
+<th>பெயர் <button type="button" id="btn_name_global" onclick="toggleAllNameTamil()" style="font-size:10px;padding:1px 6px;border:1px solid #fff;background:#b91c1c;color:#fff;border-radius:3px;cursor:pointer;">த</button></th>
 <th>படிப்பு</th>
 <th>உறவு</th>
 <th>திருமணம்</th>
@@ -263,7 +263,7 @@ stateSelect.addEventListener('change', function() { loadDistricts(this.value, ''
 {% for fm in family_members %}
 <tr class="family-row">
 <td class="row-num text-center fw-bold text-muted"></td>
-<td><input type="text" name="family_name_{{ forloop.counter }}" class="form-control form-control-sm" value="{{ fm.name }}" placeholder="பெயர்"></td>
+<td><input type="text" name="family_name_{{ forloop.counter }}" class="form-control form-control-sm family-name-field" value="{{ fm.name }}" placeholder="பெயர்"></td>
 <td><input type="text" name="family_education_{{ forloop.counter }}" class="form-control form-control-sm" value="{{ fm.education }}" placeholder="படிப்பு"></td>
 <td>
 <select name="family_relation_{{ forloop.counter }}" class="form-select form-select-sm">
@@ -314,7 +314,7 @@ var row = document.createElement('tr');
 row.className = 'family-row';
 row.innerHTML = `
 <td class="row-num text-center fw-bold text-muted">${idx}</td>
-<td><input type="text" name="family_name_${idx}" class="form-control form-control-sm" placeholder="பெயர்"></td>
+<td><input type="text" name="family_name_${idx}" class="form-control form-control-sm family-name-field" placeholder="பெயர்"></td>
 <td><input type="text" name="family_education_${idx}" class="form-control form-control-sm" placeholder="படிப்பு"></td>
 <td><select name="family_relation_${idx}" class="form-select form-select-sm"><option value="">-</option>${relationOptions}</select></td>
 <td><select name="family_marital_${idx}" class="form-select form-select-sm"><option value="">-</option>${maritalOptions}</select></td>
@@ -361,15 +361,15 @@ document.addEventListener('DOMContentLoaded', updateRowNumbers);
 {{ form.whatsapp_number }}
 </div>
 <div class="col-md-4">
-<label class="form-label">முகவரி வரி 1</label>
+<label class="form-label">முகவரி வரி 1 <button type="button" id="btn_id_address_line1" onclick="toggleTamil('id_address_line1')" class="btn-tamil">த</button></label>
 {{ form.address_line1 }}
 </div>
 <div class="col-md-4">
-<label class="form-label">முகவரி வரி 2</label>
+<label class="form-label">முகவரி வரி 2 <button type="button" id="btn_id_address_line2" onclick="toggleTamil('id_address_line2')" class="btn-tamil">த</button></label>
 {{ form.address_line2 }}
 </div>
 <div class="col-md-4">
-<label class="form-label">முகவரி வரி 3</label>
+<label class="form-label">முகவரி வரி 3 <button type="button" id="btn_id_address_line3" onclick="toggleTamil('id_address_line3')" class="btn-tamil">த</button></label>
 {{ form.address_line3 }}
 </div>
 <div class="col-md-3">
@@ -540,6 +540,47 @@ window.addEventListener('load', setupJobFields);
 </script>
 
 <script>
+var nameTamilEnabled = true; // ON by default
+
+function toggleAllNameTamil() {
+  nameTamilEnabled = !nameTamilEnabled;
+  var btn = document.getElementById('btn_name_global');
+  btn.style.background = nameTamilEnabled ? '#b91c1c' : '#fff';
+  btn.style.color = nameTamilEnabled ? '#fff' : '#b91c1c';
+}
+
+// Setup all family name fields - auto Tamil ON
+function setupNameFields() {
+  document.querySelectorAll('.family-name-field').forEach(function(input) {
+    if (!input._nameSetup) {
+      input._nameSetup = true;
+      input.dataset.tamil = 'true';
+    }
+  });
+}
+
+window.addEventListener('load', setupNameFields);
+
+// Single event listener for all family name fields
+document.addEventListener('keydown', function(e) {
+  if (!nameTamilEnabled) return;
+  if (!e.target.classList.contains('family-name-field')) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (['Backspace','Delete','Tab','Enter','Escape',
+       'ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(e.key)) return;
+  if (e.key.length !== 1) return;
+  e.preventDefault();
+  var input = e.target;
+  var s = input.selectionStart;
+  var val = input.value;
+  var ch = translit(e.key, val, s);
+  input.value = val.slice(0, s) + ch + val.slice(input.selectionEnd);
+  input.selectionStart = input.selectionEnd = s + ch.length;
+});
+</script>
+
+
+<script>
 var jobTamilEnabled = true; // ON by default
 
 function toggleAllJobTamil() {
@@ -577,7 +618,7 @@ document.addEventListener('keydown', function(e) {
 // Bamini Unicode keyboard mapping
 
 var tamilOn = {};
-var tamilFieldIds = ['id_name','id_birth_place','id_native_place','id_property_value','id_thisai_iruppu','id_profession_comments'];
+var tamilFieldIds = ['id_name','id_birth_place','id_native_place','id_property_value','id_thisai_iruppu','id_profession_comments','id_address_line1','id_address_line2','id_address_line3'];
 
 function setupBamini(fid) {
   var el = document.getElementById(fid);
