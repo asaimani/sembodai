@@ -102,7 +102,7 @@
                 {% if candidate.height %}<tr><td>உயரம்</td><td>{{ candidate.height }}</td></tr>{% endif %}
                 {% if candidate.birth_order %}<tr><td>பிறப்பு வரிசை</td><td>{{ candidate.birth_order }}</td></tr>{% endif %}
                 {% if candidate.own_house %}<tr><td>சொந்த வீடு</td><td>{{ candidate.own_house }}</td></tr>{% endif %}
-                {% if candidate.property_value %}<tr><td>நிலம்</td><td>₹{{ candidate.property_value }}</td></tr>{% endif %}
+                {% if candidate.property_value %}<tr><td>நிலம்</td><td>{{ candidate.property_value }}</td></tr>{% endif %}
                 {% if candidate.native_place %}<tr><td>பூர்வீகம்</td><td>{{ candidate.native_place }}</td></tr>{% endif %}
                 
             </table>
@@ -229,12 +229,12 @@
             <div class="section-title">முகவரி விவரங்கள்</div>
             <table class="info-table">
                 {% if candidate.address_name %}<tr><td>பெயர்</td><td>{{ candidate.address_name }}</td></tr>{% endif %}
-                {% if candidate.mobile_number %}<tr><td>கைபேசி எண்</td><td>{{ candidate.mobile_number }}</td></tr>{% endif %}
-                {% if candidate.whatsapp_number %}<tr><td>வாட்ஸ்அப் எண்</td><td>{{ candidate.whatsapp_number }}</td></tr>{% endif %}
                 {% if candidate.address_line1 %}<tr><td>முகவரி வரி 1</td><td>{{ candidate.address_line1 }}</td></tr>{% endif %}
                 {% if candidate.address_line2 %}<tr><td>முகவரி வரி 2</td><td>{{ candidate.address_line2 }}</td></tr>{% endif %}
                 {% if candidate.address_line3 %}<tr><td>முகவரி வரி 3</td><td>{{ candidate.address_line3 }}</td></tr>{% endif %}
                 {% if candidate.pincode %}<tr><td>பின்கோட்</td><td>{{ candidate.pincode }}</td></tr>{% endif %}
+                {% if candidate.mobile_number %}<tr><td>கைபேசி எண்</td><td>{{ candidate.mobile_number }}</td></tr>{% endif %}
+                {% if candidate.whatsapp_number %}<tr><td>வாட்ஸ்அப் எண்</td><td>{{ candidate.whatsapp_number }}</td></tr>{% endif %}
             </table>
         </div>
 
