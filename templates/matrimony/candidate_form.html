@@ -338,19 +338,8 @@ document.addEventListener('DOMContentLoaded', updateRowNumbers);
 <div class="form-section-title"><i class="fas fa-map-marker-alt me-2"></i>முகவரி விவரங்கள்</div>
 <div class="row g-3">
 <div class="col-md-4">
-<label class="form-label">பெயர்</label>
-<select name="address_name" class="form-select" id="id_address_name">
-<option value="">---------</option>
-{% if candidate %}
-<option value="{{ candidate.name }}" {% if form.instance.address_name == candidate.name %}selected{% endif %}>{{ candidate.name }}</option>
-{% for fm in family_members %}
-<option value="{{ fm.name }}" {% if form.instance.address_name == fm.name %}selected{% endif %}>{{ fm.name }}</option>
-{% endfor %}
-{% endif %}
-{% if form.instance.address_name and form.instance.address_name not in address_name_choices %}
-<option value="{{ form.instance.address_name }}" selected>{{ form.instance.address_name }}</option>
-{% endif %}
-</select>
+<label class="form-label">பெயர் <button type="button" id="btn_id_address_name" onclick="toggleTamil('id_address_name')" class="btn-tamil">த</button></label>
+<input type="text" name="address_name" id="id_address_name" class="form-control" value="{{ form.instance.address_name|default:'' }}">
 </div>
 <div class="col-md-4">
 <label class="form-label">கைபேசி எண்</label>
@@ -379,28 +368,7 @@ document.addEventListener('DOMContentLoaded', updateRowNumbers);
 </div>
 </div>
 
-<script>
-function updateAddressNameDropdown() {
-const select = document.getElementById('id_address_name');
-if (!select) return;
-select.querySelectorAll('option[data-dynamic]').forEach(o => o.remove());
-document.querySelectorAll('#family-tbody .family-row').forEach(row => {
-const nameInput = row.querySelector('input[name^="family_name_"]');
-if (nameInput && nameInput.value.trim()) {
-const opt = document.createElement('option');
-opt.value = nameInput.value.trim();
-opt.text = nameInput.value.trim();
-opt.setAttribute('data-dynamic', '1');
-select.appendChild(opt);
-}
-});
-}
-document.addEventListener('input', function(e) {
-if (e.target && e.target.name && e.target.name.startsWith('family_name_')) {
-updateAddressNameDropdown();
-}
-});
-</script>
+
 
 <!-- Premium & Status -->
 <div class="form-section">
@@ -571,10 +539,10 @@ document.addEventListener('keydown', function(e) {
   if (e.key.length !== 1) return;
   e.preventDefault();
   var input = e.target;
-  var s = input.selectionStart;
-  var val = input.value;
-  var ch = translit(e.key, val, s);
-  input.value = val.slice(0, s) + ch + val.slice(input.selectionEnd);
+  var key = e.shiftKey ? e.key.toUpperCase() : e.key;
+  var ch = (BAMINI_MAP[key] !== undefined) ? BAMINI_MAP[key] : e.key;
+  var s = input.selectionStart, en = input.selectionEnd;
+  input.value = input.value.slice(0, s) + ch + input.value.slice(en);
   input.selectionStart = input.selectionEnd = s + ch.length;
 });
 </script>
@@ -618,7 +586,7 @@ document.addEventListener('keydown', function(e) {
 // Bamini Unicode keyboard mapping
 
 var tamilOn = {};
-var tamilFieldIds = ['id_name','id_birth_place','id_native_place','id_property_value','id_thisai_iruppu','id_profession_comments','id_address_line1','id_address_line2','id_address_line3'];
+var tamilFieldIds = ['id_name','id_birth_place','id_native_place','id_property_value','id_thisai_iruppu','id_profession_comments','id_address_line1','id_address_line2','id_address_line3','id_address_name'];
 
 function setupBamini(fid) {
   var el = document.getElementById(fid);
