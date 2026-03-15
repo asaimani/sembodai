@@ -23,6 +23,7 @@ COMMON_WIDGETS = {
     'sevadosham':                forms.Select(attrs={'class': 'form-select'}),
     'ragu_kethu':                forms.Select(attrs={'class': 'form-select'}),
     'address_name':              forms.TextInput(attrs={'class': 'form-control', 'id': 'id_address_name'}),
+    'old_reg_no':                forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'ஒ.பதிவு எண்'}),
     'address_line1':             forms.TextInput(attrs={'class': 'form-control'}),
     'address_line2':             forms.TextInput(attrs={'class': 'form-control'}),
     'address_line3':             forms.TextInput(attrs={'class': 'form-control'}),

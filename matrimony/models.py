@@ -158,6 +158,7 @@ class AdminProfile(models.Model):
 
 class BaseCandidateModel(models.Model):
     uid                      = models.CharField(max_length=20, unique=True, editable=False)
+    old_reg_no               = models.CharField(max_length=50, blank=True, verbose_name="ஒ.பதிவு எண்")
     name                     = models.CharField(max_length=200, verbose_name="பெயர்")
     date_of_birth            = models.DateField(verbose_name="பிறந்த தேதி")
     birth_time               = models.TimeField(null=True, blank=True, verbose_name="பிறந்த நேரம்")

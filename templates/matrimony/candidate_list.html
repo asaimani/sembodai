@@ -12,7 +12,7 @@
             <input type="hidden" name="gender" value="{{ gender }}">
             <div class="col-12 col-md-3">
                 <label class="form-label small fw-500">பெயர் / UID தேடல்</label>
-                <input type="text" name="search" value="{{ search }}" class="form-control form-control-sm" placeholder="தேடவும்...">
+                <input type="text" name="search" value="{{ search }}" class="form-control form-control-sm" placeholder="பெயர் / UID / ஒ.பதிவு எண்...">
             </div>
             <div class="col-6 col-md-2">
                 <label class="form-label small fw-500">ராசி</label>
@@ -74,6 +74,7 @@
                 <thead>
                     <tr>
                         <th>UID</th>
+                        <th>ஒ.பதிவு எண்</th>
                         <th>பெயர்</th>
                         <th>பாலினம்</th>
                         <th>வயது</th>
@@ -92,6 +93,7 @@
                         <a href="{% url 'candidate_detail' g c.pk %}" class="fw-bold text-danger text-decoration-none">{{ c.uid }}</a>
                         {% if c.is_new %}<span class="badge bg-success ms-1" style="font-size:9px">புதிது</span>{% endif %}
                     </td>
+                    <td class="text-muted" style="font-size:12px;">{{ c.old_reg_no|default:"-" }}</td>
                     <td class="fw-500">{{ c.name }}</td>
                     <td>
                         {% if c.gender == 'M' %}

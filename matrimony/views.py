@@ -63,7 +63,7 @@ def candidate_list(request):
 
     def apply_filters(qs):
         if search:
-            qs = qs.filter(Q(name__icontains=search) | Q(uid__icontains=search))
+            qs = qs.filter(Q(name__icontains=search) | Q(uid__icontains=search) | Q(old_reg_no__icontains=search))
         if rasi_id:
             qs = qs.filter(rasi_id=rasi_id)
         if nachathiram_id:
