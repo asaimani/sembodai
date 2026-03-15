@@ -104,21 +104,45 @@ def candidate_list(request):
 
 
 def _save_jathagam(candidate, post_data):
-    from .models import Planet
-    for prefix in ['rasi', 'navamsam']:
-        for i in range(1, 13):
-            fname = f'{prefix}_h{i}'
-            field_id = f'{prefix}_h{i}_id'
-            val = post_data.get(fname, '')
-            if val:
+    """
+    Reads multi-select planet values from POST and saves to JathagamEntry.
+    Only runs when the popup JS wrote sentinel field 'jathagam_submitted'.
+    This prevents accidental deletion when saving without touching jathagam.
+    """
+    from .models import JathagamEntry, Planet
+
+    if not post_data.get('jathagam_submitted'):
+        return
+
+    gender = 'M' if isinstance(candidate, MaleCandidate) else 'F'
+
+    # Delete all existing entries for this candidate
+    JathagamEntry.objects.filter(
+        candidate_gender=gender,
+        candidate_id=candidate.pk,
+    ).delete()
+
+    chart_map = {'rasi': 'R', 'navamsam': 'N'}
+    entries = []
+    for prefix, chart_type in chart_map.items():
+        for house in range(1, 13):
+            # Multi-select field: rasi_h1[], navamsam_h1[], etc.
+            planet_ids = post_data.getlist(f'{prefix}_h{house}[]')
+            for order, pid in enumerate(planet_ids, start=1):
                 try:
-                    planet = Planet.objects.get(pk=int(val))
-                    setattr(candidate, fname, planet)
+                    planet = Planet.objects.get(pk=int(pid))
+                    entries.append(JathagamEntry(
+                        candidate_gender=gender,
+                        candidate_id=candidate.pk,
+                        chart_type=chart_type,
+                        house_number=house,
+                        planet=planet,
+                        order=order,
+                    ))
                 except (Planet.DoesNotExist, ValueError):
-                    setattr(candidate, fname, None)
-            else:
-                setattr(candidate, fname, None)
-    candidate.save()
+                    continue
+    if entries:
+        JathagamEntry.objects.bulk_create(entries)
 
 
 MAX_PHOTO_SIZE_MB = 5  # Maximum upload size in MB
@@ -213,6 +237,7 @@ def candidate_add(request):
         form = FormClass()
 
     from .models import Planet, Relation, MaritalStatus
+    empty_map = {'R': {h: '' for h in range(1, 13)}, 'N': {h: '' for h in range(1, 13)}}
     return render(request, 'matrimony/candidate_form.html', {
         'form': form, 'gender': gender,
         'title': 'புதிய விண்ணப்பம்',
@@ -220,6 +245,7 @@ def candidate_add(request):
         'relations': Relation.objects.all(),
         'marital_statuses': MaritalStatus.objects.all(),
         'family_members': [],
+        'jathagam_map': empty_map,
     })
 
 
@@ -234,7 +260,13 @@ def candidate_detail(request, gender, pk):
     candidate = _get_candidate(gender, pk)
     gender_code = 'M' if gender == 'M' else 'F'
     family_members = FamilyMember.objects.filter(candidate_gender=gender_code, candidate_id=candidate.pk)
-    return render(request, 'matrimony/candidate_detail.html', {'candidate': candidate, 'gender': gender, 'family_members': family_members})
+    jathagam_map = candidate.get_jathagam_map()
+    return render(request, 'matrimony/candidate_detail.html', {
+        'candidate': candidate,
+        'gender': gender,
+        'family_members': family_members,
+        'jathagam_map': jathagam_map,
+    })
 
 
 @login_required
@@ -276,6 +308,7 @@ def candidate_edit(request, gender, pk):
     from .models import Planet, Relation, MaritalStatus
     gender_code = 'M' if is_male else 'F'
     family_members = list(FamilyMember.objects.filter(candidate_gender=gender_code, candidate_id=candidate.pk))
+    jathagam_map = candidate.get_jathagam_map()
     return render(request, 'matrimony/candidate_form.html', {
         'form': form, 'candidate': candidate, 'gender': gender,
         'title': 'திருத்து',
@@ -283,6 +316,7 @@ def candidate_edit(request, gender, pk):
         'relations': Relation.objects.all(),
         'marital_statuses': MaritalStatus.objects.all(),
         'family_members': family_members,
+        'jathagam_map': jathagam_map,
     })
 
 
@@ -311,12 +345,14 @@ def candidate_print(request, gender, pk):
 
     gender_code = 'M' if gender == 'M' else 'F'
     family_members = FamilyMember.objects.filter(candidate_gender=gender_code, candidate_id=candidate.pk)
+    jathagam_map = candidate.get_jathagam_map()
     return render(request, 'matrimony/candidate_print.html', {
         'candidate': candidate,
         'admin_profile': admin_profile,
         'photo_base64': photo_base64,
         'gender': gender,
         'family_members': family_members,
+        'jathagam_map': jathagam_map,
     })
 
 
@@ -340,6 +376,9 @@ def candidate_delete(request, gender, pk):
         import os
         # Delete family members
         FamilyMember.objects.filter(candidate_gender=gender, candidate_id=pk).delete()
+        # Delete jathagam entries
+        from .models import JathagamEntry
+        JathagamEntry.objects.filter(candidate_gender=gender, candidate_id=pk).delete()
         # Delete photo files from disk
         for photo in candidate.photos.all():
             if photo.photo and os.path.isfile(photo.photo.path):

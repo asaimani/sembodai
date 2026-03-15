@@ -4,99 +4,358 @@
 .jathagam-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 65px);
+    grid-template-rows: repeat(4, 70px);
     border: 2px solid #b91c1c;
     border-radius: 4px;
-    overflow: hidden;
+    overflow: visible;
     background: #fffbf0;
     width: 100%;
 }
-.jc { border: 1px solid #d4a0a0; padding: 2px; position: relative; background: #fffdf5; }
+.jc {
+    border: 1px solid #d4a0a0;
+    padding: 2px;
+    position: relative;
+    background: #fffdf5;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.jc:hover { background: #fde8e8; }
 .jc-center {
     grid-column: 2 / 4; grid-row: 2 / 4;
     background: #fef9ee; display: flex; align-items: center;
     justify-content: center; border: 1px solid #d4a0a0;
     font-weight: 700; color: #7f1d1d; font-size: 14px;
+    cursor: default;
 }
+.jc-center:hover { background: #fef9ee; }
 .jc-num { position: absolute; top: 1px; left: 2px; font-size: 8px; color: #b91c1c; font-weight: 600; }
-.jathagam-select { font-size: 9px !important; padding: 1px !important; border: 1px solid #ddd !important;
-    background: transparent !important; width: 100%; margin-top: 14px; color: #1a1a1a; }
-.jc-value { font-size: 10px; font-weight: 600; color: #1a1a1a; margin-top: 14px; word-break: break-word; }
+.jc-display {
+    font-size: 9px; font-weight: 600; color: #1a1a1a;
+    margin-top: 13px; word-break: break-all; line-height: 1.3;
+    text-align: center;
+}
+.jc-value { font-size: 10px; font-weight: 600; color: #1a1a1a; margin-top: 14px; word-break: break-word; line-height: 1.4; }
 .chart-label { font-size: 12px; font-weight: 700; color: #b91c1c; text-align: center; margin-bottom: 4px; }
+
+/* Popup overlay */
+#jathagam-popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+}
+/* Popup box */
+#jathagam-popup {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    background: #fff;
+    border: 2px solid #b91c1c;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    min-width: 220px;
+    max-width: 260px;
+}
+#jathagam-popup .popup-title {
+    font-size: 11px; font-weight: 700; color: #7f1d1d;
+    margin-bottom: 8px; text-align: center;
+    border-bottom: 1px solid #f0c0c0; padding-bottom: 6px;
+}
+#jathagam-popup .planet-chips {
+    display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px;
+}
+#jathagam-popup .planet-chip {
+    padding: 4px 8px; border-radius: 20px; font-size: 11px;
+    font-weight: 600; cursor: pointer; border: 1.5px solid #d4a0a0;
+    background: #fff; color: #333; transition: all 0.15s;
+    user-select: none;
+}
+#jathagam-popup .planet-chip:hover { border-color: #b91c1c; background: #fde8e8; }
+#jathagam-popup .planet-chip.selected {
+    background: #b91c1c; color: #fff; border-color: #b91c1c;
+}
+#jathagam-popup .popup-actions {
+    display: flex; justify-content: space-between; align-items: center;
+}
+#jathagam-popup .popup-clear {
+    font-size: 10px; color: #999; cursor: pointer; text-decoration: underline;
+}
+#jathagam-popup .popup-clear:hover { color: #b91c1c; }
+#jathagam-popup .popup-done {
+    background: #b91c1c; color: #fff; border: none;
+    padding: 4px 14px; border-radius: 6px; font-size: 11px;
+    cursor: pointer; font-weight: 600;
+}
+#jathagam-popup .popup-done:hover { background: #991b1b; }
+#jathagam-popup .popup-count {
+    font-size: 10px; color: #888; text-align: center; margin-bottom: 6px;
+}
 </style>
 
 {% if form_mode %}
+{# ── FORM MODE: click-to-popup chip selector ─────────────────────── #}
+
+{# Hidden inputs container - JS writes checkbox inputs here on submit #}
+<div id="jathagam-hidden-inputs"></div>
+
+{# Popup #}
+<div id="jathagam-popup-overlay"></div>
+<div id="jathagam-popup">
+    <div class="popup-title" id="popup-title">வீடு தேர்வு</div>
+    <div class="popup-count" id="popup-count"></div>
+    <div class="planet-chips" id="popup-chips"></div>
+    <div class="popup-actions">
+        <span class="popup-clear" onclick="clearPopupHouse()">நீக்கு</span>
+        <button type="button" class="popup-done" onclick="closePopup()">✓ சரி</button>
+    </div>
+</div>
+
 <div class="row g-2">
     <div class="col-6">
+        <div class="chart-label">ராசி</div>
         <div class="jathagam-grid">
-            <div class="jc"><span class="jc-num">12</span>{% planet_select 'rasi_h12' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">1</span>{% planet_select 'rasi_h1' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">2</span>{% planet_select 'rasi_h2' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">3</span>{% planet_select 'rasi_h3' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">11</span>{% planet_select 'rasi_h11' candidate planets %}</div>
+            <div class="jc" onclick="openPopup(this,'rasi',12)" data-prefix="rasi" data-house="12"><span class="jc-num">12</span><div class="jc-display" id="disp_rasi_12">{% house_display jathagam_map 'R' 12 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'rasi',1)"  data-prefix="rasi" data-house="1"><span class="jc-num">1</span><div class="jc-display" id="disp_rasi_1">{% house_display jathagam_map 'R' 1 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'rasi',2)"  data-prefix="rasi" data-house="2"><span class="jc-num">2</span><div class="jc-display" id="disp_rasi_2">{% house_display jathagam_map 'R' 2 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'rasi',3)"  data-prefix="rasi" data-house="3"><span class="jc-num">3</span><div class="jc-display" id="disp_rasi_3">{% house_display jathagam_map 'R' 3 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'rasi',11)" data-prefix="rasi" data-house="11"><span class="jc-num">11</span><div class="jc-display" id="disp_rasi_11">{% house_display jathagam_map 'R' 11 %}</div></div>
             <div class="jc-center">ராசி</div>
-            <div class="jc"><span class="jc-num">4</span>{% planet_select 'rasi_h4' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">10</span>{% planet_select 'rasi_h10' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">5</span>{% planet_select 'rasi_h5' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">9</span>{% planet_select 'rasi_h9' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">8</span>{% planet_select 'rasi_h8' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">7</span>{% planet_select 'rasi_h7' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">6</span>{% planet_select 'rasi_h6' candidate planets %}</div>
+            <div class="jc" onclick="openPopup(this,'rasi',4)"  data-prefix="rasi" data-house="4"><span class="jc-num">4</span><div class="jc-display" id="disp_rasi_4">{% house_display jathagam_map 'R' 4 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'rasi',10)" data-prefix="rasi" data-house="10"><span class="jc-num">10</span><div class="jc-display" id="disp_rasi_10">{% house_display jathagam_map 'R' 10 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'rasi',5)"  data-prefix="rasi" data-house="5"><span class="jc-num">5</span><div class="jc-display" id="disp_rasi_5">{% house_display jathagam_map 'R' 5 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'rasi',9)"  data-prefix="rasi" data-house="9"><span class="jc-num">9</span><div class="jc-display" id="disp_rasi_9">{% house_display jathagam_map 'R' 9 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'rasi',8)"  data-prefix="rasi" data-house="8"><span class="jc-num">8</span><div class="jc-display" id="disp_rasi_8">{% house_display jathagam_map 'R' 8 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'rasi',7)"  data-prefix="rasi" data-house="7"><span class="jc-num">7</span><div class="jc-display" id="disp_rasi_7">{% house_display jathagam_map 'R' 7 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'rasi',6)"  data-prefix="rasi" data-house="6"><span class="jc-num">6</span><div class="jc-display" id="disp_rasi_6">{% house_display jathagam_map 'R' 6 %}</div></div>
         </div>
     </div>
     <div class="col-6">
+        <div class="chart-label">நவாம்சம்</div>
         <div class="jathagam-grid">
-            <div class="jc"><span class="jc-num">12</span>{% planet_select 'navamsam_h12' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">1</span>{% planet_select 'navamsam_h1' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">2</span>{% planet_select 'navamsam_h2' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">3</span>{% planet_select 'navamsam_h3' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">11</span>{% planet_select 'navamsam_h11' candidate planets %}</div>
+            <div class="jc" onclick="openPopup(this,'navamsam',12)" data-prefix="navamsam" data-house="12"><span class="jc-num">12</span><div class="jc-display" id="disp_navamsam_12">{% house_display jathagam_map 'N' 12 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'navamsam',1)"  data-prefix="navamsam" data-house="1"><span class="jc-num">1</span><div class="jc-display" id="disp_navamsam_1">{% house_display jathagam_map 'N' 1 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'navamsam',2)"  data-prefix="navamsam" data-house="2"><span class="jc-num">2</span><div class="jc-display" id="disp_navamsam_2">{% house_display jathagam_map 'N' 2 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'navamsam',3)"  data-prefix="navamsam" data-house="3"><span class="jc-num">3</span><div class="jc-display" id="disp_navamsam_3">{% house_display jathagam_map 'N' 3 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'navamsam',11)" data-prefix="navamsam" data-house="11"><span class="jc-num">11</span><div class="jc-display" id="disp_navamsam_11">{% house_display jathagam_map 'N' 11 %}</div></div>
             <div class="jc-center">நவாம்சம்</div>
-            <div class="jc"><span class="jc-num">4</span>{% planet_select 'navamsam_h4' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">10</span>{% planet_select 'navamsam_h10' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">5</span>{% planet_select 'navamsam_h5' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">9</span>{% planet_select 'navamsam_h9' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">8</span>{% planet_select 'navamsam_h8' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">7</span>{% planet_select 'navamsam_h7' candidate planets %}</div>
-            <div class="jc"><span class="jc-num">6</span>{% planet_select 'navamsam_h6' candidate planets %}</div>
+            <div class="jc" onclick="openPopup(this,'navamsam',4)"  data-prefix="navamsam" data-house="4"><span class="jc-num">4</span><div class="jc-display" id="disp_navamsam_4">{% house_display jathagam_map 'N' 4 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'navamsam',10)" data-prefix="navamsam" data-house="10"><span class="jc-num">10</span><div class="jc-display" id="disp_navamsam_10">{% house_display jathagam_map 'N' 10 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'navamsam',5)"  data-prefix="navamsam" data-house="5"><span class="jc-num">5</span><div class="jc-display" id="disp_navamsam_5">{% house_display jathagam_map 'N' 5 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'navamsam',9)"  data-prefix="navamsam" data-house="9"><span class="jc-num">9</span><div class="jc-display" id="disp_navamsam_9">{% house_display jathagam_map 'N' 9 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'navamsam',8)"  data-prefix="navamsam" data-house="8"><span class="jc-num">8</span><div class="jc-display" id="disp_navamsam_8">{% house_display jathagam_map 'N' 8 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'navamsam',7)"  data-prefix="navamsam" data-house="7"><span class="jc-num">7</span><div class="jc-display" id="disp_navamsam_7">{% house_display jathagam_map 'N' 7 %}</div></div>
+            <div class="jc" onclick="openPopup(this,'navamsam',6)"  data-prefix="navamsam" data-house="6"><span class="jc-num">6</span><div class="jc-display" id="disp_navamsam_6">{% house_display jathagam_map 'N' 6 %}</div></div>
         </div>
     </div>
 </div>
 
+<script>
+(function() {
+    // All available planets from Django context
+    var PLANETS = [
+        {% for p in planets %}{"id": {{ p.pk }}, "code": "{{ p.code }}"}{% if not forloop.last %},{% endif %}{% endfor %}
+    ];
+
+    // State: { "rasi_1": [pk, pk], "navamsam_3": [pk], ... }
+    var houseState = {};
+
+    // Pre-populate from existing jathagam_map data
+    // We read current display text and map codes back to PKs
+    var codeToId = {};
+    PLANETS.forEach(function(p) { codeToId[p.code] = p.id; });
+
+    document.querySelectorAll('.jc-display').forEach(function(el) {
+        var id = el.id; // e.g. disp_rasi_12
+        var parts = id.replace('disp_', '').split('_');
+        var house = parts.pop();
+        var prefix = parts.join('_');
+        var key = prefix + '_h' + house;
+        var text = el.textContent.trim();
+        if (text) {
+            var pks = text.split(',').map(function(c) {
+                return codeToId[c.trim()];
+            }).filter(Boolean);
+            if (pks.length) houseState[key] = pks;
+        }
+    });
+
+    var currentPrefix = null;
+    var currentHouse  = null;
+    var MAX = 9;
+
+    window.openPopup = function(cell, prefix, house) {
+        currentPrefix = prefix;
+        currentHouse  = house;
+        var key = prefix + '_h' + house;
+        var selected = houseState[key] || [];
+
+        // Build chips
+        var chipsEl = document.getElementById('popup-chips');
+        chipsEl.innerHTML = '';
+        PLANETS.forEach(function(p) {
+            var chip = document.createElement('span');
+            chip.className = 'planet-chip' + (selected.indexOf(p.id) >= 0 ? ' selected' : '');
+            chip.textContent = p.code;
+            chip.dataset.pid = p.id;
+            chip.addEventListener('click', function() { toggleChip(this, p.id); });
+            chipsEl.appendChild(chip);
+        });
+
+        updateCount(selected.length);
+        document.getElementById('popup-title').textContent =
+            (prefix === 'rasi' ? 'ராசி' : 'நவாம்சம்') + ' — வீடு ' + house;
+
+        // Position popup — always fully visible in viewport
+        var rect = cell.getBoundingClientRect();
+        var popup = document.getElementById('jathagam-popup');
+        popup.style.display = 'block';
+        document.getElementById('jathagam-popup-overlay').style.display = 'block';
+
+        requestAnimationFrame(function() {
+            var pw = popup.offsetWidth;
+            var ph = popup.offsetHeight;
+            var vw = window.innerWidth;
+            var vh = window.innerHeight;
+            var margin = 8;
+
+            // Try right of cell, else left
+            var left = rect.right + margin;
+            if (left + pw > vw - margin) { left = rect.left - pw - margin; }
+            if (left < margin) { left = Math.max(margin, (vw - pw) / 2); }
+
+            // Align top with cell, clamp to viewport
+            var top = rect.top;
+            if (top + ph > vh - margin) { top = vh - ph - margin; }
+            if (top < margin) { top = margin; }
+
+            popup.style.position = 'fixed';
+            popup.style.left = left + 'px';
+            popup.style.top  = top  + 'px';
+        });
+    };
+
+    function toggleChip(chip, pid) {
+        var key = currentPrefix + '_h' + currentHouse;
+        var selected = houseState[key] ? houseState[key].slice() : [];
+        var idx = selected.indexOf(pid);
+        if (idx >= 0) {
+            selected.splice(idx, 1);
+            chip.classList.remove('selected');
+        } else {
+            if (selected.length >= MAX) {
+                alert('அதிகபட்சம் ' + MAX + ' கோள்கள் மட்டுமே.');
+                return;
+            }
+            selected.push(pid);
+            chip.classList.add('selected');
+        }
+        houseState[key] = selected;
+        updateCount(selected.length);
+        updateDisplay(currentPrefix, currentHouse, selected);
+    }
+
+    function updateCount(n) {
+        document.getElementById('popup-count').textContent =
+            n > 0 ? (n + ' கோள் தேர்வு') : 'கோள் தேர்வு செய்யவும்';
+    }
+
+    function updateDisplay(prefix, house, pks) {
+        var codes = pks.map(function(pid) {
+            var p = PLANETS.find(function(x) { return x.id === pid; });
+            return p ? p.code : '';
+        }).filter(Boolean);
+        var el = document.getElementById('disp_' + prefix + '_' + house);
+        if (el) el.textContent = codes.join(', ');
+    }
+
+    window.clearPopupHouse = function() {
+        var key = currentPrefix + '_h' + currentHouse;
+        houseState[key] = [];
+        document.querySelectorAll('#popup-chips .planet-chip').forEach(function(c) {
+            c.classList.remove('selected');
+        });
+        updateCount(0);
+        updateDisplay(currentPrefix, currentHouse, []);
+    };
+
+    window.closePopup = function() {
+        document.getElementById('jathagam-popup').style.display = 'none';
+        document.getElementById('jathagam-popup-overlay').style.display = 'none';
+        currentPrefix = null; currentHouse = null;
+    };
+
+    // Close on overlay click
+    document.getElementById('jathagam-popup-overlay').addEventListener('click', closePopup);
+
+    // Before form submit: write hidden inputs from houseState
+    // Use capture=true so this runs before the form data is collected
+    document.addEventListener('submit', function(e) {
+        var container = document.getElementById('jathagam-hidden-inputs');
+        if (!container) return;
+        container.innerHTML = '';
+
+        // Write a sentinel so the view knows jathagam data was submitted
+        var sentinel = document.createElement('input');
+        sentinel.type = 'hidden';
+        sentinel.name = 'jathagam_submitted';
+        sentinel.value = '1';
+        container.appendChild(sentinel);
+
+        Object.keys(houseState).forEach(function(key) {
+            var pks = houseState[key];
+            if (!pks || !pks.length) return;
+            var fieldName = key + '[]';
+            pks.forEach(function(pk) {
+                var inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = fieldName;
+                inp.value = pk;
+                container.appendChild(inp);
+            });
+        });
+    }, true);
+
+})();
+</script>
+
 {% else %}
+{# ── VIEW / PRINT MODE: plain text display ──────────────────────── #}
 <div class="row g-2">
     <div class="col-6">
+        <div class="chart-label">ராசி</div>
         <div class="jathagam-grid">
-            <div class="jc"><span class="jc-num">12</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h12' }}</div></div>
-            <div class="jc"><span class="jc-num">1</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h1' }}</div></div>
-            <div class="jc"><span class="jc-num">2</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h2' }}</div></div>
-            <div class="jc"><span class="jc-num">3</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h3' }}</div></div>
-            <div class="jc"><span class="jc-num">11</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h11' }}</div></div>
+            <div class="jc"><span class="jc-num">12</span><div class="jc-value">{% house_display jathagam_map 'R' 12 %}</div></div>
+            <div class="jc"><span class="jc-num">1</span><div class="jc-value">{% house_display jathagam_map 'R' 1 %}</div></div>
+            <div class="jc"><span class="jc-num">2</span><div class="jc-value">{% house_display jathagam_map 'R' 2 %}</div></div>
+            <div class="jc"><span class="jc-num">3</span><div class="jc-value">{% house_display jathagam_map 'R' 3 %}</div></div>
+            <div class="jc"><span class="jc-num">11</span><div class="jc-value">{% house_display jathagam_map 'R' 11 %}</div></div>
             <div class="jc-center">ராசி</div>
-            <div class="jc"><span class="jc-num">4</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h4' }}</div></div>
-            <div class="jc"><span class="jc-num">10</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h10' }}</div></div>
-            <div class="jc"><span class="jc-num">5</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h5' }}</div></div>
-            <div class="jc"><span class="jc-num">9</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h9' }}</div></div>
-            <div class="jc"><span class="jc-num">8</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h8' }}</div></div>
-            <div class="jc"><span class="jc-num">7</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h7' }}</div></div>
-            <div class="jc"><span class="jc-num">6</span><div class="jc-value">{{ candidate|get_planet_name:'rasi_h6' }}</div></div>
+            <div class="jc"><span class="jc-num">4</span><div class="jc-value">{% house_display jathagam_map 'R' 4 %}</div></div>
+            <div class="jc"><span class="jc-num">10</span><div class="jc-value">{% house_display jathagam_map 'R' 10 %}</div></div>
+            <div class="jc"><span class="jc-num">5</span><div class="jc-value">{% house_display jathagam_map 'R' 5 %}</div></div>
+            <div class="jc"><span class="jc-num">9</span><div class="jc-value">{% house_display jathagam_map 'R' 9 %}</div></div>
+            <div class="jc"><span class="jc-num">8</span><div class="jc-value">{% house_display jathagam_map 'R' 8 %}</div></div>
+            <div class="jc"><span class="jc-num">7</span><div class="jc-value">{% house_display jathagam_map 'R' 7 %}</div></div>
+            <div class="jc"><span class="jc-num">6</span><div class="jc-value">{% house_display jathagam_map 'R' 6 %}</div></div>
         </div>
     </div>
     <div class="col-6">
+        <div class="chart-label">நவாம்சம்</div>
         <div class="jathagam-grid">
-            <div class="jc"><span class="jc-num">12</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h12' }}</div></div>
-            <div class="jc"><span class="jc-num">1</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h1' }}</div></div>
-            <div class="jc"><span class="jc-num">2</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h2' }}</div></div>
-            <div class="jc"><span class="jc-num">3</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h3' }}</div></div>
-            <div class="jc"><span class="jc-num">11</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h11' }}</div></div>
+            <div class="jc"><span class="jc-num">12</span><div class="jc-value">{% house_display jathagam_map 'N' 12 %}</div></div>
+            <div class="jc"><span class="jc-num">1</span><div class="jc-value">{% house_display jathagam_map 'N' 1 %}</div></div>
+            <div class="jc"><span class="jc-num">2</span><div class="jc-value">{% house_display jathagam_map 'N' 2 %}</div></div>
+            <div class="jc"><span class="jc-num">3</span><div class="jc-value">{% house_display jathagam_map 'N' 3 %}</div></div>
+            <div class="jc"><span class="jc-num">11</span><div class="jc-value">{% house_display jathagam_map 'N' 11 %}</div></div>
             <div class="jc-center">நவாம்சம்</div>
-            <div class="jc"><span class="jc-num">4</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h4' }}</div></div>
-            <div class="jc"><span class="jc-num">10</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h10' }}</div></div>
-            <div class="jc"><span class="jc-num">5</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h5' }}</div></div>
-            <div class="jc"><span class="jc-num">9</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h9' }}</div></div>
-            <div class="jc"><span class="jc-num">8</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h8' }}</div></div>
-            <div class="jc"><span class="jc-num">7</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h7' }}</div></div>
-            <div class="jc"><span class="jc-num">6</span><div class="jc-value">{{ candidate|get_planet_name:'navamsam_h6' }}</div></div>
+            <div class="jc"><span class="jc-num">4</span><div class="jc-value">{% house_display jathagam_map 'N' 4 %}</div></div>
+            <div class="jc"><span class="jc-num">10</span><div class="jc-value">{% house_display jathagam_map 'N' 10 %}</div></div>
+            <div class="jc"><span class="jc-num">5</span><div class="jc-value">{% house_display jathagam_map 'N' 5 %}</div></div>
+            <div class="jc"><span class="jc-num">9</span><div class="jc-value">{% house_display jathagam_map 'N' 9 %}</div></div>
+            <div class="jc"><span class="jc-num">8</span><div class="jc-value">{% house_display jathagam_map 'N' 8 %}</div></div>
+            <div class="jc"><span class="jc-num">7</span><div class="jc-value">{% house_display jathagam_map 'N' 7 %}</div></div>
+            <div class="jc"><span class="jc-num">6</span><div class="jc-value">{% house_display jathagam_map 'N' 6 %}</div></div>
         </div>
     </div>
 </div>

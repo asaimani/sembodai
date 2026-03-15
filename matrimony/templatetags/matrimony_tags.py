@@ -3,52 +3,63 @@ from django.utils.safestring import mark_safe
 
 register = template.Library()
 
-@register.filter
-def get_planet_name(candidate, field_name):
-    """Get planet code for a jathagam house field e.g. rasi_h1"""
-    try:
-        planet = getattr(candidate, field_name, None)
-        return planet.code if planet else ''
-    except Exception:
-        return ''
-
-@register.filter
-def get_planet_id(candidate, field_name):
-    """Get planet FK id for selected state in dropdown"""
-    try:
-        planet = getattr(candidate, field_name, None)
-        return planet.pk if planet else ''
-    except Exception:
-        return ''
 
 @register.simple_tag
-def planet_select(name, candidate, planets):
-    """Render a planet select dropdown"""
-    current_id = ''
-    if candidate:
-        try:
-            planet = getattr(candidate, name, None)
-            if planet:
-                current_id = planet.pk
-        except Exception:
-            pass
+def planet_multiselect(prefix, house_number, jathagam_map, planets):
+    """
+    Render a multi-select dropdown for one house in the jathagam grid.
+    prefix       : 'rasi' or 'navamsam'
+    house_number : 1–12
+    jathagam_map : dict from candidate.get_jathagam_map()
+    planets      : queryset of all Planet objects
 
-    options = '<option value="">-</option>'
+    Field name uses [] suffix so POST delivers a list:
+      rasi_h1[]  navamsam_h6[]  etc.
+    Up to 9 planets can be selected (enforced in JS).
+    """
+    chart_key = 'R' if prefix == 'rasi' else 'N'
+    current_text = ''
+    if jathagam_map:
+        current_text = jathagam_map.get(chart_key, {}).get(house_number, '')
+
+    selected_codes = set(c.strip() for c in current_text.split(',') if c.strip())
+    code_to_pk = {p.code: p.pk for p in planets}
+    selected_pks = {code_to_pk[c] for c in selected_codes if c in code_to_pk}
+
+    field_name = f'{prefix}_h{house_number}[]'
+    options = ''
     for p in planets:
-        selected = 'selected' if p.pk == current_id else ''
-        options += f'<option value="{p.pk}" {selected}>{p.code}</option>'
-    return mark_safe(f'<select name="{name}" class="jathagam-select">{options}</select>')
+        sel = 'selected' if p.pk in selected_pks else ''
+        options += f'<option value="{p.pk}" {sel}>{p.code}</option>'
+
+    html = (
+        f'<select name="{field_name}" '
+        f'class="jathagam-select" '
+        f'multiple size="3" data-max="9">'
+        f'{options}'
+        f'</select>'
+    )
+    return mark_safe(html)
+
+
+@register.simple_tag
+def house_display(jathagam_map, chart_key, house_number):
+    """
+    Return comma-separated planet codes for a house in view/print mode.
+    chart_key : 'R' or 'N'
+    """
+    if not jathagam_map:
+        return ''
+    return jathagam_map.get(chart_key, {}).get(house_number, '')
+
 
 @register.filter
 def format_12hr(time_val):
-    """Convert time to 12hr AM/PM format"""
     if not time_val:
         return ''
     try:
-        hour = time_val.hour
-        minute = time_val.minute
+        hour, minute = time_val.hour, time_val.minute
         am_pm = 'AM' if hour < 12 else 'PM'
-        hour12 = hour % 12 or 12
-        return f"{hour12:02d}:{minute:02d} {am_pm}"
+        return f"{hour % 12 or 12:02d}:{minute:02d} {am_pm}"
     except Exception:
         return str(time_val)

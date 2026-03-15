@@ -187,33 +187,8 @@ class BaseCandidateModel(models.Model):
     updated_at               = models.DateTimeField(auto_now=True)
     is_new                   = models.BooleanField(default=True)
 
-    # ராசி Chart - FK to Planet
-    rasi_h1  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராசி வீடு 1")
-    rasi_h2  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராசி வீடு 2")
-    rasi_h3  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராசி வீடு 3")
-    rasi_h4  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராசி வீடு 4")
-    rasi_h5  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராசி வீடு 5")
-    rasi_h6  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராசி வீடு 6")
-    rasi_h7  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராசி வீடு 7")
-    rasi_h8  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராசி வீடு 8")
-    rasi_h9  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராசி வீடு 9")
-    rasi_h10 = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராசி வீடு 10")
-    rasi_h11 = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராசி வீடு 11")
-    rasi_h12 = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராசி வீடு 12")
-
-    # நவாம்சம் Chart - FK to Planet
-    navamsam_h1  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="நவாம்சம் வீடு 1")
-    navamsam_h2  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="நவாம்சம் வீடு 2")
-    navamsam_h3  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="நவாம்சம் வீடு 3")
-    navamsam_h4  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="நவாம்சம் வீடு 4")
-    navamsam_h5  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="நவாம்சம் வீடு 5")
-    navamsam_h6  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="நவாம்சம் வீடு 6")
-    navamsam_h7  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="நவாம்சம் வீடு 7")
-    navamsam_h8  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="நவாம்சம் வீடு 8")
-    navamsam_h9  = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="நவாம்சம் வீடு 9")
-    navamsam_h10 = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="நவாம்சம் வீடு 10")
-    navamsam_h11 = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="நவாம்சம் வீடு 11")
-    navamsam_h12 = models.ForeignKey(Planet, on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="நவாம்சம் வீடு 12")
+    # ஜாதகம் planets are now stored in JathagamEntry (see below)
+    # Use candidate.get_jathagam_map() to get {chart_type: {house_number: "சூ, செ"}}
 
     # Family
 
@@ -236,6 +211,36 @@ class BaseCandidateModel(models.Model):
     pincode         = models.CharField(max_length=6, blank=True, verbose_name="பின்கோட்")
     mobile_number   = models.CharField(max_length=15, blank=True, verbose_name="கைபேசி எண்")
     whatsapp_number = models.CharField(max_length=15, blank=True, verbose_name="வாட்ஸ்அப் எண்")
+
+    def get_jathagam_map(self):
+        """
+        Returns a nested dict for both charts:
+        {
+          'R': {1: 'சூ, செ', 2: '', 3: 'கு', ...},
+          'N': {1: '',        2: 'ல',  3: '', ...},
+        }
+        All 12 houses are always present (empty string if no planets).
+        Used by templates to render the jathagam grid without extra queries
+        when called once and passed to context.
+        """
+        gender = 'M' if isinstance(self, MaleCandidate) else 'F'
+        entries = (
+            JathagamEntry.objects
+            .filter(candidate_gender=gender, candidate_id=self.pk)
+            .select_related('planet')
+            .order_by('chart_type', 'house_number', 'order')
+        )
+        result = {
+            'R': {h: [] for h in range(1, 13)},
+            'N': {h: [] for h in range(1, 13)},
+        }
+        for e in entries:
+            result[e.chart_type][e.house_number].append(e.planet.code)
+        # Convert lists to comma-separated strings
+        return {
+            ct: {h: ', '.join(planets) for h, planets in houses.items()}
+            for ct, houses in result.items()
+        }
 
     @property
     def age(self):
@@ -376,6 +381,40 @@ class FamilyMember(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.relation})"
+
+class JathagamEntry(models.Model):
+    """
+    Stores planets placed in each house of the jathagam chart.
+    Replaces the 24 single-planet FK columns that were on the candidate models.
+
+    One row = one planet in one house of one chart for one candidate.
+    A house with சூ, செ, கு has 3 rows (order=1,2,3).
+
+    chart_type: 'R' = ராசி, 'N' = நவாம்சம்
+    house_number: 1–12
+    order: display order of the planet within the house (1 = first shown)
+    """
+    CHART_CHOICES = [('R', 'ராசி'), ('N', 'நவாம்சம்')]
+    GENDER_CHOICES = [('M', 'ஆண்'), ('F', 'பெண்')]
+
+    candidate_gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name='பாலினம்')
+    candidate_id     = models.PositiveIntegerField(verbose_name='விண்ணப்பதாரர் ID')
+    chart_type       = models.CharField(max_length=1, choices=CHART_CHOICES, verbose_name='சார்ட் வகை')
+    house_number     = models.PositiveSmallIntegerField(verbose_name='வீடு எண்')
+    planet           = models.ForeignKey(Planet, on_delete=models.CASCADE, verbose_name='கோள்')
+    order            = models.PositiveSmallIntegerField(default=1, verbose_name='வரிசை')
+
+    class Meta:
+        verbose_name = 'ஜாதகம் பதிவு'
+        ordering = ['chart_type', 'house_number', 'order']
+        indexes = [
+            models.Index(fields=['candidate_gender', 'candidate_id'], name='jathagam_candidate_idx'),
+            models.Index(fields=['candidate_gender', 'candidate_id', 'chart_type'], name='jathagam_candidate_chart_idx'),
+        ]
+
+    def __str__(self):
+        return f"{self.candidate_gender}{self.candidate_id} | {self.chart_type} H{self.house_number} | {self.planet.code}"
+
 
 class ShadowCandidate(models.Model):
     original_data = models.JSONField()
