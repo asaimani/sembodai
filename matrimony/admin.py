@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (State, District, Rasi, Nachathiram, Profession,
                      JathagamType, Planet, Sevadosham, CandidateStatus,
-                     TamilYear, TamilMonth, TamilKizhamai, TamilDate, OwnHouse, BirthOrder,
+                     TamilYear, TamilMonth, TamilKizhamai, TamilDate, OwnHouse, BirthOrder, RaguKethu,
                      Complexion, Caste, SubCaste, Height, Relation, MaritalStatus,
                      FamilyMember, MaleCandidate, FemaleCandidate, CandidatePhoto,
                      AdminProfile, ShadowCandidate)
@@ -101,7 +101,11 @@ class TamilDateAdmin(admin.ModelAdmin):
 
 @admin.register(OwnHouse)
 class OwnHouseAdmin(admin.ModelAdmin):
-    list_display = ['code', 'name']
+    list_display = ['name', 'code', 'order']
+
+@admin.register(RaguKethu)
+class RaguKethuAdmin(admin.ModelAdmin):
+    list_display = ['name', 'code', 'order']
 
 class AdminProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'location', 'phone', 'alternate_phone']

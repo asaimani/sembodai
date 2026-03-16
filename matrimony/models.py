@@ -96,6 +96,13 @@ class OwnHouse(models.Model):
     def __str__(self): return self.name
     class Meta: verbose_name = "சொந்த வீடு"; ordering = ['order']
 
+class RaguKethu(models.Model):
+    code  = models.CharField(max_length=10, unique=True, verbose_name="குறியீடு")
+    name  = models.CharField(max_length=50, verbose_name="பெயர்")
+    order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "ராகு/கேது"; ordering = ['order']
+
 class BirthOrder(models.Model):
     name  = models.CharField(max_length=10, verbose_name="பிறப்பு வரிசை")
     order = models.PositiveIntegerField(default=0)
@@ -175,7 +182,7 @@ class BaseCandidateModel(models.Model):
     sub_caste                = models.ForeignKey('SubCaste', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="உட்பிரிவு")
     complexion               = models.ForeignKey('Complexion', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="நிறம்")
     sevadosham               = models.ForeignKey(Sevadosham, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="செவ்வாய் தோஷம்")
-    ragu_kethu               = models.ForeignKey('OwnHouse', on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராகு/கேது")
+    ragu_kethu               = models.ForeignKey('RaguKethu', on_delete=models.SET_NULL, null=True, blank=True, related_name='+', verbose_name="ராகு/கேது")
     property_value           = models.CharField(max_length=200, blank=True, verbose_name="சொத்து மதிப்பு")
     state                    = models.ForeignKey(State, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="மாநிலம்")
     district                 = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="மாவட்டம்")
