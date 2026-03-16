@@ -88,7 +88,7 @@
     </div>
 
     <!-- ROW 1: அடிப்படை (left) | கல்வி + ஜோதிட (right) -->
-    <div class="two-col" style="align-items:start;">
+    <div style="display:grid;grid-template-columns:70% 30%;gap:10px;margin-bottom:10px;align-items:start;">
 
         <!-- LEFT: அடிப்படை விவரங்கள் -->
         <div class="section">
@@ -99,7 +99,7 @@
                 {% if candidate.educational_qualification %}<tr><td>கல்வி</td><td>{{ candidate.educational_qualification }}</td></tr>{% endif %}
                 {% if candidate.profession %}<tr><td>பணி</td><td>{{ candidate.profession }}</td></tr>{% endif %}
                 {% if candidate.profession_comments %}<tr><td>அலுவலகம்</td><td>{{ candidate.profession_comments }}</td></tr>{% endif %}
-                {% if candidate.monthly_salary %}<tr><td>மாத வருமானம்</td><td>₹{{ candidate.monthly_salary }}</td></tr>{% endif %}
+                {% if candidate.monthly_salary %}<tr><td>மாத வருமானம்</td><td>₹{{ candidate.monthly_salary|floatformat:0 }}</td></tr>{% endif %}
                 {% if candidate.complexion %}<tr><td>நிறம்</td><td>{{ candidate.complexion }}</td></tr>{% endif %}
                 {% if candidate.height %}<tr><td>உயரம்</td><td>{{ candidate.height }}</td></tr>{% endif %}
                 {% if candidate.birth_order %}<tr><td>பிறப்பு வரிசை</td><td>{{ candidate.birth_order }}</td></tr>{% endif %}

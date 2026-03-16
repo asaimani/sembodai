@@ -112,8 +112,8 @@
                     {% if candidate.educational_qualification %}{% include 'matrimony/_detail_row.html' with label="கல்வி" value=candidate.educational_qualification %}{% endif %}
                     {% if candidate.profession %}{% include 'matrimony/_detail_row.html' with label="தொழில்" value=candidate.profession %}{% endif %}
                     {% if candidate.profession_comments %}{% include 'matrimony/_detail_row.html' with label="தொழில் விவரம்" value=candidate.profession_comments %}{% endif %}
-                    {% if candidate.monthly_salary %}{% include 'matrimony/_detail_row.html' with label="மாத சம்பளம்" value=candidate.monthly_salary %}{% endif %}
-                    {% if candidate.annual_income %}{% include 'matrimony/_detail_row.html' with label="வருட வருமானம்" value=candidate.annual_income %}{% endif %}
+                    {% if candidate.monthly_salary %}{% include 'matrimony/_detail_row.html' with label="மாத சம்பளம்" value=candidate.monthly_salary|floatformat:0 %}{% endif %}
+                    {% if candidate.annual_income %}{% include 'matrimony/_detail_row.html' with label="வருட வருமானம்" value=candidate.annual_income|floatformat:0 %}{% endif %}
                     {% if candidate.property_value %}{% include 'matrimony/_detail_row.html' with label="சொத்து மதிப்பு" value=candidate.property_value %}{% endif %}
                 </div>
             </div>
