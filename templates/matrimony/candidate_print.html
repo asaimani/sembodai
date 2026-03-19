@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <title>{{ candidate.name }} - வாழ்க்கை துணை தேடல்</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * { font-family: 'Noto Sans Tamil', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #fff; color: #1a1a1a; }
@@ -228,16 +229,16 @@
 
         <!-- LEFT: முகவரி விவரங்கள் -->
         <div class="section" id="address-section">
-            <div class="section-title">முகவரி விவரங்கள்</div>
-            <table class="info-table">
-                {% if candidate.address_name %}<tr><td>பெயர்</td><td>{{ candidate.address_name }}</td></tr>{% endif %}
-                {% if candidate.address_line1 %}<tr><td>முகவரி வரி 1</td><td>{{ candidate.address_line1 }}</td></tr>{% endif %}
-                {% if candidate.address_line2 %}<tr><td>முகவரி வரி 2</td><td>{{ candidate.address_line2 }}</td></tr>{% endif %}
-                {% if candidate.address_line3 %}<tr><td>முகவரி வரி 3</td><td>{{ candidate.address_line3 }}</td></tr>{% endif %}
-                {% if candidate.pincode %}<tr><td>பின்கோட்</td><td>{{ candidate.pincode }}</td></tr>{% endif %}
-                {% if candidate.mobile_number %}<tr><td>கைபேசி எண்</td><td>{{ candidate.mobile_number }}</td></tr>{% endif %}
-                {% if candidate.whatsapp_number %}<tr><td>வாட்ஸ்அப் எண்</td><td>{{ candidate.whatsapp_number }}</td></tr>{% endif %}
-            </table>
+            <div class="section-title">முகவரி</div>
+            <div style="font-size:11px;line-height:1.8;">
+                {% if candidate.address_name %}<div style="font-weight:600;">{{ candidate.address_name }},</div>{% endif %}
+                {% if candidate.address_line1 %}<div>{{ candidate.address_line1 }},</div>{% endif %}
+                {% if candidate.address_line2 %}<div>{{ candidate.address_line2 }},</div>{% endif %}
+                {% if candidate.address_line3 %}<div>{{ candidate.address_line3 }},</div>{% endif %}
+                {% if candidate.pincode %}<div>{{ candidate.pincode }}.</div>{% endif %}
+                {% if candidate.mobile_number %}<div style="margin-top:4px;">📞 {{ candidate.mobile_number }}.</div>{% endif %}
+                {% if candidate.whatsapp_number %}<div><i class="fab fa-whatsapp" style="color:#25D366;font-size:12px;"></i> {{ candidate.whatsapp_number }}.</div>{% endif %}
+            </div>
         </div>
 
         <!-- RIGHT: Photo -->
