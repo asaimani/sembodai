@@ -234,10 +234,11 @@
                 {% if candidate.address_name %}<div style="font-weight:600;">{{ candidate.address_name }},</div>{% endif %}
                 {% if candidate.address_line1 %}<div>{{ candidate.address_line1 }},</div>{% endif %}
                 {% if candidate.address_line2 %}<div>{{ candidate.address_line2 }},</div>{% endif %}
-                {% if candidate.address_line3 %}<div>{{ candidate.address_line3 }},</div>{% endif %}
-                {% if candidate.pincode %}<div>{{ candidate.pincode }}.</div>{% endif %}
-                {% if candidate.mobile_number %}<div style="margin-top:4px;">📞 {{ candidate.mobile_number }}.</div>{% endif %}
-                {% if candidate.whatsapp_number %}<div><i class="fab fa-whatsapp" style="color:#25D366;font-size:12px;"></i> {{ candidate.whatsapp_number }}.</div>{% endif %}
+                <div>{% if candidate.address_line3 %}{{ candidate.address_line3 }},{% endif %} {% if candidate.pincode %}{{ candidate.pincode }}.{% endif %}</div>
+                <div style="margin-top:4px;">
+                    {% if candidate.mobile_number %}📞 {{ candidate.mobile_number }}.{% endif %}
+                    {% if candidate.whatsapp_number %}&nbsp;&nbsp;<i class="fab fa-whatsapp" style="color:#25D366;font-size:12px;"></i> {{ candidate.whatsapp_number }}.{% endif %}
+                </div>
             </div>
         </div>
 
