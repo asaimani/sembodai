@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
@@ -60,6 +61,8 @@ def candidate_list(request):
     nachathiram_id = request.GET.get('nachathiram', '')
     salary_min = request.GET.get('salary_min', '')
     status_filter = request.GET.get('status', '')
+    page_num = request.GET.get('page', 1)
+    PER_PAGE = 50
 
     def apply_filters(qs):
         if search:
@@ -69,32 +72,107 @@ def candidate_list(request):
         if nachathiram_id:
             qs = qs.filter(nachathiram_id=nachathiram_id)
         if salary_min:
-            qs = qs.filter(monthly_salary__gte=salary_min)
+            try:
+                qs = qs.filter(monthly_salary__gte=int(salary_min))
+            except ValueError:
+                pass
         if status_filter:
             qs = qs.filter(status__code=status_filter)
         if age_min:
-            max_dob = date(date.today().year - int(age_min), date.today().month, date.today().day)
-            qs = qs.filter(date_of_birth__lte=max_dob)
+            try:
+                max_dob = date(date.today().year - int(age_min), date.today().month, date.today().day)
+                qs = qs.filter(date_of_birth__lte=max_dob)
+            except ValueError:
+                pass
         if age_max:
-            min_dob = date(date.today().year - int(age_max), date.today().month, date.today().day)
-            qs = qs.filter(date_of_birth__gte=min_dob)
+            try:
+                min_dob = date(date.today().year - int(age_max), date.today().month, date.today().day)
+                qs = qs.filter(date_of_birth__gte=min_dob)
+            except ValueError:
+                pass
         return qs
 
-    males = apply_filters(MaleCandidate.objects.filter(is_paid=True).select_related('rasi', 'nachathiram', 'profession', 'state', 'district'))
-    females = apply_filters(FemaleCandidate.objects.filter(is_paid=True).select_related('rasi', 'nachathiram', 'profession', 'state', 'district'))
+    base_select = {'select_related': ['rasi', 'nachathiram', 'profession', 'state', 'district']}
 
     if gender == 'M':
-        candidates = [('M', c) for c in males]
+        qs = apply_filters(
+            MaleCandidate.objects.filter(is_paid=True)
+            .select_related(*base_select['select_related'])
+            .order_by('-created_at')
+        )
+        # Wrap with gender tag using values + annotate approach via iterator
+        paginator = Paginator(qs, PER_PAGE)
+        page_obj = paginator.get_page(page_num)
+        candidates = [('M', c) for c in page_obj]
+        total_count = paginator.count
+
     elif gender == 'F':
-        candidates = [('F', c) for c in females]
+        qs = apply_filters(
+            FemaleCandidate.objects.filter(is_paid=True)
+            .select_related(*base_select['select_related'])
+            .order_by('-created_at')
+        )
+        paginator = Paginator(qs, PER_PAGE)
+        page_obj = paginator.get_page(page_num)
+        candidates = [('F', c) for c in page_obj]
+        total_count = paginator.count
+
     else:
-        candidates = [('M', c) for c in males] + [('F', c) for c in females]
-        candidates.sort(key=lambda x: x[1].created_at, reverse=True)
+        # Both genders: paginate males and females separately, interleave by created_at
+        # To avoid in-memory sort of 2M rows, paginate each independently
+        # and show them as two separate sorted querysets using DB ordering
+        males_qs = apply_filters(
+            MaleCandidate.objects.filter(is_paid=True)
+            .select_related(*base_select['select_related'])
+            .order_by('-created_at')
+        )
+        females_qs = apply_filters(
+            FemaleCandidate.objects.filter(is_paid=True)
+            .select_related(*base_select['select_related'])
+            .order_by('-created_at')
+        )
+        # Combine using slicing — DB does the heavy lifting, no Python sort
+        male_count = males_qs.count()
+        female_count = females_qs.count()
+        total_count = male_count + female_count
+
+        # Alternate pages: odd pages lean male, even pages lean female
+        # Simple approach: show PER_PAGE/2 from each per page
+        half = PER_PAGE // 2
+        try:
+            page_num_int = int(page_num)
+        except (ValueError, TypeError):
+            page_num_int = 1
+        offset = (page_num_int - 1) * half
+
+        males_page = list(males_qs[offset:offset + half])
+        females_page = list(females_qs[offset:offset + half])
+
+        # Interleave
+        candidates = []
+        for i in range(max(len(males_page), len(females_page))):
+            if i < len(males_page):
+                candidates.append(('M', males_page[i]))
+            if i < len(females_page):
+                candidates.append(('F', females_page[i]))
+
+        import math
+        total_pages = math.ceil(max(male_count, female_count) / half) if total_count else 1
+        page_obj = type('PageObj', (), {
+            'number': page_num_int,
+            'has_previous': page_num_int > 1,
+            'has_next': page_num_int < total_pages,
+            'previous_page_number': lambda self: self.number - 1,
+            'next_page_number': lambda self: self.number + 1,
+            'paginator': type('Pag', (), {'num_pages': total_pages, 'count': total_count})(),
+        })()
 
     rasis = Rasi.objects.all()
     nachathirams = Nachathiram.objects.all()
     context = {
         'candidates': candidates,
+        'page_obj': page_obj,
+        'total_count': total_count,
         'rasis': rasis,
         'nachathirams': nachathirams,
         'gender': gender,
@@ -189,6 +267,7 @@ def _save_family_members(candidate, post_data):
             order            = i,
         )
 
+@login_required
 def candidate_add(request):
     gender = request.GET.get('gender', 'M')
     is_male = gender == 'M'
