@@ -243,6 +243,10 @@ def _save_photos(candidate, files, is_male):
     if not files:
         return
     photo = files[0]
+    # Validate file type
+    allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if photo.content_type not in allowed_types:
+        raise ValueError("புகைப்படம் JPEG, PNG அல்லது WebP வடிவத்தில் இருக்க வேண்டும்.")
     # Validate file size
     max_bytes = MAX_PHOTO_SIZE_MB * 1024 * 1024
     if photo.size > max_bytes:
@@ -501,18 +505,21 @@ def delete_photo(request, photo_id):
     return redirect('candidate_edit', gender=gender, pk=candidate_pk)
 
 
+@login_required
 def get_districts(request):
     state_id = request.GET.get('state_id')
     districts = District.objects.filter(state_id=state_id).values('id', 'name').order_by('order', 'name')
     return JsonResponse(list(districts), safe=False)
 
 
+@login_required
 def get_sub_castes(request):
     caste_id = request.GET.get('caste_id')
     sub_castes = SubCaste.objects.filter(caste_id=caste_id).values('id', 'name')
     return JsonResponse(list(sub_castes), safe=False)
 
 
+@login_required
 def get_nachathirams(request):
     rasi_id = request.GET.get('rasi_id')
     nachathirams = Nachathiram.objects.filter(rasi_id=rasi_id).values('id', 'name')
