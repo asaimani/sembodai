@@ -36,10 +36,10 @@ def dashboard(request):
     male_count = MaleCandidate.objects.filter(is_paid=True).count()
     female_count = FemaleCandidate.objects.filter(is_paid=True).count()
     total = male_count + female_count
-    new_male = MaleCandidate.objects.filter(created_at__date=today, is_paid=True)
-    new_female = FemaleCandidate.objects.filter(created_at__date=today, is_paid=True)
-    expired_male = MaleCandidate.objects.filter(premium_end_date__lt=today, is_paid=True, status__code='active')
-    expired_female = FemaleCandidate.objects.filter(premium_end_date__lt=today, is_paid=True, status__code='active')
+    new_male = MaleCandidate.objects.filter(created_at__date=today, is_paid=True).order_by('-created_at')[:20]
+    new_female = FemaleCandidate.objects.filter(created_at__date=today, is_paid=True).order_by('-created_at')[:20]
+    expired_male = MaleCandidate.objects.filter(premium_end_date__lt=today, is_paid=True, status__code='active').order_by('-premium_end_date')[:20]
+    expired_female = FemaleCandidate.objects.filter(premium_end_date__lt=today, is_paid=True, status__code='active').order_by('-premium_end_date')[:20]
     context = {
         'male_count': male_count,
         'female_count': female_count,
@@ -201,23 +201,37 @@ def _save_jathagam(candidate, post_data):
     ).delete()
 
     chart_map = {'rasi': 'R', 'navamsam': 'N'}
+
+    # Collect all planet PKs from POST first
+    all_pids = set()
+    for prefix in chart_map:
+        for house in range(1, 13):
+            for pid in post_data.getlist(f'{prefix}_h{house}[]'):
+                try:
+                    all_pids.add(int(pid))
+                except ValueError:
+                    pass
+
+    # Single DB query for all planets needed — no N+1
+    planet_map = Planet.objects.in_bulk(list(all_pids))
+
     entries = []
     for prefix, chart_type in chart_map.items():
         for house in range(1, 13):
-            # Multi-select field: rasi_h1[], navamsam_h1[], etc.
             planet_ids = post_data.getlist(f'{prefix}_h{house}[]')
             for order, pid in enumerate(planet_ids, start=1):
                 try:
-                    planet = Planet.objects.get(pk=int(pid))
-                    entries.append(JathagamEntry(
-                        candidate_gender=gender,
-                        candidate_id=candidate.pk,
-                        chart_type=chart_type,
-                        house_number=house,
-                        planet=planet,
-                        order=order,
-                    ))
-                except (Planet.DoesNotExist, ValueError):
+                    planet = planet_map.get(int(pid))
+                    if planet:
+                        entries.append(JathagamEntry(
+                            candidate_gender=gender,
+                            candidate_id=candidate.pk,
+                            chart_type=chart_type,
+                            house_number=house,
+                            planet=planet,
+                            order=order,
+                        ))
+                except ValueError:
                     continue
     if entries:
         JathagamEntry.objects.bulk_create(entries)
