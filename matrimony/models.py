@@ -103,6 +103,13 @@ class RaguKethu(models.Model):
     def __str__(self): return self.name
     class Meta: verbose_name = "ராகு/கேது"; ordering = ['order']
 
+class PremiumType(models.Model):
+    code  = models.CharField(max_length=20, unique=True, verbose_name="குறியீடு")
+    name  = models.CharField(max_length=50, verbose_name="பெயர்")
+    order = models.PositiveIntegerField(default=0)
+    def __str__(self): return self.name
+    class Meta: verbose_name = "பிரீமியம் வகை"; ordering = ['order']
+
 class BirthOrder(models.Model):
     name  = models.CharField(max_length=10, verbose_name="பிறப்பு வரிசை")
     order = models.PositiveIntegerField(default=0)
@@ -189,7 +196,7 @@ class BaseCandidateModel(models.Model):
     status                   = models.ForeignKey(CandidateStatus, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="நிலை")
     premium_start_date       = models.DateField(null=True, blank=True, verbose_name="பிரீமியம் தொடக்க தேதி")
     premium_end_date         = models.DateField(null=True, blank=True, verbose_name="பிரீமியம் முடிவு தேதி")
-    is_paid                  = models.BooleanField(default=True, verbose_name="கட்டணம் செலுத்தியது")
+    premium_type             = models.ForeignKey('PremiumType', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="பிரீமியம் வகை")
     created_by               = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='+')
     created_at               = models.DateTimeField(auto_now_add=True)
     updated_at               = models.DateTimeField(auto_now=True)
@@ -424,8 +431,4 @@ class JathagamEntry(models.Model):
         return f"{self.candidate_gender}{self.candidate_id} | {self.chart_type} H{self.house_number} | {self.planet.code}"
 
 
-class ShadowCandidate(models.Model):
-    original_data = models.JSONField()
-    created_at    = models.DateTimeField(auto_now_add=True)
-    notes         = models.TextField(blank=True)
-    class Meta: verbose_name = "நிலுவை விண்ணப்பம்" 
+

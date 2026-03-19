@@ -185,6 +185,7 @@
             <div class="card-header">பிரீமியம் விவரம்</div>
             <div class="card-body">
                 <div class="row g-2">
+                    {% include 'matrimony/_detail_row.html' with label="பிரீமியம் வகை" value=candidate.premium_type %}
                     {% include 'matrimony/_detail_row.html' with label="தொடக்க தேதி" value=candidate.premium_start_date|date:"d/m/Y" %}
                     {% include 'matrimony/_detail_row.html' with label="முடிவு தேதி" value=candidate.premium_end_date|date:"d/m/Y" %}
                     {% include 'matrimony/_detail_row.html' with label="நிலை" value=candidate.status %}

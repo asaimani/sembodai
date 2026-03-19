@@ -2,10 +2,10 @@ from django import forms
 from .models import (MaleCandidate, FemaleCandidate, Rasi, Nachathiram,
                      Profession, JathagamType, Planet, Sevadosham,
                      CandidateStatus, State, District,
-                     TamilYear, TamilMonth, TamilKizhamai, TamilDate, OwnHouse, BirthOrder,
+                     TamilYear, TamilMonth, TamilKizhamai, TamilDate, OwnHouse, BirthOrder, PremiumType,
                      Complexion, Caste, SubCaste, Height)
 
-COMMON_EXCLUDE = ['uid', 'created_by', 'created_at', 'updated_at', 'is_new', 'is_paid']
+COMMON_EXCLUDE = ['uid', 'created_by', 'created_at', 'updated_at', 'is_new']
 
 COMMON_WIDGETS = {
     'name':                      forms.TextInput(attrs={'class': 'form-control'}),
@@ -41,6 +41,7 @@ COMMON_WIDGETS = {
     'tamil_kizhamai':            forms.Select(attrs={'class': 'form-select'}),
     'tamil_date':                forms.Select(attrs={'class': 'form-select'}),
     'own_house':                 forms.Select(attrs={'class': 'form-select'}),
+    'premium_type':              forms.Select(attrs={'class': 'form-select'}),
     'birth_time':                forms.TimeInput(attrs={'class': 'form-control', 'placeholder': '10:45 AM', 'type': 'time'}),
     'complexion':                forms.Select(attrs={'class': 'form-select'}),
     'height':                    forms.Select(attrs={'class': 'form-select'}),
@@ -76,6 +77,14 @@ def _get_active_status():
         return None
 
 
+
+def _get_silver_type():
+    from .models import PremiumType
+    try:
+        return PremiumType.objects.get(code='silver')
+    except Exception:
+        return None
+
 class MaleCandidateForm(BaseCandidateForm):
     class Meta:
         model = MaleCandidate
@@ -86,6 +95,7 @@ class MaleCandidateForm(BaseCandidateForm):
         super().__init__(*args, **kwargs)
         if not kwargs.get('instance'):
             self.fields['status'].initial = _get_active_status()
+            self.fields['premium_type'].initial = _get_silver_type()
 
 
 class FemaleCandidateForm(BaseCandidateForm):
@@ -98,3 +108,4 @@ class FemaleCandidateForm(BaseCandidateForm):
         super().__init__(*args, **kwargs)
         if not kwargs.get('instance'):
             self.fields['status'].initial = _get_active_status()
+            self.fields['premium_type'].initial = _get_silver_type()

@@ -202,10 +202,6 @@
         </a>
         
         <div class="nav-section">நிர்வாகம்</div>
-        <a href="{% url 'shadow_list' %}">
-            <i class="fas fa-clock"></i> நிலுவை விண்ணப்பங்கள்
-        </a>
-        
         {% if request.user.is_superuser %}
         <a href="/admin/">
             <i class="fas fa-cog"></i> அட்டவணை நிர்வாகம்

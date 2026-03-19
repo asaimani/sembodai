@@ -39,21 +39,13 @@ var BAMINI_MAP = {
 {% endif %}
 {% csrf_token %}
 
-<!-- Payment Option -->
+<!-- Premium Type -->
 <div class="form-section">
-<div class="form-section-title"><i class="fas fa-rupee-sign me-2"></i>கட்டண விவரம்</div>
+<div class="form-section-title"><i class="fas fa-crown me-2"></i>பிரீமியம் வகை</div>
 <div class="row g-3">
-<div class="col-12">
-<div class="d-flex gap-3">
-<div class="form-check">
-<input class="form-check-input" type="radio" name="is_paid" id="paid_yes" value="true" {% if not candidate or candidate.is_paid %}checked{% endif %}>
-<label class="form-check-label" for="paid_yes">✅ கட்டணம் செலுத்தியது (முதன்மை பட்டியல்)</label>
-</div>
-<div class="form-check">
-<input class="form-check-input" type="radio" name="is_paid" id="paid_no" value="false" {% if candidate and not candidate.is_paid %}checked{% endif %}>
-<label class="form-check-label" for="paid_no">⏳ கட்டணம் நிலுவை (நிழல் பட்டியல்)</label>
-</div>
-</div>
+<div class="col-md-4">
+<label class="form-label">பிரீமியம் வகை</label>
+{{ form.premium_type }}
 </div>
 </div>
 </div>

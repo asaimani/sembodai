@@ -33,13 +33,13 @@ def logout_view(request):
 @login_required
 def dashboard(request):
     today = date.today()
-    male_count = MaleCandidate.objects.filter(is_paid=True).count()
-    female_count = FemaleCandidate.objects.filter(is_paid=True).count()
+    male_count = MaleCandidate.objects.count()
+    female_count = FemaleCandidate.objects.count()
     total = male_count + female_count
-    new_male = MaleCandidate.objects.filter(created_at__date=today, is_paid=True).order_by('-created_at')[:20]
-    new_female = FemaleCandidate.objects.filter(created_at__date=today, is_paid=True).order_by('-created_at')[:20]
-    expired_male = MaleCandidate.objects.filter(premium_end_date__lt=today, is_paid=True, status__code='active').order_by('-premium_end_date')[:20]
-    expired_female = FemaleCandidate.objects.filter(premium_end_date__lt=today, is_paid=True, status__code='active').order_by('-premium_end_date')[:20]
+    new_male = MaleCandidate.objects.filter(created_at__date=today).order_by('-created_at')[:20]
+    new_female = FemaleCandidate.objects.filter(created_at__date=today).order_by('-created_at')[:20]
+    expired_male = MaleCandidate.objects.filter(premium_end_date__lt=today, status__code='active').order_by('-premium_end_date')[:20]
+    expired_female = FemaleCandidate.objects.filter(premium_end_date__lt=today, status__code='active').order_by('-premium_end_date')[:20]
     context = {
         'male_count': male_count,
         'female_count': female_count,
@@ -97,7 +97,7 @@ def candidate_list(request):
 
     if gender == 'M':
         qs = apply_filters(
-            MaleCandidate.objects.filter(is_paid=True)
+            MaleCandidate.objects.all()
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
         )
@@ -108,7 +108,7 @@ def candidate_list(request):
 
     elif gender == 'F':
         qs = apply_filters(
-            FemaleCandidate.objects.filter(is_paid=True)
+            FemaleCandidate.objects.all()
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
         )
@@ -121,20 +121,23 @@ def candidate_list(request):
         # Both genders: paginate males and females separately, interleave by created_at
         # To avoid in-memory sort of 2M rows, paginate each independently
         # and show them as two separate sorted querysets using DB ordering
-        males_qs = apply_filters(
-            MaleCandidate.objects.filter(is_paid=True)
+        males_qs_full = apply_filters(
+            MaleCandidate.objects.all()
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
-        )[:MAX_RESULTS]
-        females_qs = apply_filters(
-            FemaleCandidate.objects.filter(is_paid=True)
+        )
+        females_qs_full = apply_filters(
+            FemaleCandidate.objects.all()
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
-        )[:MAX_RESULTS]
-        # Combine using slicing — DB does the heavy lifting, no Python sort
-        male_count = males_qs.count()
-        female_count = females_qs.count()
+        )
+        # Count before slicing to get real totals, capped at MAX_RESULTS
+        male_count = min(males_qs_full.count(), MAX_RESULTS)
+        female_count = min(females_qs_full.count(), MAX_RESULTS)
         total_count = male_count + female_count
+        # Slice after counting
+        males_qs = males_qs_full[:MAX_RESULTS]
+        females_qs = females_qs_full[:MAX_RESULTS]
 
         # Alternate pages: odd pages lean male, even pages lean female
         # Simple approach: show PER_PAGE/2 from each per page
@@ -297,17 +300,9 @@ def candidate_add(request):
         FormClass = MaleCandidateForm if is_male else FemaleCandidateForm
         form = FormClass(request.POST)
         photos = request.FILES.getlist('photos')
-        is_paid = request.POST.get('is_paid', 'true') == 'true'
-
         if form.is_valid():
             candidate = form.save(commit=False)
             candidate.created_by = request.user
-            candidate.is_paid = is_paid
-
-            if not is_paid:
-                ShadowCandidate.objects.create(original_data=request.POST.dict(), notes="கட்டணம் செலுத்தாத விண்ணப்பம்")
-                messages.warning(request, 'விண்ணப்பம் நிலுவை பட்டியலில் சேர்க்கப்பட்டது.')
-                return redirect('candidate_list')
 
             # Always force active status if form submitted with active or empty
             from .models import CandidateStatus
@@ -453,16 +448,7 @@ def candidate_print(request, gender, pk):
     })
 
 
-@login_required
-def shadow_list(request):
-    page_num = request.GET.get('page', 1)
-    qs = ShadowCandidate.objects.all().order_by('-created_at')
-    paginator = Paginator(qs, 50)
-    page_obj = paginator.get_page(page_num)
-    return render(request, 'matrimony/shadow_list.html', {
-        'shadows': page_obj,
-        'page_obj': page_obj,
-    })
+
 
 
 

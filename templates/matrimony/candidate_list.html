@@ -82,13 +82,13 @@
                         <th>நட்சத்திரம்</th>
                         <th>தொழில்</th>
                         <th>சம்பளம்</th>
-                        <th>நிலை</th>
+                        <th>பிரீமியம்</th>
                         <th>செயல்கள்</th>
                     </tr>
                 </thead>
                 <tbody>
                 {% for g, c in candidates %}
-                <tr {% if c.is_premium_expired %}class="table-warning"{% endif %}>
+                <tr>
                     <td>
                         <a href="{% url 'candidate_detail' g c.pk %}" class="fw-bold text-danger text-decoration-none">{{ c.uid }}</a>
                         {% if c.is_new %}<span class="badge bg-success ms-1" style="font-size:9px">புதிது</span>{% endif %}
@@ -108,12 +108,18 @@
                     <td>{{ c.profession }}</td>
                     <td>{% if c.monthly_salary %}₹{{ c.monthly_salary|floatformat:0 }}{% else %}-{% endif %}</td>
                     <td>
-                        {% if c.is_premium_expired %}
-                            <span class="badge badge-expired">காலாவதி</span>
-                        {% elif c.status.code == 'active' %}
-                            <span class="badge badge-active">செயலில்</span>
+                        {% if c.premium_type %}
+                            {% if c.premium_type.code == 'diamond' %}
+                                <span class="badge" style="background:#1a1a2e;color:#e0d5f5;">💎 Diamond</span>
+                            {% elif c.premium_type.code == 'platinum' %}
+                                <span class="badge" style="background:#2d4a6b;color:#c8e6ff;">🏆 Platinum</span>
+                            {% elif c.premium_type.code == 'gold' %}
+                                <span class="badge" style="background:#7c5c00;color:#ffe88a;">🥇 Gold</span>
+                            {% else %}
+                                <span class="badge" style="background:#3d3d3d;color:#e0e0e0;">🥈 Silver</span>
+                            {% endif %}
                         {% else %}
-                            <span class="badge bg-secondary">செயலற்று</span>
+                            <span class="badge bg-secondary">-</span>
                         {% endif %}
                     </td>
                     <td>

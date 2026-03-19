@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from matrimony.models import (Rasi, Nachathiram, Profession, JathagamType,
                                Planet, Sevadosham, CandidateStatus, State, District,
-                               TamilYear, TamilMonth, TamilKizhamai, TamilDate, OwnHouse, BirthOrder, RaguKethu,
+                               TamilYear, TamilMonth, TamilKizhamai, TamilDate, OwnHouse, BirthOrder, RaguKethu, PremiumType,
                                Complexion, Caste, SubCaste, Height, Relation, MaritalStatus)
 
 class Command(BaseCommand):
@@ -232,6 +232,18 @@ class Command(BaseCommand):
             (2, 'no',  'இல்லை'),
         ]:
             obj, created = RaguKethu.objects.get_or_create(code=code, defaults={'name': name, 'order': order})
+            if not created:
+                obj.order = order
+                obj.save()
+
+        # ── Premium Type ──
+        for order, code, name in [
+            (1, 'silver',   'Silver'),
+            (2, 'gold',     'Gold'),
+            (3, 'platinum', 'Platinum'),
+            (4, 'diamond',  'Diamond'),
+        ]:
+            obj, created = PremiumType.objects.get_or_create(code=code, defaults={'name': name, 'order': order})
             if not created:
                 obj.order = order
                 obj.save()
