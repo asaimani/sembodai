@@ -2,7 +2,7 @@ from django import forms
 from .models import (MaleCandidate, FemaleCandidate, Rasi, Nachathiram,
                      Profession, JathagamType, Planet, Sevadosham,
                      CandidateStatus, State, District,
-                     TamilYear, TamilMonth, TamilKizhamai, TamilDate, OwnHouse, BirthOrder, RaguKethu,
+                     TamilYear, TamilMonth, TamilKizhamai, TamilDate, OwnHouse, BirthOrder,
                      Complexion, Caste, SubCaste, Height)
 
 COMMON_EXCLUDE = ['uid', 'created_by', 'created_at', 'updated_at', 'is_new', 'is_paid']

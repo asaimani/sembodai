@@ -6,7 +6,13 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production')
+_secret = os.environ.get('SECRET_KEY', '')
+if not _secret:
+    if os.environ.get('DEBUG', 'False') == 'True':
+        _secret = 'django-insecure-dev-only-change-in-production'
+    else:
+        raise RuntimeError("SECRET_KEY environment variable is not set. Set it before running in production.")
+SECRET_KEY = _secret
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # In production set ALLOWED_HOSTS env var to your domain e.g. 'yourdomain.railway.app'
@@ -107,3 +113,13 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'noreply@sembodai.com')
 
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
+
+# Security settings — enabled automatically when not in DEBUG mode
+if not DEBUG:
+    SESSION_COOKIE_SECURE   = True   # send session cookie over HTTPS only
+    CSRF_COOKIE_SECURE      = True   # send CSRF cookie over HTTPS only
+    SECURE_SSL_REDIRECT     = False  # Railway handles SSL termination — don't redirect here
+    SECURE_HSTS_SECONDS     = 3600  # tell browsers to use HTTPS for 1 hour
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_CONTENT_TYPE_NOSNIFF    = True
+    X_FRAME_OPTIONS                = 'DENY'

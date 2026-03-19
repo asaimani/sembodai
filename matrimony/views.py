@@ -100,23 +100,22 @@ def candidate_list(request):
             MaleCandidate.objects.filter(is_paid=True)
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
-        )[:MAX_RESULTS]
-        # Wrap with gender tag using values + annotate approach via iterator
-        paginator = Paginator(qs, PER_PAGE)
+        )
+        total_count = min(qs.count(), MAX_RESULTS)
+        paginator = Paginator(qs[:MAX_RESULTS], PER_PAGE)
         page_obj = paginator.get_page(page_num)
         candidates = [('M', c) for c in page_obj]
-        total_count = paginator.count
 
     elif gender == 'F':
         qs = apply_filters(
             FemaleCandidate.objects.filter(is_paid=True)
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
-        )[:MAX_RESULTS]
-        paginator = Paginator(qs, PER_PAGE)
+        )
+        total_count = min(qs.count(), MAX_RESULTS)
+        paginator = Paginator(qs[:MAX_RESULTS], PER_PAGE)
         page_obj = paginator.get_page(page_num)
         candidates = [('F', c) for c in page_obj]
-        total_count = paginator.count
 
     else:
         # Both genders: paginate males and females separately, interleave by created_at
@@ -425,7 +424,7 @@ def candidate_print(request, gender, pk):
     admin_profile = None
     try:
         admin_profile = request.user.adminprofile
-    except:
+    except Exception:
         pass
 
     photo_base64 = None
@@ -456,8 +455,14 @@ def candidate_print(request, gender, pk):
 
 @login_required
 def shadow_list(request):
-    shadows = ShadowCandidate.objects.all().order_by('-created_at')
-    return render(request, 'matrimony/shadow_list.html', {'shadows': shadows})
+    page_num = request.GET.get('page', 1)
+    qs = ShadowCandidate.objects.all().order_by('-created_at')
+    paginator = Paginator(qs, 50)
+    page_obj = paginator.get_page(page_num)
+    return render(request, 'matrimony/shadow_list.html', {
+        'shadows': page_obj,
+        'page_obj': page_obj,
+    })
 
 
 
