@@ -93,13 +93,14 @@ def candidate_list(request):
         return qs
 
     base_select = {'select_related': ['rasi', 'nachathiram', 'profession', 'state', 'district']}
+    MAX_RESULTS = 500
 
     if gender == 'M':
         qs = apply_filters(
             MaleCandidate.objects.filter(is_paid=True)
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
-        )
+        )[:MAX_RESULTS]
         # Wrap with gender tag using values + annotate approach via iterator
         paginator = Paginator(qs, PER_PAGE)
         page_obj = paginator.get_page(page_num)
@@ -111,7 +112,7 @@ def candidate_list(request):
             FemaleCandidate.objects.filter(is_paid=True)
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
-        )
+        )[:MAX_RESULTS]
         paginator = Paginator(qs, PER_PAGE)
         page_obj = paginator.get_page(page_num)
         candidates = [('F', c) for c in page_obj]
@@ -125,12 +126,12 @@ def candidate_list(request):
             MaleCandidate.objects.filter(is_paid=True)
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
-        )
+        )[:MAX_RESULTS]
         females_qs = apply_filters(
             FemaleCandidate.objects.filter(is_paid=True)
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
-        )
+        )[:MAX_RESULTS]
         # Combine using slicing — DB does the heavy lifting, no Python sort
         male_count = males_qs.count()
         female_count = females_qs.count()
