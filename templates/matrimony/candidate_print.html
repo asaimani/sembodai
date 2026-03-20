@@ -225,41 +225,43 @@
     </div>
 
     <!-- ROW 4: முகவரி (left) | Photo (right) -->
-    <div class="two-col" style="align-items:start;">
+    <div style="display:grid;grid-template-columns:1fr 135px;gap:10px;align-items:start;margin-bottom:10px;">
 
-        <!-- LEFT: முகவரி விவரங்கள் -->
-        <!-- Disclaimer — shown only when address is hidden -->
-        <div id="no-address-notice" style="display:none;border:1px solid #b91c1c;border-radius:6px;padding:10px 14px;background:#fffdf5;margin-bottom:10px;">
-            <div style="font-size:11px;font-weight:700;color:#b91c1c;margin-bottom:6px;text-align:center;">செம்போடையார் வன்னியர் திருமண தகவல் மையம்</div>
-            <ol style="font-size:10px;line-height:1.9;color:#333;margin:0;padding-left:16px;">
-                <li>கடந்த 30 ஆண்டுகளாக நமது சமுதாயத்தினருக்கு நம்பிக்கையான திருமண சேவையை வழங்கி வருகிறோம்.</li>
-                <li>வரன்களின் பாதுகாப்பு கருதி, முகவரி இல்லாத அடிப்படை சுயவிவரங்களை (Bio-data) மட்டும் அனுப்பியுள்ளோம்.</li>
-                <li>எங்கள் சேவையில் எவ்விதமான தரகு (Brokerage) அல்லது கமிஷன் (%) கட்டணமும் கண்டிப்பாக கிடையாது.</li>
-                <li>இந்த வரன் உங்களுக்குப் பிடித்திருந்தால், கூடுதல் தகவல்களுக்கு எங்களை நேரடியாகத் தொடர்பு கொள்ளவும்.</li>
-                <li>அளவற்ற வரன்களின் விவரங்களை அன்போடு வழங்குகிறோம்; எங்கள் சந்தா 1 வருடத்திற்கு ₹2500, 6 மாதத்திற்கு ₹1500 மட்டுமே.</li>
-            </ol>
-        </div>
+        <!-- LEFT: முகவரி or Disclaimer -->
+        <div>
+            <!-- Disclaimer — shown only when address is hidden -->
+            <div id="no-address-notice" style="display:none;">
+                <div style="font-size:11px;font-weight:700;color:#b91c1c;margin-bottom:5px;">செம்போடையார் வன்னியர் திருமண தகவல் மையம்</div>
+                <ol style="font-size:10px;line-height:1.8;color:#333;margin:0;padding-left:15px;">
+                    <li>கடந்த 30 ஆண்டுகளாக நமது சமுதாயத்தினருக்கு நம்பிக்கையான திருமண சேவையை வழங்கி வருகிறோம்.</li>
+                    <li>வரன்களின் பாதுகாப்பு கருதி, முகவரி இல்லாத அடிப்படை சுயவிவரங்களை (Bio-data) மட்டும் அனுப்பியுள்ளோம்.</li>
+                    <li>எங்கள் சேவையில் எவ்விதமான தரகு (Brokerage) அல்லது கமிஷன் (%) கட்டணமும் கண்டிப்பாக கிடையாது.</li>
+                    <li>இந்த வரன் உங்களுக்குப் பிடித்திருந்தால், கூடுதல் தகவல்களுக்கு எங்களை நேரடியாகத் தொடர்பு கொள்ளவும்.</li>
+                    <li>அளவற்ற வரன்களின் விவரங்களை அன்போடு வழங்குகிறோம்; எங்கள் சந்தா 1 வருடத்திற்கு ₹2500, 6 மாதத்திற்கு ₹1500 மட்டுமே.</li>
+                </ol>
+            </div>
 
-        <div class="section" id="address-section">
-            <div class="section-title">முகவரி</div>
-            <div style="font-size:11px;line-height:1.8;">
-                {% if candidate.address_name %}<div style="font-weight:600;">{{ candidate.address_name }},</div>{% endif %}
-                {% if candidate.address_line1 %}<div>{{ candidate.address_line1 }},</div>{% endif %}
-                {% if candidate.address_line2 %}<div>{{ candidate.address_line2 }},</div>{% endif %}
-                <div>{% if candidate.address_line3 %}{{ candidate.address_line3 }},{% endif %} {% if candidate.pincode %}{{ candidate.pincode }}.{% endif %}</div>
-                <div style="margin-top:4px;">
-                    {% if candidate.mobile_number %}📞 {{ candidate.mobile_number }}.{% endif %}
-                    {% if candidate.whatsapp_number %}&nbsp;&nbsp;<i class="fab fa-whatsapp" style="color:#25D366;font-size:12px;"></i> {{ candidate.whatsapp_number }}.{% endif %}
+            <div class="section" id="address-section">
+                <div class="section-title">முகவரி</div>
+                <div style="font-size:11px;line-height:1.8;">
+                    {% if candidate.address_name %}<div style="font-weight:600;">{{ candidate.address_name }},</div>{% endif %}
+                    {% if candidate.address_line1 %}<div>{{ candidate.address_line1 }},</div>{% endif %}
+                    {% if candidate.address_line2 %}<div>{{ candidate.address_line2 }},</div>{% endif %}
+                    <div>{% if candidate.address_line3 %}{{ candidate.address_line3 }},{% endif %} {% if candidate.pincode %}{{ candidate.pincode }}.{% endif %}</div>
+                    <div style="margin-top:4px;">
+                        {% if candidate.mobile_number %}📞 {{ candidate.mobile_number }}.{% endif %}
+                        {% if candidate.whatsapp_number %}&nbsp;&nbsp;<i class="fab fa-whatsapp" style="color:#25D366;font-size:12px;"></i> {{ candidate.whatsapp_number }}.{% endif %}
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT: Photo -->
+        <!-- RIGHT: Photo — fixed width, no gap -->
         <div style="text-align:right;">
             {% if candidate.photos.first %}
-                <img src="{{ candidate.photos.first.photo.url }}" class="photo-box" style="width:130px;height:155px;object-fit:cover;border:2px solid #b91c1c;">
+                <img src="{{ candidate.photos.first.photo.url }}" style="width:130px;height:155px;object-fit:cover;border:2px solid #b91c1c;display:block;">
             {% else %}
-                <div class="photo-placeholder" style="width:130px;height:155px;display:inline-flex;align-items:center;justify-content:center;border:2px dashed #b91c1c;font-size:40px;color:#ccc;">👤</div>
+                <div style="width:130px;height:155px;display:flex;align-items:center;justify-content:center;border:2px dashed #b91c1c;font-size:40px;color:#ccc;">👤</div>
             {% endif %}
         </div>
 
