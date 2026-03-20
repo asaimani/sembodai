@@ -418,106 +418,110 @@ style="position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;bord
 <div class="form-section-title"><i class="fas fa-heart me-2"></i>எதிர்பார்ப்பு விவரம்</div>
 <div class="row g-3">
 
-
-
-<div class="col-md-3">
-<label class="form-label">மாத சம்பளம் (குறைந்தது) ₹</label>
-<input type="number" name="exp_salary_min" class="form-control"
+<!-- Row 1: Single value fields -->
+<div class="col-md-2">
+<label class="form-label small">மாத சம்பளம் (குறைந்தது) ₹</label>
+<input type="number" name="exp_salary_min" class="form-control form-control-sm"
     value="{{ expectation.salary_min|default:'' }}">
 </div>
-<div class="col-md-3">
-<label class="form-label">செவ்வாய் தோஷம்</label>
-<select name="exp_sevadosham_ok" class="form-select">
+<div class="col-md-2">
+<label class="form-label small">செவ்வாய் தோஷம்</label>
+<select name="exp_sevadosham_ok" class="form-select form-select-sm">
     <option value="">எதுவும்</option>
     {% for s in sevadoshams %}<option value="{{ s.pk }}" {% if expectation.sevadosham_ok_id == s.pk %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
 </select>
 </div>
-<div class="col-md-3">
-<label class="form-label">சொந்த வீடு</label>
-<select name="exp_own_house_pref" class="form-select">
+<div class="col-md-2">
+<label class="form-label small">சொந்த வீடு</label>
+<select name="exp_own_house_pref" class="form-select form-select-sm">
     <option value="">எதுவும்</option>
     {% for o in own_houses %}<option value="{{ o.pk }}" {% if expectation.own_house_pref_id == o.pk %}selected{% endif %}>{{ o.name }}</option>{% endfor %}
 </select>
 </div>
-<div class="col-md-3">
-<label class="form-label">திருமண நிலை</label>
-<select name="exp_marital_status_ok" class="form-select">
+<div class="col-md-2">
+<label class="form-label small">திருமண நிலை</label>
+<select name="exp_marital_status_ok" class="form-select form-select-sm">
     <option value="">எதுவும்</option>
     {% for m in marital_statuses %}<option value="{{ m.pk }}" {% if expectation.marital_status_ok_id == m.pk %}selected{% endif %}>{{ m.name }}</option>{% endfor %}
 </select>
 </div>
-
-<div class="col-md-4">
-<label class="form-label">கல்வித் தகுதி (குறைந்தது)</label>
-<input type="text" name="exp_education_min" class="form-control"
-    value="{{ expectation.education_min|default:'' }}" placeholder="e.g. பட்டதாரி">
+<div class="col-md-2">
+<label class="form-label small">கல்வித் தகுதி</label>
+<input type="text" name="exp_education_min" class="form-control form-control-sm"
+    value="{{ expectation.education_min|default:'' }}" placeholder="பட்டதாரி">
 </div>
-<div class="col-md-4">
-<label class="form-label">வேலை வகை</label>
-<select name="exp_job_type" class="form-select">
+<div class="col-md-2">
+<label class="form-label small">வேலை வகை</label>
+<select name="exp_job_type" class="form-select form-select-sm">
     <option value="any" {% if not expectation or expectation.job_type == 'any' %}selected{% endif %}>எதுவும்</option>
     <option value="govt" {% if expectation.job_type == 'govt' %}selected{% endif %}>அரசு</option>
     <option value="private" {% if expectation.job_type == 'private' %}selected{% endif %}>தனியார்</option>
     <option value="business" {% if expectation.job_type == 'business' %}selected{% endif %}>வியாபாரம்</option>
 </select>
 </div>
-<div class="col-md-4">
-<label class="form-label">குறிப்புகள்</label>
-<input type="text" name="exp_notes" class="form-control"
-    value="{{ expectation.notes|default:'' }}">
-</div>
 
-<div class="col-md-4">
-<label class="form-label">நட்சத்திரம் (பலவற்றை தேர்வு செய்யலாம்)</label>
-<select name="exp_nachathirams[]" class="form-select" multiple size="5">
+<!-- Row 2: Multi-select fields -->
+<div class="col-md-3">
+<label class="form-label small">நட்சத்திரம்</label>
+<select name="exp_nachathirams[]" class="form-select form-select-sm" multiple size="5">
     {% for n in nachathirams %}
     <option value="{{ n.pk }}" {% if n.pk in exp_nachathiram_ids %}selected{% endif %}>{{ n.name }}</option>
     {% endfor %}
 </select>
 </div>
-<div class="col-md-4">
-<label class="form-label">உட்பிரிவு (பலவற்றை தேர்வு செய்யலாம்)</label>
-<select name="exp_sub_castes[]" class="form-select" multiple size="5">
+<div class="col-md-3">
+<label class="form-label small">உட்பிரிவு</label>
+<select name="exp_sub_castes[]" class="form-select form-select-sm" multiple size="5">
     {% for s in all_sub_castes %}
     <option value="{{ s.pk }}" {% if s.pk in exp_sub_caste_ids %}selected{% endif %}>{{ s.name }}</option>
     {% endfor %}
 </select>
 </div>
-<div class="col-md-4">
-<label class="form-label">மாவட்டம் (பலவற்றை தேர்வு செய்யலாம்)</label>
-<select name="exp_districts[]" class="form-select" multiple size="5">
+<div class="col-md-3">
+<label class="form-label small">மாவட்டம்</label>
+<select name="exp_districts[]" class="form-select form-select-sm" multiple size="5">
     {% for d in all_districts %}
     <option value="{{ d.pk }}" {% if d.pk in exp_district_ids %}selected{% endif %}>{{ d.name }}</option>
     {% endfor %}
 </select>
 </div>
-
-<div class="col-md-6">
-<label class="form-label">தொழில் (பலவற்றை தேர்வு செய்யலாம்)</label>
-<select name="exp_professions[]" class="form-select" multiple size="4">
+<div class="col-md-3">
+<label class="form-label small">குறிப்புகள்</label>
+<input type="text" name="exp_notes" class="form-control form-control-sm mb-2"
+    value="{{ expectation.notes|default:'' }}">
+<label class="form-label small">தொழில்</label>
+<select name="exp_professions[]" class="form-select form-select-sm" multiple size="3">
     {% for p in professions %}
     <option value="{{ p.pk }}" {% if p.pk in exp_profession_ids %}selected{% endif %}>{{ p.name }}</option>
     {% endfor %}
 </select>
 </div>
-<div class="col-md-6">
-<label class="form-label">நிறம் (பலவற்றை தேர்வு செய்யலாம்)</label>
-<select name="exp_complexions[]" class="form-select" multiple size="4">
+
+<!-- Row 3: Complexion -->
+<div class="col-md-4">
+<label class="form-label small">நிறம்</label>
+<select name="exp_complexions[]" class="form-select form-select-sm" multiple size="4">
     {% for c in complexions %}
     <option value="{{ c.pk }}" {% if c.pk in exp_complexion_ids %}selected{% endif %}>{{ c.name }}</option>
     {% endfor %}
 </select>
 </div>
+<div class="col-md-8 d-flex align-items-end">
+<small class="text-muted"><i class="fas fa-info-circle me-1"></i>Ctrl/Cmd அழுத்திப் பலவற்றை தேர்வு செய்யலாம்</small>
+</div>
 
 </div>
 </div>
 
+<!-- Buttons at bottom -->
+<div class="d-flex gap-2 mt-3 mb-4">
 <a href="{% url 'candidate_list' %}" class="btn btn-outline-secondary">
 <i class="fas fa-times me-1"></i>ரத்து செய்
 </a>
 <button type="submit" class="btn btn-primary">
 <i class="fas fa-save me-1"></i>சேமி
 </button>
+</div>
 </div>
 
 <script>
