@@ -228,6 +228,18 @@
     <div class="two-col" style="align-items:start;">
 
         <!-- LEFT: முகவரி விவரங்கள் -->
+        <!-- Disclaimer — shown only when address is hidden -->
+        <div id="no-address-notice" style="display:none;border:1px solid #b91c1c;border-radius:6px;padding:10px 14px;background:#fffdf5;margin-bottom:10px;">
+            <div style="font-size:11px;font-weight:700;color:#b91c1c;margin-bottom:6px;text-align:center;">செம்போடையார் வன்னியர் திருமண தகவல் மையம்</div>
+            <ol style="font-size:10px;line-height:1.9;color:#333;margin:0;padding-left:16px;">
+                <li>கடந்த 30 ஆண்டுகளாக நமது சமுதாயத்தினருக்கு நம்பிக்கையான திருமண சேவையை வழங்கி வருகிறோம்.</li>
+                <li>வரன்களின் பாதுகாப்பு கருதி, முகவரி இல்லாத அடிப்படை சுயவிவரங்களை (Bio-data) மட்டும் அனுப்பியுள்ளோம்.</li>
+                <li>எங்கள் சேவையில் எவ்விதமான தரகு (Brokerage) அல்லது கமிஷன் (%) கட்டணமும் கண்டிப்பாக கிடையாது.</li>
+                <li>இந்த வரன் உங்களுக்குப் பிடித்திருந்தால், கூடுதல் தகவல்களுக்கு எங்களை நேரடியாகத் தொடர்பு கொள்ளவும்.</li>
+                <li>அளவற்ற வரன்களின் விவரங்களை அன்போடு வழங்குகிறோம்; எங்கள் சந்தா 1 வருடத்திற்கு ₹2500, 6 மாதத்திற்கு ₹1500 மட்டுமே.</li>
+            </ol>
+        </div>
+
         <div class="section" id="address-section">
             <div class="section-title">முகவரி</div>
             <div style="font-size:11px;line-height:1.8;">
@@ -259,9 +271,11 @@
 <script>
 function toggleAddress() {
     var section = document.getElementById('address-section');
+    var notice  = document.getElementById('no-address-notice');
     var btn = document.getElementById('btn-toggle-address');
     var hidden = section.style.display === 'none';
     section.style.display = hidden ? '' : 'none';
+    notice.style.display  = hidden ? 'none' : 'block';
     btn.textContent = hidden ? 'முகவரி மறை' : 'முகவரி காட்டு';
     btn.style.background = hidden ? '#1d4ed8' : '#16a34a';
 }
