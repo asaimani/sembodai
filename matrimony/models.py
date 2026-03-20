@@ -522,8 +522,8 @@ class BioToken(models.Model):
         import secrets
         from django.utils import timezone
         from datetime import timedelta
-        # Delete old token for this candidate
-        cls.objects.filter(candidate_gender=gender, candidate_id=candidate_id).delete()
+        # Never delete old tokens — BioSendLog FKs depend on them
+        # Just create a new token each time
         return cls.objects.create(
             token=secrets.token_urlsafe(32),
             candidate_gender=gender,
