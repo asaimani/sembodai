@@ -50,6 +50,7 @@ class Migration(migrations.Migration):
             constraint=models.UniqueConstraint(fields=['candidate_gender', 'candidate_id'], name='unique_candidate_expectation'),
         ),
 
+
         # 4. Many-to-many expectation tables
         migrations.CreateModel(
             name='ExpectationNachathiram',
