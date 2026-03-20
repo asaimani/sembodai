@@ -718,9 +718,9 @@ def _build_wa_message(sender, pending_logs, OppModel, opp_gender):
             receiver = OppModel.objects.get(pk=log.receiver_id)
         except OppModel.DoesNotExist:
             continue
-        # Regenerate token if missing or expired
+        # Create token only if missing — never replace existing valid token
         from .models import BioToken
-        if not log.bio_token or log.bio_token.is_expired:
+        if not log.bio_token:
             token_obj = BioToken.create_for_candidate(opp_gender, log.receiver_id)
             log.bio_token = token_obj
             log.save(update_fields=['bio_token'])
