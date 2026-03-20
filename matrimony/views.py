@@ -288,6 +288,58 @@ def _save_family_members(candidate, post_data):
             order            = i,
         )
 
+
+def _save_expectation(candidate, gender, post_data):
+    """Save expectation fields from the main candidate form POST."""
+    from .models import (CandidateExpectation, ExpectationNachathiram,
+                          ExpectationSubCaste, ExpectationDistrict,
+                          ExpectationProfession, ExpectationComplexion,
+                          Sevadosham, OwnHouse, MaritalStatus,
+                          Nachathiram, SubCaste, District, Profession, Complexion)
+
+    exp, _ = CandidateExpectation.objects.get_or_create(
+        candidate_gender=gender, candidate_id=candidate.pk)
+
+    exp.salary_min    = post_data.get('exp_salary_min') or None
+    exp.education_min = post_data.get('exp_education_min', '').strip()
+    exp.job_type      = post_data.get('exp_job_type', 'any')
+    exp.notes         = post_data.get('exp_notes', '').strip()
+
+    sev  = post_data.get('exp_sevadosham_ok')
+    own  = post_data.get('exp_own_house_pref')
+    mar  = post_data.get('exp_marital_status_ok')
+
+    exp.sevadosham_ok     = Sevadosham.objects.filter(pk=sev).first() if sev else None
+    exp.own_house_pref    = OwnHouse.objects.filter(pk=own).first() if own else None
+    exp.marital_status_ok = MaritalStatus.objects.filter(pk=mar).first() if mar else None
+    exp.save()
+
+    exp.nachathirams.all().delete()
+    for nid in post_data.getlist('exp_nachathirams[]'):
+        n = Nachathiram.objects.filter(pk=nid).first()
+        if n: ExpectationNachathiram.objects.create(expectation=exp, nachathiram=n)
+
+    exp.sub_castes.all().delete()
+    for sid in post_data.getlist('exp_sub_castes[]'):
+        s = SubCaste.objects.filter(pk=sid).first()
+        if s: ExpectationSubCaste.objects.create(expectation=exp, sub_caste=s)
+
+    exp.districts.all().delete()
+    for did in post_data.getlist('exp_districts[]'):
+        d = District.objects.filter(pk=did).first()
+        if d: ExpectationDistrict.objects.create(expectation=exp, district=d)
+
+    exp.professions.all().delete()
+    for pid in post_data.getlist('exp_professions[]'):
+        p = Profession.objects.filter(pk=pid).first()
+        if p: ExpectationProfession.objects.create(expectation=exp, profession=p)
+
+    exp.complexions.all().delete()
+    for cid in post_data.getlist('exp_complexions[]'):
+        c = Complexion.objects.filter(pk=cid).first()
+        if c: ExpectationComplexion.objects.create(expectation=exp, complexion=c)
+
+
 @login_required
 def candidate_add(request):
     gender = request.GET.get('gender', 'M')
@@ -317,6 +369,7 @@ def candidate_add(request):
                 if active_status:
                     candidate.status = active_status
             candidate.save()
+            _save_expectation(candidate, gender, request.POST)
             _save_jathagam(candidate, request.POST)
             _save_family_members(candidate, request.POST)
             try:
@@ -328,7 +381,8 @@ def candidate_add(request):
     else:
         form = FormClass()
 
-    from .models import Planet, Relation, MaritalStatus
+    from .models import (Planet, Relation, MaritalStatus, Height, Sevadosham,
+                           OwnHouse, Nachathiram, SubCaste, District, Profession, Complexion)
     empty_map = {'R': {h: '' for h in range(1, 13)}, 'N': {h: '' for h in range(1, 13)}}
     return render(request, 'matrimony/candidate_form.html', {
         'form': form, 'gender': gender,
@@ -338,6 +392,20 @@ def candidate_add(request):
         'marital_statuses': MaritalStatus.objects.all(),
         'family_members': [],
         'jathagam_map': empty_map,
+        'expectation': None,
+        'exp_nachathiram_ids': [],
+        'exp_sub_caste_ids': [],
+        'exp_district_ids': [],
+        'exp_profession_ids': [],
+        'exp_complexion_ids': [],
+        'heights': Height.objects.all(),
+        'sevadoshams': Sevadosham.objects.all(),
+        'own_houses': OwnHouse.objects.all(),
+        'nachathirams': Nachathiram.objects.all(),
+        'all_sub_castes': SubCaste.objects.all(),
+        'all_districts': District.objects.all(),
+        'professions': Profession.objects.all(),
+        'complexions': Complexion.objects.all(),
     })
 
 
@@ -385,6 +453,7 @@ def candidate_edit(request, gender, pk):
                     saved.status = active
             saved.save()
             form.save_m2m()
+            _save_expectation(saved, gender, request.POST)
             photos = request.FILES.getlist('photos')
             try:
                 _save_photos(candidate, photos, is_male)
@@ -397,10 +466,24 @@ def candidate_edit(request, gender, pk):
     else:
         form = FormClass(instance=candidate)
 
-    from .models import Planet, Relation, MaritalStatus
+    from .models import (Planet, Relation, MaritalStatus, CandidateExpectation,
+                           Height, Sevadosham, OwnHouse, Nachathiram, SubCaste,
+                           District, Profession, Complexion)
     gender_code = 'M' if is_male else 'F'
     family_members = list(FamilyMember.objects.filter(candidate_gender=gender_code, candidate_id=candidate.pk))
     jathagam_map = candidate.get_jathagam_map()
+    expectation = None
+    exp_nachathiram_ids = exp_sub_caste_ids = exp_district_ids = []
+    exp_profession_ids  = exp_complexion_ids = []
+    try:
+        expectation = CandidateExpectation.objects.get(candidate_gender=gender, candidate_id=candidate.pk)
+        exp_nachathiram_ids = list(expectation.nachathirams.values_list('nachathiram_id', flat=True))
+        exp_sub_caste_ids   = list(expectation.sub_castes.values_list('sub_caste_id', flat=True))
+        exp_district_ids    = list(expectation.districts.values_list('district_id', flat=True))
+        exp_profession_ids  = list(expectation.professions.values_list('profession_id', flat=True))
+        exp_complexion_ids  = list(expectation.complexions.values_list('complexion_id', flat=True))
+    except CandidateExpectation.DoesNotExist:
+        pass
     return render(request, 'matrimony/candidate_form.html', {
         'form': form, 'candidate': candidate, 'gender': gender,
         'title': 'திருத்து',
@@ -409,6 +492,20 @@ def candidate_edit(request, gender, pk):
         'marital_statuses': MaritalStatus.objects.all(),
         'family_members': family_members,
         'jathagam_map': jathagam_map,
+        'expectation': expectation,
+        'exp_nachathiram_ids': exp_nachathiram_ids,
+        'exp_sub_caste_ids': exp_sub_caste_ids,
+        'exp_district_ids': exp_district_ids,
+        'exp_profession_ids': exp_profession_ids,
+        'exp_complexion_ids': exp_complexion_ids,
+        'heights': Height.objects.all(),
+        'sevadoshams': Sevadosham.objects.all(),
+        'own_houses': OwnHouse.objects.all(),
+        'nachathirams': Nachathiram.objects.all(),
+        'all_sub_castes': SubCaste.objects.all(),
+        'all_districts': District.objects.all(),
+        'professions': Profession.objects.all(),
+        'complexions': Complexion.objects.all(),
     })
 
 
@@ -516,3 +613,245 @@ def get_nachathirams(request):
     rasi_id = request.GET.get('rasi_id')
     nachathirams = Nachathiram.objects.filter(rasi_id=rasi_id).values('id', 'name')
     return JsonResponse(list(nachathirams), safe=False)
+
+
+# ─────────────────────────────────────────────
+#  WEEKLY SEND PAGE
+# ─────────────────────────────────────────────
+
+@login_required
+def weekly_send(request):
+    from .models import BioSendLog, BioToken
+    from datetime import date
+    month_year = date.today().strftime('%Y-%m')
+
+    # Trigger manual prepare if requested
+    if request.method == 'POST' and request.POST.get('action') == 'prepare':
+        from django.core.management import call_command
+        call_command('prepare_weekly_bios')
+        messages.success(request, 'பொருத்தங்கள் தயாரிக்கப்பட்டன.')
+        return redirect('weekly_send')
+
+    # Get all pending logs grouped by sender
+    male_logs   = _get_sender_summary('M', month_year)
+    female_logs = _get_sender_summary('F', month_year)
+
+    return render(request, 'matrimony/weekly_send.html', {
+        'male_logs': male_logs,
+        'female_logs': female_logs,
+        'month_year': month_year,
+    })
+
+
+def _get_sender_summary(sender_gender, month_year):
+    from .models import BioSendLog, BioToken, MaleCandidate, FemaleCandidate
+    CandidateModel = MaleCandidate if sender_gender == 'M' else FemaleCandidate
+    opposite_gender = 'F' if sender_gender == 'M' else 'M'
+    OppModel = FemaleCandidate if sender_gender == 'M' else MaleCandidate
+
+    logs = (BioSendLog.objects
+            .filter(sender_gender=sender_gender, month_year=month_year)
+            .select_related('bio_token')
+            .order_by('sender_id'))
+
+    # Group by sender
+    from collections import defaultdict
+    sender_map = defaultdict(list)
+    for log in logs:
+        sender_map[log.sender_id].append(log)
+
+    result = []
+    for sender_id, send_logs in sender_map.items():
+        try:
+            sender = CandidateModel.objects.get(pk=sender_id)
+        except CandidateModel.DoesNotExist:
+            continue
+
+        pending_logs = [l for l in send_logs if l.status == 'pending']
+        sent_count   = len([l for l in send_logs if l.status == 'sent'])
+        total_count  = len(send_logs)
+
+        # Build WhatsApp message for pending bios
+        wa_message = _build_wa_message(sender, pending_logs, OppModel, opposite_gender)
+
+        result.append({
+            'sender': sender,
+            'sender_gender': sender_gender,
+            'pending_logs': pending_logs,
+            'sent_count': sent_count,
+            'total_count': total_count,
+            'wa_message': wa_message,
+            'has_pending': len(pending_logs) > 0,
+        })
+
+    # Also show candidates with NO logs yet
+    all_senders = CandidateModel.objects.filter(whatsapp_number__isnull=False).exclude(whatsapp_number='')
+    existing_ids = set(sender_map.keys())
+    for sender in all_senders:
+        if sender.pk not in existing_ids:
+            result.append({
+                'sender': sender,
+                'sender_gender': sender_gender,
+                'pending_logs': [],
+                'sent_count': 0,
+                'total_count': 0,
+                'wa_message': '',
+                'has_pending': False,
+            })
+
+    return result
+
+
+def _build_wa_message(sender, pending_logs, OppModel, opp_gender):
+    from .models import BioToken
+    from django.conf import settings
+    base_url = getattr(settings, 'SITE_URL', 'https://sembodai-production.up.railway.app')
+
+    if not pending_logs:
+        return ''
+
+    lines = [f"நமஸ்காரம் {sender.name}!\n\nஇந்த வார பொருத்தமான வரன்கள்:\n"]
+    for i, log in enumerate(pending_logs, 1):
+        try:
+            receiver = OppModel.objects.get(pk=log.receiver_id)
+        except OppModel.DoesNotExist:
+            continue
+        token = log.bio_token.token if log.bio_token else ''
+        bio_url = f"{base_url}/bio/{token}/" if token else ''
+        lines.append(f"{i}. {receiver.name}, {receiver.age} வயது")
+        if bio_url:
+            lines.append(f"   👉 {bio_url}")
+        lines.append("")
+
+    lines.append("- செம்போடையார் வன்னியர் திருமண மையம்")
+    return "\n".join(lines)
+
+
+@login_required
+def mark_sent(request, log_ids):
+    """Mark multiple BioSendLog entries as sent"""
+    from .models import BioSendLog
+    from django.utils import timezone
+    if request.method == 'POST':
+        ids = [int(x) for x in log_ids.split(',') if x.strip().isdigit()]
+        BioSendLog.objects.filter(pk__in=ids, status='pending').update(
+            status='sent',
+            sent_at=timezone.now(),
+        )
+        messages.success(request, f'{len(ids)} பயோ அனுப்பியதாக குறிக்கப்பட்டது.')
+    return redirect('weekly_send')
+
+
+# ─────────────────────────────────────────────
+#  PUBLIC BIO VIEW  (no login required)
+# ─────────────────────────────────────────────
+
+def public_bio_view(request, token):
+    from .models import BioToken, FamilyMember
+    from django.utils import timezone
+
+    try:
+        bio_token = BioToken.objects.get(token=token)
+    except BioToken.DoesNotExist:
+        from django.http import Http404
+        raise Http404("இந்த இணைப்பு செல்லாது.")
+
+    if bio_token.is_expired:
+        return render(request, 'matrimony/bio_expired.html')
+
+    gender = bio_token.candidate_gender
+    candidate_id = bio_token.candidate_id
+
+    if gender == 'M':
+        from .models import MaleCandidate
+        candidate = get_object_or_404(MaleCandidate, pk=candidate_id)
+    else:
+        from .models import FemaleCandidate
+        candidate = get_object_or_404(FemaleCandidate, pk=candidate_id)
+
+    family_members = FamilyMember.objects.filter(
+        candidate_gender=gender, candidate_id=candidate_id
+    )
+    jathagam_map = candidate.get_jathagam_map()
+
+    # Use existing print template but without address
+    return render(request, 'matrimony/candidate_print.html', {
+        'candidate': candidate,
+        'admin_profile': None,
+        'photo_base64': None,
+        'gender': gender,
+        'family_members': family_members,
+        'jathagam_map': jathagam_map,
+        'is_public': True,  # hides address in template
+    })
+
+
+# ─────────────────────────────────────────────
+#  EXPECTATION SAVE  (AJAX from candidate form)
+# ─────────────────────────────────────────────
+
+@login_required
+def save_expectation(request, gender, pk):
+    from .models import (CandidateExpectation, ExpectationNachathiram,
+                          ExpectationSubCaste, ExpectationDistrict,
+                          ExpectationProfession, ExpectationComplexion)
+    if request.method != 'POST':
+        return redirect('candidate_edit', gender=gender, pk=pk)
+
+    exp, _ = CandidateExpectation.objects.get_or_create(
+        candidate_gender=gender,
+        candidate_id=pk,
+    )
+
+    exp.age_min           = request.POST.get('exp_age_min') or None
+    exp.age_max           = request.POST.get('exp_age_max') or None
+    exp.salary_min        = request.POST.get('exp_salary_min') or None
+    exp.education_min     = request.POST.get('exp_education_min', '').strip()
+    exp.job_type          = request.POST.get('exp_job_type', 'any')
+    exp.notes             = request.POST.get('exp_notes', '').strip()
+
+    hmin = request.POST.get('exp_height_min')
+    hmax = request.POST.get('exp_height_max')
+    sev  = request.POST.get('exp_sevadosham_ok')
+    own  = request.POST.get('exp_own_house_pref')
+    mar  = request.POST.get('exp_marital_status_ok')
+
+    from .models import Height, Sevadosham, OwnHouse, MaritalStatus
+    exp.sevadosham_ok     = Sevadosham.objects.filter(pk=sev).first() if sev else None
+    exp.own_house_pref    = OwnHouse.objects.filter(pk=own).first() if own else None
+    exp.marital_status_ok = MaritalStatus.objects.filter(pk=mar).first() if mar else None
+    exp.save()
+
+    # Save many-to-many
+    exp.nachathirams.all().delete()
+    for nid in request.POST.getlist('exp_nachathirams[]'):
+        from .models import Nachathiram
+        n = Nachathiram.objects.filter(pk=nid).first()
+        if n: ExpectationNachathiram.objects.create(expectation=exp, nachathiram=n)
+
+    exp.sub_castes.all().delete()
+    for sid in request.POST.getlist('exp_sub_castes[]'):
+        from .models import SubCaste
+        s = SubCaste.objects.filter(pk=sid).first()
+        if s: ExpectationSubCaste.objects.create(expectation=exp, sub_caste=s)
+
+    exp.districts.all().delete()
+    for did in request.POST.getlist('exp_districts[]'):
+        from .models import District
+        d = District.objects.filter(pk=did).first()
+        if d: ExpectationDistrict.objects.create(expectation=exp, district=d)
+
+    exp.professions.all().delete()
+    for pid in request.POST.getlist('exp_professions[]'):
+        from .models import Profession
+        p = Profession.objects.filter(pk=pid).first()
+        if p: ExpectationProfession.objects.create(expectation=exp, profession=p)
+
+    exp.complexions.all().delete()
+    for cid in request.POST.getlist('exp_complexions[]'):
+        from .models import Complexion
+        c = Complexion.objects.filter(pk=cid).first()
+        if c: ExpectationComplexion.objects.create(expectation=exp, complexion=c)
+
+    messages.success(request, 'எதிர்பார்ப்பு சேமிக்கப்பட்டது.')
+    return redirect('candidate_detail', gender=gender, pk=pk)

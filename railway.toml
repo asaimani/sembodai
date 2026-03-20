@@ -1,0 +1,6 @@
+[deploy]
+startCommand = "python manage.py migrate && python manage.py load_initial_data && gunicorn sembodai.wsgi:application --bind 0.0.0.0:$PORT"
+
+[[cron]]
+schedule = "0 21 * * 6"
+command = "python manage.py prepare_weekly_bios"

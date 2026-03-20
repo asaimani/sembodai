@@ -123,3 +123,5 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_CONTENT_TYPE_NOSNIFF    = True
     X_FRAME_OPTIONS                = 'DENY'
+
+SITE_URL = os.environ.get('SITE_URL', 'https://sembodai-production.up.railway.app')

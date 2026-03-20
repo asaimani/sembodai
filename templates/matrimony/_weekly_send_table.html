@@ -1,0 +1,82 @@
+<div class="card">
+    <div class="card-body p-0">
+        {% if logs %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>UID</th>
+                        <th>பெயர்</th>
+                        <th>WhatsApp</th>
+                        <th>மாதம்</th>
+                        <th>பொருத்தங்கள்</th>
+                        <th>நிலை</th>
+                        <th>அனுப்பு</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in logs %}
+                <tr>
+                    <td><span class="fw-bold text-danger">{{ row.sender.uid }}</span></td>
+                    <td>{{ row.sender.name }}</td>
+                    <td>
+                        {% if row.sender.whatsapp_number %}
+                            <span class="text-success">{{ row.sender.whatsapp_number }}</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">இல்லை</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">{{ row.sent_count }}/{{ row.total_count }}</span>
+                    </td>
+                    <td>
+                        {% if row.has_pending %}
+                            <span class="badge bg-info text-dark">{{ row.pending_logs|length }} நிலுவை</span>
+                        {% elif row.total_count > 0 %}
+                            <span class="badge bg-success">முடிந்தது</span>
+                        {% else %}
+                            <span class="text-muted small">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.has_pending %}
+                            <span class="badge badge-active">நிலுவை</span>
+                        {% elif row.sent_count > 0 %}
+                            <span class="badge badge-active">✅ அனுப்பியது</span>
+                        {% else %}
+                            <span class="badge bg-secondary">தயாரில்லை</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.has_pending and row.sender.whatsapp_number %}
+                        {% with log_ids=row.pending_logs|join:"," %}
+                        <div class="d-flex gap-1">
+                            <a href="https://wa.me/91{{ row.sender.whatsapp_number }}?text={{ row.wa_message|urlencode }}"
+                               target="_blank"
+                               class="btn btn-sm btn-success"
+                               title="WhatsApp திற">
+                                <i class="fab fa-whatsapp"></i> அனுப்பு
+                            </a>
+                            <form method="post" action="{% url 'mark_sent' row.pending_logs|join:',' %}" style="display:inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="அனுப்பியதாக குறி">
+                                    ✓
+                                </button>
+                            </form>
+                        </div>
+                        {% endwith %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center p-5 text-muted">
+            <i class="fas fa-paper-plane fa-3x mb-3"></i>
+            <p>இன்னும் பொருத்தங்கள் தயாரில்லை. "இப்போது தயார் செய்" அழுத்தவும்.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>

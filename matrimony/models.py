@@ -104,9 +104,10 @@ class RaguKethu(models.Model):
     class Meta: verbose_name = "ராகு/கேது"; ordering = ['order']
 
 class PremiumType(models.Model):
-    code  = models.CharField(max_length=20, unique=True, verbose_name="குறியீடு")
-    name  = models.CharField(max_length=50, verbose_name="பெயர்")
-    order = models.PositiveIntegerField(default=0)
+    code          = models.CharField(max_length=20, unique=True, verbose_name="குறியீடு")
+    name          = models.CharField(max_length=50, verbose_name="பெயர்")
+    order         = models.PositiveIntegerField(default=0)
+    monthly_limit = models.PositiveIntegerField(default=5, verbose_name="மாத வரம்பு (0=வரம்பற்றது)")
     def __str__(self): return self.name
     class Meta: verbose_name = "பிரீமியம் வகை"; ordering = ['order']
 
@@ -431,4 +432,131 @@ class JathagamEntry(models.Model):
         return f"{self.candidate_gender}{self.candidate_id} | {self.chart_type} H{self.house_number} | {self.planet.code}"
 
 
+# ─────────────────────────────────────────────
+#  CANDIDATE EXPECTATION
+# ─────────────────────────────────────────────
 
+class CandidateExpectation(models.Model):
+    GENDER_CHOICES  = [('M', 'ஆண்'), ('F', 'பெண்')]
+    JOB_TYPE_CHOICES = [
+        ('any',      'எதுவும்'),
+        ('govt',     'அரசு'),
+        ('private',  'தனியார்'),
+        ('business', 'வியாபாரம்'),
+    ]
+    candidate_gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name="பாலினம்")
+    candidate_id     = models.PositiveIntegerField(verbose_name="விண்ணப்பதாரர் ID")
+    salary_min       = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="குறைந்த சம்பளம்")
+    sevadosham_ok    = models.ForeignKey('Sevadosham', null=True, blank=True, on_delete=models.SET_NULL, related_name='+', verbose_name="செவ்வாய் தோஷம்")
+    own_house_pref   = models.ForeignKey('OwnHouse', null=True, blank=True, on_delete=models.SET_NULL, related_name='+', verbose_name="சொந்த வீடு")
+    marital_status_ok= models.ForeignKey('MaritalStatus', null=True, blank=True, on_delete=models.SET_NULL, related_name='+', verbose_name="திருமண நிலை")
+    education_min    = models.CharField(max_length=200, blank=True, verbose_name="கல்வித் தகுதி")
+    job_type         = models.CharField(max_length=20, choices=JOB_TYPE_CHOICES, default='any', verbose_name="வேலை வகை")
+    notes            = models.TextField(blank=True, verbose_name="குறிப்புகள்")
+    updated_at       = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "எதிர்பார்ப்பு"
+        unique_together = [('candidate_gender', 'candidate_id')]
+
+    def __str__(self):
+        return f"{self.candidate_gender}{self.candidate_id} எதிர்பார்ப்பு"
+
+
+class ExpectationNachathiram(models.Model):
+    expectation  = models.ForeignKey(CandidateExpectation, on_delete=models.CASCADE, related_name='nachathirams')
+    nachathiram  = models.ForeignKey(Nachathiram, on_delete=models.CASCADE, verbose_name="நட்சத்திரம்")
+    class Meta: unique_together = [('expectation', 'nachathiram')]
+
+
+class ExpectationSubCaste(models.Model):
+    expectation = models.ForeignKey(CandidateExpectation, on_delete=models.CASCADE, related_name='sub_castes')
+    sub_caste   = models.ForeignKey(SubCaste, on_delete=models.CASCADE, verbose_name="உட்பிரிவு")
+    class Meta: unique_together = [('expectation', 'sub_caste')]
+
+
+class ExpectationDistrict(models.Model):
+    expectation = models.ForeignKey(CandidateExpectation, on_delete=models.CASCADE, related_name='districts')
+    district    = models.ForeignKey(District, on_delete=models.CASCADE, verbose_name="மாவட்டம்")
+    class Meta: unique_together = [('expectation', 'district')]
+
+
+class ExpectationProfession(models.Model):
+    expectation = models.ForeignKey(CandidateExpectation, on_delete=models.CASCADE, related_name='professions')
+    profession  = models.ForeignKey(Profession, on_delete=models.CASCADE, verbose_name="தொழில்")
+    class Meta: unique_together = [('expectation', 'profession')]
+
+
+class ExpectationComplexion(models.Model):
+    expectation = models.ForeignKey(CandidateExpectation, on_delete=models.CASCADE, related_name='complexions')
+    complexion  = models.ForeignKey(Complexion, on_delete=models.CASCADE, verbose_name="நிறம்")
+    class Meta: unique_together = [('expectation', 'complexion')]
+
+
+# ─────────────────────────────────────────────
+#  BIO TOKEN  (secure shareable bio links)
+# ─────────────────────────────────────────────
+
+class BioToken(models.Model):
+    GENDER_CHOICES = [('M', 'ஆண்'), ('F', 'பெண்')]
+    token            = models.CharField(max_length=64, unique=True, verbose_name="டோக்கன்")
+    candidate_gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    candidate_id     = models.PositiveIntegerField()
+    created_at       = models.DateTimeField(auto_now_add=True)
+    expires_at       = models.DateTimeField(verbose_name="காலாவதி தேதி")
+
+    class Meta:
+        verbose_name = "பயோ டோக்கன்"
+        indexes = [models.Index(fields=['token'], name='bio_token_idx')]
+
+    def __str__(self):
+        return f"{self.candidate_gender}{self.candidate_id} - {self.token[:8]}..."
+
+    @property
+    def is_expired(self):
+        from django.utils import timezone
+        return timezone.now() > self.expires_at
+
+    @classmethod
+    def create_for_candidate(cls, gender, candidate_id):
+        import secrets
+        from django.utils import timezone
+        from datetime import timedelta
+        # Delete old token for this candidate
+        cls.objects.filter(candidate_gender=gender, candidate_id=candidate_id).delete()
+        return cls.objects.create(
+            token=secrets.token_urlsafe(32),
+            candidate_gender=gender,
+            candidate_id=candidate_id,
+            expires_at=timezone.now() + timedelta(days=7),
+        )
+
+
+# ─────────────────────────────────────────────
+#  BIO SEND LOG
+# ─────────────────────────────────────────────
+
+class BioSendLog(models.Model):
+    GENDER_CHOICES = [('M', 'ஆண்'), ('F', 'பெண்')]
+    STATUS_CHOICES = [('pending', 'நிலுவை'), ('sent', 'அனுப்பியது'), ('failed', 'தோல்வி')]
+
+    sender_gender   = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name="அனுப்புபவர் பாலினம்")
+    sender_id       = models.PositiveIntegerField(verbose_name="அனுப்புபவர் ID")
+    receiver_gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name="பெறுபவர் பாலினம்")
+    receiver_id     = models.PositiveIntegerField(verbose_name="பெறுபவர் ID")
+    bio_token       = models.ForeignKey(BioToken, null=True, blank=True, on_delete=models.SET_NULL)
+    month_year      = models.CharField(max_length=7, verbose_name="மாதம்-வருடம்")  # e.g. 2025-03
+    status          = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    prepared_at     = models.DateTimeField(auto_now_add=True, verbose_name="தயாரித்த நேரம்")
+    sent_at         = models.DateTimeField(null=True, blank=True, verbose_name="அனுப்பிய நேரம்")
+
+    class Meta:
+        verbose_name = "அனுப்பல் பதிவு"
+        ordering = ['-prepared_at']
+        indexes = [
+            models.Index(fields=['sender_gender', 'sender_id', 'month_year'], name='biosend_sender_idx'),
+            models.Index(fields=['sender_gender', 'sender_id', 'receiver_gender', 'receiver_id'], name='biosend_pair_idx'),
+        ]
+
+    def __str__(self):
+        return f"{self.sender_gender}{self.sender_id} → {self.receiver_gender}{self.receiver_id} ({self.month_year})"

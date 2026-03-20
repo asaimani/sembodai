@@ -15,4 +15,8 @@ urlpatterns = [
     path('api/districts/', views.get_districts, name='get_districts'),
     path('photos/<int:photo_id>/delete/', views.delete_photo, name='delete_photo'),
     path('candidates/<str:gender>/<int:pk>/delete/', views.candidate_delete, name='candidate_delete'),
+    path('candidates/<str:gender>/<int:pk>/expectation/', views.save_expectation, name='save_expectation'),
+    path('weekly-send/', views.weekly_send, name='weekly_send'),
+    path('weekly-send/mark-sent/<str:log_ids>/', views.mark_sent, name='mark_sent'),
+    path('bio/<str:token>/', views.public_bio_view, name='public_bio'),
 ]
