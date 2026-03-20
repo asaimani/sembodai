@@ -674,10 +674,12 @@ def _get_sender_summary(sender_gender, month_year):
         # Build WhatsApp message for pending bios
         wa_message = _build_wa_message(sender, pending_logs, OppModel, opposite_gender)
 
+        pending_log_ids = [str(l.pk) for l in pending_logs]
         result.append({
             'sender': sender,
             'sender_gender': sender_gender,
             'pending_logs': pending_logs,
+            'pending_log_ids': ','.join(pending_log_ids),
             'sent_count': sent_count,
             'total_count': total_count,
             'wa_message': wa_message,
@@ -716,11 +718,17 @@ def _build_wa_message(sender, pending_logs, OppModel, opp_gender):
             receiver = OppModel.objects.get(pk=log.receiver_id)
         except OppModel.DoesNotExist:
             continue
-        token = log.bio_token.token if log.bio_token else ''
-        bio_url = f"{base_url}/bio/{token}/" if token else ''
-        lines.append(f"{i}. {receiver.name}, {receiver.age} வயது")
-        if bio_url:
-            lines.append(f"   👉 {bio_url}")
+        # Regenerate token if missing or expired
+        from .models import BioToken
+        if not log.bio_token or log.bio_token.is_expired:
+            token_obj = BioToken.create_for_candidate(opp_gender, log.receiver_id)
+            log.bio_token = token_obj
+            log.save(update_fields=['bio_token'])
+        token = log.bio_token.token
+        bio_url = f"{base_url}/bio/{token}/"
+        age_str = f"{receiver.age} வயது" if receiver.age else ''
+        lines.append(f"{i}. {receiver.name}{', ' + age_str if age_str else ''}")
+        lines.append(f"   👉 {bio_url}")
         lines.append("")
 
     lines.append("- செம்போடையார் வன்னியர் திருமண மையம்")
@@ -733,12 +741,16 @@ def mark_sent(request, log_ids):
     from .models import BioSendLog
     from django.utils import timezone
     if request.method == 'POST':
-        ids = [int(x) for x in log_ids.split(',') if x.strip().isdigit()]
-        BioSendLog.objects.filter(pk__in=ids, status='pending').update(
-            status='sent',
-            sent_at=timezone.now(),
-        )
-        messages.success(request, f'{len(ids)} பயோ அனுப்பியதாக குறிக்கப்பட்டது.')
+        try:
+            ids = [int(x.strip()) for x in str(log_ids).split(',') if x.strip().isdigit()]
+            if ids:
+                BioSendLog.objects.filter(pk__in=ids, status='pending').update(
+                    status='sent',
+                    sent_at=timezone.now(),
+                )
+                messages.success(request, f'{len(ids)} பயோ அனுப்பியதாக குறிக்கப்பட்டது.')
+        except Exception as e:
+            messages.error(request, f'பிழை: {str(e)}')
     return redirect('weekly_send')
 
 
@@ -855,3 +867,18 @@ def save_expectation(request, gender, pk):
 
     messages.success(request, 'எதிர்பார்ப்பு சேமிக்கப்பட்டது.')
     return redirect('candidate_detail', gender=gender, pk=pk)
+
+
+@login_required  
+def cron_prepare_bios(request):
+    """Internal endpoint — triggered by Railway cron via curl"""
+    from django.core.management import call_command
+    from django.http import HttpResponse
+    # Verify secret token to prevent unauthorized access
+    from django.conf import settings
+    token = request.GET.get('token', '')
+    cron_secret = getattr(settings, 'CRON_SECRET', '')
+    if not cron_secret or token != cron_secret:
+        return HttpResponse('Unauthorized', status=401)
+    call_command('prepare_weekly_bios')
+    return HttpResponse('OK', status=200)

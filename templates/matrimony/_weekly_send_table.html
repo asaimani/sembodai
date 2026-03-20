@@ -49,7 +49,6 @@
                     </td>
                     <td>
                         {% if row.has_pending and row.sender.whatsapp_number %}
-                        {% with log_ids=row.pending_logs|join:"," %}
                         <div class="d-flex gap-1">
                             <a href="https://wa.me/91{{ row.sender.whatsapp_number }}?text={{ row.wa_message|urlencode }}"
                                target="_blank"
@@ -57,14 +56,13 @@
                                title="WhatsApp திற">
                                 <i class="fab fa-whatsapp"></i> அனுப்பு
                             </a>
-                            <form method="post" action="{% url 'mark_sent' row.pending_logs|join:',' %}" style="display:inline">
+                            <form method="post" action="/weekly-send/mark-sent/{{ row.pending_log_ids }}/" style="display:inline">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-sm btn-outline-secondary" title="அனுப்பியதாக குறி">
                                     ✓
                                 </button>
                             </form>
                         </div>
-                        {% endwith %}
                         {% endif %}
                     </td>
                 </tr>
