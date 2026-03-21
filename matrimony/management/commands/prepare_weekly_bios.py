@@ -70,6 +70,24 @@ class Command(BaseCommand):
 
             limit = self._get_monthly_limit(sender)
 
+            # Enforce limit — delete excess pending records if limit was reduced
+            if limit is not None:
+                all_this_month = BioSendLog.objects.filter(
+                    sender_gender=sender_gender,
+                    sender_id=sender.pk,
+                    month_year=month_year,
+                ).order_by('prepared_at')
+                total_this_month = all_this_month.count()
+                if total_this_month > limit:
+                    # Delete excess pending ones (keep sent ones)
+                    excess = total_this_month - limit
+                    excess_ids = list(
+                        all_this_month.filter(status='pending')
+                        .order_by('-prepared_at')
+                        .values_list('pk', flat=True)[:excess]
+                    )
+                    BioSendLog.objects.filter(pk__in=excess_ids).delete()
+
             # Count already prepared this month
             already_prepared = BioSendLog.objects.filter(
                 sender_gender=sender_gender,
