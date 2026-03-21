@@ -712,7 +712,7 @@ def _build_wa_message(sender, pending_logs, OppModel, opp_gender):
     if not pending_logs:
         return ''
 
-    lines = [f"நமஸ்காரம் {sender.name}!\n\nஇந்த வார பொருத்தமான வரன்கள்:\n"]
+    lines = [f"வணக்கம் {sender.name},\n\nசெம்போடையார் வன்னியர் திருமண மையம்\nஇந்த வார பொருத்தமான வரன்கள்:\n"]
     for i, log in enumerate(pending_logs, 1):
         try:
             receiver = OppModel.objects.get(pk=log.receiver_id)
@@ -882,3 +882,104 @@ def cron_prepare_bios(request):
         return HttpResponse('Unauthorized', status=401)
     call_command('prepare_weekly_bios')
     return HttpResponse('OK', status=200)
+
+
+# ─────────────────────────────────────────────
+#  BIO SEND HISTORY PAGE
+# ─────────────────────────────────────────────
+
+@login_required
+def bio_history(request):
+    from .models import BioSendLog, BioToken, MaleCandidate, FemaleCandidate
+    from django.utils import timezone
+
+    gender   = request.GET.get('gender', 'M')
+    search   = request.GET.get('search', '').strip()
+    month    = request.GET.get('month', '')
+    status   = request.GET.get('status', '')
+    page_num = request.GET.get('page', 1)
+
+    qs = BioSendLog.objects.select_related('bio_token').filter(sender_gender=gender)
+
+    if month:
+        qs = qs.filter(month_year=month)
+    if status:
+        qs = qs.filter(status=status)
+
+    # Search by sender UID
+    if search:
+        CandidateModel = MaleCandidate if gender == 'M' else FemaleCandidate
+        matched_ids = list(
+            CandidateModel.objects.filter(uid__icontains=search)
+            .values_list('pk', flat=True)
+        )
+        qs = qs.filter(sender_id__in=matched_ids)
+
+    qs = qs.order_by('-prepared_at')
+
+    from django.core.paginator import Paginator
+    paginator = Paginator(qs, 50)
+    page_obj  = paginator.get_page(page_num)
+
+    # Enrich each log with sender/receiver names and token expiry
+    CandidateM = MaleCandidate
+    CandidateF = FemaleCandidate
+    now = timezone.now()
+
+    rows = []
+    for log in page_obj:
+        # Sender
+        try:
+            SenderModel = CandidateM if log.sender_gender == 'M' else CandidateF
+            sender = SenderModel.objects.get(pk=log.sender_id)
+            sender_uid  = sender.uid
+            sender_name = sender.name
+        except Exception:
+            sender_uid  = f"{log.sender_gender}{log.sender_id}"
+            sender_name = '-'
+
+        # Receiver
+        try:
+            ReceiverModel = CandidateM if log.receiver_gender == 'M' else CandidateF
+            receiver = ReceiverModel.objects.get(pk=log.receiver_id)
+            receiver_uid  = receiver.uid
+            receiver_name = receiver.name
+        except Exception:
+            receiver_uid  = f"{log.receiver_gender}{log.receiver_id}"
+            receiver_name = '-'
+
+        # Token info
+        token_str    = log.bio_token.token[:16] + '...' if log.bio_token else '-'
+        expires_at   = log.bio_token.expires_at if log.bio_token else None
+        is_expired   = (expires_at and now > expires_at)
+        bio_url      = f"/bio/{log.bio_token.token}/" if log.bio_token else ''
+
+        rows.append({
+            'log':           log,
+            'sender_uid':    sender_uid,
+            'sender_name':   sender_name,
+            'receiver_uid':  receiver_uid,
+            'receiver_name': receiver_name,
+            'token_short':   token_str,
+            'expires_at':    expires_at,
+            'is_expired':    is_expired,
+            'bio_url':       bio_url,
+        })
+
+    # Get distinct months for filter dropdown
+    months = (BioSendLog.objects
+              .filter(sender_gender=gender)
+              .values_list('month_year', flat=True)
+              .distinct()
+              .order_by('-month_year'))
+
+    return render(request, 'matrimony/bio_history.html', {
+        'rows':     rows,
+        'page_obj': page_obj,
+        'gender':   gender,
+        'search':   search,
+        'month':    month,
+        'status':   status,
+        'months':   months,
+        'total':    paginator.count,
+    })
