@@ -931,10 +931,18 @@ def public_bio_view(request, token):
     )
     jathagam_map = candidate.get_jathagam_map()
 
+    # Load admin_profile from the user who added this candidate
+    admin_profile = None
+    if candidate.created_by:
+        try:
+            admin_profile = candidate.created_by.adminprofile
+        except Exception:
+            pass
+
     # Use existing print template but without address
     return render(request, 'matrimony/candidate_print.html', {
         'candidate': candidate,
-        'admin_profile': None,
+        'admin_profile': admin_profile,
         'photo_base64': None,
         'gender': gender,
         'family_members': family_members,
