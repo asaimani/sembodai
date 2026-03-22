@@ -627,42 +627,38 @@ def get_nachathirams(request):
 
 @login_required
 def weekly_send(request):
-    from .models import BioSendLog, BioToken
-    from datetime import date
-    month_year = date.today().strftime('%Y-%m')
+    from .models import BioSendLog, BioToken, WeeklyBioRun
+    from datetime import date, timedelta
+
+    today = date.today()
+    days_since_sunday = (today.weekday() + 1) % 7
+    week_start = today - timedelta(days=days_since_sunday)
+    week_key = str(week_start)  # e.g. '2026-03-22'
 
     # Trigger manual prepare if requested
     if request.method == 'POST' and request.POST.get('action') == 'prepare':
         from django.core.management import call_command
-        from .models import WeeklyBioRun
-        from datetime import date, timedelta
-        today = date.today()
-        days_since_sunday = (today.weekday() + 1) % 7
-        week_start = today - timedelta(days=days_since_sunday)
         already_run = WeeklyBioRun.objects.filter(week_start=week_start).exists()
         if already_run:
             messages.error(request, f'இந்த வாரம் ({week_start}) ஏற்கனவே இயக்கப்பட்டது. மீண்டும் இயக்க முடியாது.')
         else:
-            call_command('prepare_weekly_bios', user_id=request.user.pk)
-            messages.success(request, 'பொருத்தங்கள் தயாரிக்கப்பட்டன.')
+            try:
+                call_command('prepare_weekly_bios', user_id=request.user.pk)
+                messages.success(request, 'பொருத்தங்கள் தயாரிக்கப்பட்டன.')
+            except Exception as e:
+                messages.error(request, f'பிழை: {str(e)}')
         return redirect('weekly_send')
 
-    # Get all pending logs grouped by sender
-    male_logs   = _get_sender_summary('M', month_year)
-    female_logs = _get_sender_summary('F', month_year)
+    # Get all pending logs grouped by sender using week_key
+    male_logs   = _get_sender_summary('M', week_key)
+    female_logs = _get_sender_summary('F', week_key)
 
-    # Check if already run this week
-    from .models import WeeklyBioRun
-    from datetime import timedelta
-    today = date.today()
-    days_since_sunday = (today.weekday() + 1) % 7
-    week_start = today - timedelta(days=days_since_sunday)
     already_run_this_week = WeeklyBioRun.objects.filter(week_start=week_start).exists()
 
     return render(request, 'matrimony/weekly_send.html', {
         'male_logs': male_logs,
         'female_logs': female_logs,
-        'month_year': month_year,
+        'month_year': week_key,
         'already_run_this_week': already_run_this_week,
         'week_start': week_start,
     })
