@@ -637,14 +637,21 @@ def weekly_send(request):
 
     # Trigger manual prepare if requested
     if request.method == 'POST' and request.POST.get('action') == 'prepare':
-        from django.core.management import call_command
         already_run = WeeklyBioRun.objects.filter(week_start=week_start).exists()
         if already_run:
             messages.error(request, f'இந்த வாரம் ({week_start}) ஏற்கனவே இயக்கப்பட்டது. மீண்டும் இயக்க முடியாது.')
         else:
             try:
-                call_command('prepare_weekly_bios', **{'user_id': request.user.pk})
-                messages.success(request, 'பொருத்தங்கள் தயாரிக்கப்பட்டன.')
+                from django.core.management import call_command
+                import io
+                out = io.StringIO()
+                call_command(
+                    'prepare_weekly_bios',
+                    stdout=out,
+                    **{'user_id': request.user.pk}
+                )
+                output = out.getvalue().strip()
+                messages.success(request, f'பொருத்தங்கள் தயாரிக்கப்பட்டன.')
             except Exception as e:
                 messages.error(request, f'பிழை: {str(e)}')
         return redirect('weekly_send')
