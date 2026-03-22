@@ -545,7 +545,7 @@ class BioSendLog(models.Model):
     receiver_gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name="பெறுபவர் பாலினம்")
     receiver_id     = models.PositiveIntegerField(verbose_name="பெறுபவர் ID")
     bio_token       = models.ForeignKey(BioToken, null=True, blank=True, on_delete=models.SET_NULL)
-    month_year      = models.CharField(max_length=7, verbose_name="மாதம்-வருடம்")  # e.g. 2025-03
+    month_year      = models.CharField(max_length=10, verbose_name="வார தொடக்கம்")  # e.g. 2026-03-22
     status          = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     prepared_at     = models.DateTimeField(auto_now_add=True, verbose_name="தயாரித்த நேரம்")
     sent_at         = models.DateTimeField(null=True, blank=True, verbose_name="அனுப்பிய நேரம்")
