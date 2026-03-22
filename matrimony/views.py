@@ -68,6 +68,7 @@ def candidate_list(request):
     salary_min = request.GET.get('salary_min', '')
     status_filter = request.GET.get('status', '')
     district_id = request.GET.get('district', '')
+    created_by_id = request.GET.get('created_by', '')
     page_num = request.GET.get('page', 1)
     PER_PAGE = 50
 
@@ -87,6 +88,8 @@ def candidate_list(request):
             qs = qs.filter(status__code=status_filter)
         if district_id:
             qs = qs.filter(district_id=district_id)
+        if created_by_id:
+            qs = qs.filter(created_by_id=created_by_id)
         if age_min:
             try:
                 max_dob = date(date.today().year - int(age_min), date.today().month, date.today().day)
@@ -181,12 +184,32 @@ def candidate_list(request):
 
     rasis = Rasi.objects.all()
     nachathirams = Nachathiram.objects.all()
+
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    if gender == 'M':
+        used_dist_ids  = MaleCandidate.objects.exclude(district=None).values_list('district_id', flat=True).distinct()
+        used_user_ids  = MaleCandidate.objects.exclude(created_by=None).values_list('created_by_id', flat=True).distinct()
+    elif gender == 'F':
+        used_dist_ids  = FemaleCandidate.objects.exclude(district=None).values_list('district_id', flat=True).distinct()
+        used_user_ids  = FemaleCandidate.objects.exclude(created_by=None).values_list('created_by_id', flat=True).distinct()
+    else:
+        used_dist_ids  = set(list(MaleCandidate.objects.exclude(district=None).values_list('district_id', flat=True)) +
+                             list(FemaleCandidate.objects.exclude(district=None).values_list('district_id', flat=True)))
+        used_user_ids  = set(list(MaleCandidate.objects.exclude(created_by=None).values_list('created_by_id', flat=True)) +
+                             list(FemaleCandidate.objects.exclude(created_by=None).values_list('created_by_id', flat=True)))
+
+    districts         = District.objects.filter(pk__in=used_dist_ids).order_by('name')
+    created_by_users  = User.objects.filter(pk__in=used_user_ids).order_by('username')
+
     context = {
         'candidates': candidates,
         'page_obj': page_obj,
         'total_count': total_count,
         'rasis': rasis,
         'nachathirams': nachathirams,
+        'districts': districts,
+        'created_by_users': created_by_users,
         'gender': gender,
         'search': search,
     }

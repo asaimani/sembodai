@@ -47,6 +47,13 @@
                     {% for d in districts %}<option value="{{ d.id }}" {% if request.GET.district == d.id|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
                 </select>
             </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small fw-500">சேர்த்தவர்</label>
+                <select name="created_by" class="form-select form-select-sm">
+                    <option value="">எல்லாம்</option>
+                    {% for u in created_by_users %}<option value="{{ u.id }}" {% if request.GET.created_by == u.id|stringformat:"s" %}selected{% endif %}>{{ u.get_full_name|default:u.username }}</option>{% endfor %}
+                </select>
+            </div>
             <div class="col-12 col-md-1">
                 <button type="submit" class="btn btn-primary btn-sm w-100">
                     <i class="fas fa-search"></i> தேடு
