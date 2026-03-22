@@ -16,7 +16,7 @@
                 </thead>
                 <tbody>
                 {% for row in logs %}
-                <tr>
+                <tr {% if row.is_warning %}style="background:#fff3cd;opacity:0.8;"{% endif %}>
                     <td><span class="fw-bold text-danger">{{ row.sender.uid }}</span></td>
                     <td>{{ row.sender.name }}</td>
                     <td>
@@ -39,7 +39,9 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if row.has_pending %}
+                        {% if row.is_warning %}
+                            <span class="badge bg-warning text-dark">⏰ காலாவதி</span>
+                        {% elif row.has_pending %}
                             <span class="badge badge-active">நிலுவை</span>
                         {% elif row.sent_count > 0 %}
                             <span class="badge badge-active">✅ அனுப்பியது</span>

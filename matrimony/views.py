@@ -832,11 +832,16 @@ def _get_sender_summary(sender_gender, month_year):
     for log in logs:
         sender_map[log.sender_id].append(log)
 
+    from datetime import date as _date2
+    _today2 = _date2.today()
     result = []
     for sender_id, send_logs in sender_map.items():
         try:
             sender = CandidateModel.objects.get(pk=sender_id)
         except CandidateModel.DoesNotExist:
+            continue
+        # Skip expired candidates from display
+        if sender.premium_end_date and sender.premium_end_date < _today2:
             continue
 
         pending_logs = [l for l in send_logs if l.status == 'pending']
@@ -856,10 +861,17 @@ def _get_sender_summary(sender_gender, month_year):
             'total_count': total_count,
             'wa_message': wa_message,
             'has_pending': len(pending_logs) > 0,
+            'is_warning': False,
         })
 
-    # Also show candidates with NO logs yet
-    all_senders = CandidateModel.objects.filter(whatsapp_number__isnull=False).exclude(whatsapp_number='')
+    # Also show candidates with NO logs yet — only non-expired ones
+    from datetime import date as _date
+    _today = _date.today()
+    all_senders = CandidateModel.objects.filter(
+        whatsapp_number__isnull=False
+    ).exclude(whatsapp_number='').filter(
+        Q(premium_end_date__isnull=True) | Q(premium_end_date__gte=_today)
+    )
     existing_ids = set(sender_map.keys())
     for sender in all_senders:
         if sender.pk not in existing_ids:
@@ -867,11 +879,33 @@ def _get_sender_summary(sender_gender, month_year):
                 'sender': sender,
                 'sender_gender': sender_gender,
                 'pending_logs': [],
+                'pending_log_ids': '',
                 'sent_count': 0,
                 'total_count': 0,
                 'wa_message': '',
                 'has_pending': False,
+                'is_warning': False,
             })
+
+    # Show expired candidates at the very bottom with warning highlight
+    expired_senders = CandidateModel.objects.filter(
+        whatsapp_number__isnull=False
+    ).exclude(whatsapp_number='').filter(
+        premium_end_date__lt=_today
+    )
+    for sender in expired_senders:
+        result.append({
+            'sender': sender,
+            'sender_gender': sender_gender,
+            'pending_logs': [],
+            'pending_log_ids': '',
+            'sent_count': 0,
+            'total_count': 0,
+            'wa_message': '',
+            'has_pending': False,
+            'is_warning': True,
+            'warning_reason': 'காலாவதியான பிரீமியம்',
+        })
 
     return result
 
