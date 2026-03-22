@@ -660,8 +660,14 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
         return 5
 
     def prepare_gender(sender_model, receiver_model, sender_gender, receiver_gender):
+        from datetime import date as _date
+        today = _date.today()
         prepared = 0
-        for sender in sender_model.objects.select_related('premium_type').all():
+        # Only active (non-expired) candidates as senders
+        senders = sender_model.objects.select_related('premium_type').filter(
+            Q(premium_end_date__isnull=True) | Q(premium_end_date__gte=today)
+        )
+        for sender in senders:
             if not sender.whatsapp_number:
                 continue
             limit = get_weekly_limit(sender)
@@ -706,7 +712,7 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
                 matches = _find_matches_inline(exp, receiver_model, sent_ids, qs_age)
             except CandidateExpectation.DoesNotExist:
                 matches = list(
-                    qs_age.exclude(pk__in=sent_ids).exclude(whatsapp_number='').order_by('?')[:remaining]
+                    qs_age.exclude(pk__in=sent_ids).exclude(whatsapp_number='').order_by('-created_at')[:remaining]
                 )
 
             if not matches:
@@ -761,7 +767,7 @@ def _find_matches_inline(exp, receiver_model, sent_ids, qs_age=None):
     comp_ids = list(exp.complexions.values_list('complexion_id', flat=True))
     if comp_ids:
         qs = qs.filter(complexion_id__in=comp_ids)
-    return list(qs.order_by('?')[:50])
+    return list(qs.order_by('-created_at')[:50])
 
 
 # ─────────────────────────────────────────────

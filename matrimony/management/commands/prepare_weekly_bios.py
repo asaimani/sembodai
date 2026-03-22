@@ -81,7 +81,12 @@ class Command(BaseCommand):
         from matrimony.models import CandidateExpectation, BioToken, BioSendLog
         prepared = 0
 
-        for sender in sender_model.objects.select_related('premium_type').all():
+        from datetime import date as _date
+        from django.db.models import Q as _Q
+        today = _date.today()
+        for sender in sender_model.objects.select_related('premium_type').filter(
+            _Q(premium_end_date__isnull=True) | _Q(premium_end_date__gte=today)
+        ):
             if not sender.whatsapp_number:
                 continue
 
@@ -130,7 +135,7 @@ class Command(BaseCommand):
                 matches = self._find_matches(exp, receiver_model, sent_ids, sender_gender, qs_age)
             except CandidateExpectation.DoesNotExist:
                 matches = list(
-                    qs_age.exclude(pk__in=sent_ids).exclude(whatsapp_number='').order_by('?')[:remaining]
+                    qs_age.exclude(pk__in=sent_ids).exclude(whatsapp_number='').order_by('-created_at')[:remaining]
                 )
 
             if not matches:
@@ -176,4 +181,4 @@ class Command(BaseCommand):
         comp_ids = list(exp.complexions.values_list('complexion_id', flat=True))
         if comp_ids:
             qs = qs.filter(complexion_id__in=comp_ids)
-        return list(qs.order_by('?')[:50])
+        return list(qs.order_by('-created_at')[:50])
