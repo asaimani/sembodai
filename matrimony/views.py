@@ -67,6 +67,7 @@ def candidate_list(request):
     nachathiram_id = request.GET.get('nachathiram', '')
     salary_min = request.GET.get('salary_min', '')
     status_filter = request.GET.get('status', '')
+    district_id = request.GET.get('district', '')
     page_num = request.GET.get('page', 1)
     PER_PAGE = 50
 
@@ -84,6 +85,8 @@ def candidate_list(request):
                 pass
         if status_filter:
             qs = qs.filter(status__code=status_filter)
+        if district_id:
+            qs = qs.filter(district_id=district_id)
         if age_min:
             try:
                 max_dob = date(date.today().year - int(age_min), date.today().month, date.today().day)
@@ -98,7 +101,7 @@ def candidate_list(request):
                 pass
         return qs
 
-    base_select = {'select_related': ['rasi', 'nachathiram', 'profession', 'state', 'district']}
+    base_select = {'select_related': ['rasi', 'nachathiram', 'profession', 'state', 'district', 'created_by']}
     MAX_RESULTS = 500
 
     if gender == 'M':
