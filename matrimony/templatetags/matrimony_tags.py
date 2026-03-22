@@ -76,3 +76,60 @@ def format_12hr(time_val):
         return f"{hour % 12 or 12:02d}:{minute:02d} {am_pm}"
     except Exception:
         return str(time_val)
+
+
+@register.filter
+def amount_in_tamil_words(value):
+    """Convert number to Tamil words. e.g. 10000 → பத்தாயிரம் ரூபாய்"""
+    try:
+        n = int(value)
+    except (ValueError, TypeError):
+        return value
+
+    if n == 0:
+        return 'பூஜ்யம் ரூபாய்'
+
+    ones = ['', 'ஒன்று', 'இரண்டு', 'மூன்று', 'நான்கு', 'ஐந்து',
+            'ஆறு', 'ஏழு', 'எட்டு', 'ஒன்பது', 'பத்து', 'பதினொன்று',
+            'பன்னிரண்டு', 'பதிமூன்று', 'பதினான்கு', 'பதினைந்து',
+            'பதினாறு', 'பதினேழு', 'பதினெட்டு', 'பத்தொன்பது']
+
+    tens = ['', '', 'இருபது', 'முப்பது', 'நாற்பது', 'ஐம்பது',
+            'அறுபது', 'எழுபது', 'எண்பது', 'தொண்ணூறு']
+
+    def below_hundred(num):
+        if num < 20:
+            return ones[num]
+        elif num % 10 == 0:
+            return tens[num // 10]
+        else:
+            return tens[num // 10] + ' ' + ones[num % 10]
+
+    def below_thousand(num):
+        if num < 100:
+            return below_hundred(num)
+        else:
+            h = num // 100
+            r = num % 100
+            result = ones[h] + ' நூறு'
+            if r:
+                result += ' ' + below_hundred(r)
+            return result
+
+    result = ''
+    if n >= 10000000:  # crore
+        cr = n // 10000000
+        result += below_thousand(cr) + ' கோடி '
+        n %= 10000000
+    if n >= 100000:  # lakh
+        lk = n // 100000
+        result += below_thousand(lk) + ' லட்சம் '
+        n %= 100000
+    if n >= 1000:  # thousand
+        th = n // 1000
+        result += below_thousand(th) + ' ஆயிரம் '
+        n %= 1000
+    if n > 0:
+        result += below_thousand(n)
+
+    return result.strip() + ' ரூபாய்'
