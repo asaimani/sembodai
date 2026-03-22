@@ -185,22 +185,17 @@ def candidate_list(request):
     rasis = Rasi.objects.all()
     nachathirams = Nachathiram.objects.all()
 
+    # Build district and user dropdowns from FULL candidate DB (not filtered/paginated)
     from django.contrib.auth import get_user_model
     User = get_user_model()
-    if gender == 'M':
-        used_dist_ids  = MaleCandidate.objects.exclude(district=None).values_list('district_id', flat=True).distinct()
-        used_user_ids  = MaleCandidate.objects.exclude(created_by=None).values_list('created_by_id', flat=True).distinct()
-    elif gender == 'F':
-        used_dist_ids  = FemaleCandidate.objects.exclude(district=None).values_list('district_id', flat=True).distinct()
-        used_user_ids  = FemaleCandidate.objects.exclude(created_by=None).values_list('created_by_id', flat=True).distinct()
-    else:
-        used_dist_ids  = set(list(MaleCandidate.objects.exclude(district=None).values_list('district_id', flat=True)) +
-                             list(FemaleCandidate.objects.exclude(district=None).values_list('district_id', flat=True)))
-        used_user_ids  = set(list(MaleCandidate.objects.exclude(created_by=None).values_list('created_by_id', flat=True)) +
-                             list(FemaleCandidate.objects.exclude(created_by=None).values_list('created_by_id', flat=True)))
-
-    districts         = District.objects.filter(pk__in=used_dist_ids).order_by('name')
-    created_by_users  = User.objects.filter(pk__in=used_user_ids).order_by('username')
+    _m_dist  = MaleCandidate.objects.exclude(district=None).values_list('district_id', flat=True).distinct()
+    _f_dist  = FemaleCandidate.objects.exclude(district=None).values_list('district_id', flat=True).distinct()
+    _m_users = MaleCandidate.objects.exclude(created_by=None).values_list('created_by_id', flat=True).distinct()
+    _f_users = FemaleCandidate.objects.exclude(created_by=None).values_list('created_by_id', flat=True).distinct()
+    all_dist_ids = set(list(_m_dist) + list(_f_dist))
+    all_user_ids = set(list(_m_users) + list(_f_users))
+    districts        = District.objects.filter(pk__in=all_dist_ids).order_by('name')
+    created_by_users = User.objects.filter(pk__in=all_user_ids).order_by('username')
 
     context = {
         'candidates': candidates,
