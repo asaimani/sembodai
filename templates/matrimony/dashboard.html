@@ -28,7 +28,7 @@
     <div class="col-6 col-md-3">
         <div class="stat-card" style="background: linear-gradient(135deg,#dc2626,#ef4444)">
             <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-            <div class="stat-num">{{ expired_entries.count }}</div>
+            <div class="stat-num">{{ expired_count }}</div>
             <div class="stat-label">காலாவதியான பிரீமியம்</div>
         </div>
     </div>
@@ -79,7 +79,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg,#dc2626,#b91c1c)">
                 <span><i class="fas fa-exclamation-circle me-2"></i>காலாவதியான பிரீமியம்</span>
-                <span class="badge bg-warning text-dark">{{ expired_entries.count }}</span>
+                <span class="badge bg-warning text-dark">{{ expired_count }}</span>
             </div>
             <div class="card-body p-0">
                 {% if expired_entries %}
