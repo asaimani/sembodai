@@ -1067,6 +1067,19 @@ def bio_history(request):
     from .models import BioSendLog, BioToken, MaleCandidate, FemaleCandidate
     from django.utils import timezone
 
+    # Delete log entry (superuser only)
+    if request.method == 'POST' and request.POST.get('action') == 'delete':
+        if request.user.is_superuser:
+            log_id = request.POST.get('log_id')
+            try:
+                BioSendLog.objects.filter(pk=log_id).delete()
+                messages.success(request, 'பதிவு நீக்கப்பட்டது.')
+            except Exception as e:
+                messages.error(request, f'பிழை: {str(e)}')
+        else:
+            messages.error(request, 'அனுமதி இல்லை.')
+        return redirect(request.get_full_path())
+
     gender   = request.GET.get('gender', 'M')
     search   = request.GET.get('search', '').strip()
     month    = request.GET.get('month', '')

@@ -84,6 +84,7 @@
                         <th>இணைப்பு காலாவதி</th>
                         <th>அனுப்பிய நேரம்</th>
                         <th>இணைப்பு</th>
+                        {% if request.user.is_superuser %}<th>நீக்கு</th>{% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -124,6 +125,18 @@
                             <span class="text-muted small">-</span>
                         {% endif %}
                     </td>
+                    {% if request.user.is_superuser %}
+                    <td>
+                        <form method="post" onsubmit="return confirm('இந்த பதிவை நீக்கவா?')">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="log_id" value="{{ row.log.pk }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" style="padding:2px 8px;font-size:11px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
                 </tbody>
