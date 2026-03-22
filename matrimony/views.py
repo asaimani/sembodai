@@ -621,6 +621,128 @@ def get_nachathirams(request):
     return JsonResponse(list(nachathirams), safe=False)
 
 
+
+def _run_weekly_bios(user, week_start, week_end, week_key):
+    """Run weekly bio matching directly from view."""
+    from .models import (MaleCandidate, FemaleCandidate, CandidateExpectation,
+                          BioToken, BioSendLog, WeeklyBioRun)
+    from datetime import date, timedelta
+
+    # Delete BioSendLog older than 6 months
+    cutoff = (date.today() - timedelta(days=180)).strftime('%Y-%m-%d')
+    BioSendLog.objects.filter(month_year__lt=cutoff).delete()
+
+    def get_weekly_limit(candidate):
+        if candidate.premium_type:
+            limit = candidate.premium_type.weekly_limit
+            return None if limit == 0 else limit
+        return 5
+
+    def prepare_gender(sender_model, receiver_model, sender_gender, receiver_gender):
+        prepared = 0
+        for sender in sender_model.objects.select_related('premium_type').all():
+            if not sender.whatsapp_number:
+                continue
+            limit = get_weekly_limit(sender)
+            if limit is not None:
+                all_this_week = BioSendLog.objects.filter(
+                    sender_gender=sender_gender, sender_id=sender.pk, month_year=week_key
+                ).order_by('prepared_at')
+                total_this_week = all_this_week.count()
+                if total_this_week > limit:
+                    excess_ids = list(
+                        all_this_week.filter(status='pending')
+                        .order_by('-prepared_at')
+                        .values_list('pk', flat=True)[:total_this_week - limit]
+                    )
+                    BioSendLog.objects.filter(pk__in=excess_ids).delete()
+
+            already_prepared = BioSendLog.objects.filter(
+                sender_gender=sender_gender, sender_id=sender.pk, month_year=week_key
+            ).count()
+            if limit is not None and already_prepared >= limit:
+                continue
+            remaining = (limit - already_prepared) if limit is not None else 999
+
+            sent_ids = set(BioSendLog.objects.filter(
+                sender_gender=sender_gender, sender_id=sender.pk, receiver_gender=receiver_gender
+            ).values_list('receiver_id', flat=True))
+
+            sender_dob = sender.date_of_birth
+            if sender_gender == 'M' and sender_dob:
+                qs_age = receiver_model.objects.filter(date_of_birth__gt=sender_dob)
+            elif sender_gender == 'F' and sender_dob:
+                qs_age = receiver_model.objects.filter(date_of_birth__lt=sender_dob)
+            else:
+                qs_age = receiver_model.objects.all()
+
+            try:
+                from .models import CandidateExpectation
+                exp = CandidateExpectation.objects.prefetch_related(
+                    'nachathirams__nachathiram', 'sub_castes__sub_caste',
+                    'districts__district', 'professions__profession', 'complexions__complexion',
+                ).get(candidate_gender=sender_gender, candidate_id=sender.pk)
+                matches = _find_matches_inline(exp, receiver_model, sent_ids, qs_age)
+            except CandidateExpectation.DoesNotExist:
+                matches = list(
+                    qs_age.exclude(pk__in=sent_ids).exclude(whatsapp_number='').order_by('?')[:remaining]
+                )
+
+            if not matches:
+                continue
+            matches = matches[:remaining]
+            for receiver in matches:
+                token = BioToken.create_for_candidate(receiver_gender, receiver.pk)
+                BioSendLog.objects.create(
+                    sender_gender=sender_gender, sender_id=sender.pk,
+                    receiver_gender=receiver_gender, receiver_id=receiver.pk,
+                    bio_token=token, month_year=week_key, status='pending',
+                )
+                prepared += 1
+        return prepared
+
+    male_prepared   = prepare_gender(MaleCandidate, FemaleCandidate, 'M', 'F')
+    female_prepared = prepare_gender(FemaleCandidate, MaleCandidate, 'F', 'M')
+    total = male_prepared + female_prepared
+
+    WeeklyBioRun.objects.create(
+        run_by=user,
+        week_start=week_start,
+        week_end=week_end,
+        male_processed=MaleCandidate.objects.count(),
+        female_processed=FemaleCandidate.objects.count(),
+        matches_created=total,
+        notes=f"வார இயக்கம் {week_start} முதல் {week_end} வரை. மொத்தம் {total} பொருத்தங்கள்.",
+    )
+    return total
+
+
+def _find_matches_inline(exp, receiver_model, sent_ids, qs_age=None):
+    qs = (qs_age if qs_age is not None else receiver_model.objects).exclude(pk__in=sent_ids)
+    if exp.salary_min:
+        qs = qs.filter(monthly_salary__gte=exp.salary_min)
+    if exp.sevadosham_ok:
+        qs = qs.filter(sevadosham=exp.sevadosham_ok)
+    if exp.marital_status_ok:
+        qs = qs.filter(status=exp.marital_status_ok)
+    nach_ids = list(exp.nachathirams.values_list('nachathiram_id', flat=True))
+    if nach_ids:
+        qs = qs.filter(nachathiram_id__in=nach_ids)
+    sc_ids = list(exp.sub_castes.values_list('sub_caste_id', flat=True))
+    if sc_ids:
+        qs = qs.filter(sub_caste_id__in=sc_ids)
+    dist_ids = list(exp.districts.values_list('district_id', flat=True))
+    if dist_ids:
+        qs = qs.filter(district_id__in=dist_ids)
+    prof_ids = list(exp.professions.values_list('profession_id', flat=True))
+    if prof_ids:
+        qs = qs.filter(profession_id__in=prof_ids)
+    comp_ids = list(exp.complexions.values_list('complexion_id', flat=True))
+    if comp_ids:
+        qs = qs.filter(complexion_id__in=comp_ids)
+    return list(qs.order_by('?')[:50])
+
+
 # ─────────────────────────────────────────────
 #  WEEKLY SEND PAGE
 # ─────────────────────────────────────────────
@@ -642,18 +764,13 @@ def weekly_send(request):
             messages.error(request, f'இந்த வாரம் ({week_start}) ஏற்கனவே இயக்கப்பட்டது. மீண்டும் இயக்க முடியாது.')
         else:
             try:
-                from django.core.management import call_command
-                import io
-                out = io.StringIO()
-                call_command(
-                    'prepare_weekly_bios',
-                    stdout=out,
-                    **{'user_id': request.user.pk}
-                )
-                output = out.getvalue().strip()
-                messages.success(request, f'பொருத்தங்கள் தயாரிக்கப்பட்டன.')
+                from datetime import timedelta as _td
+                week_end_dt = week_start + _td(days=6)
+                total = _run_weekly_bios(request.user, week_start, week_end=week_end_dt, week_key=week_key)
+                messages.success(request, f'பொருத்தங்கள் தயாரிக்கப்பட்டன. மொத்தம் {total} பொருத்தங்கள்.')
             except Exception as e:
-                messages.error(request, f'பிழை: {str(e)}')
+                import traceback
+                messages.error(request, f'பிழை: {str(e)} — {traceback.format_exc()[-200:]}')
         return redirect('weekly_send')
 
     # Get all pending logs grouped by sender using week_key
