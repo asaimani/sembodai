@@ -1140,6 +1140,14 @@ def weekly_run_log(request):
     if not request.user.is_superuser:
         return HttpResponseForbidden("அனுமதி இல்லை")
     from .models import WeeklyBioRun
+    if request.method == 'POST' and request.POST.get('action') == 'delete':
+        run_id = request.POST.get('run_id')
+        try:
+            WeeklyBioRun.objects.filter(pk=run_id).delete()
+            messages.success(request, 'இயக்க பதிவு நீக்கப்பட்டது. இப்போது மீண்டும் இயக்கலாம்.')
+        except Exception as e:
+            messages.error(request, f'பிழை: {str(e)}')
+        return redirect('weekly_run_log')
     runs = WeeklyBioRun.objects.select_related('run_by').all()
     return render(request, 'matrimony/weekly_run_log.html', {'runs': runs})
 

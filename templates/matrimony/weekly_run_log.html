@@ -23,6 +23,7 @@
                         <th>பெண் விண்ணப்பதாரர்கள்</th>
                         <th>பொருத்தங்கள்</th>
                         <th>குறிப்புகள்</th>
+                        <th>நீக்கு</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,6 +38,16 @@
                     <td><i class="fas fa-female text-danger me-1"></i>{{ run.female_processed }}</td>
                     <td><span class="badge bg-success">{{ run.matches_created }}</span></td>
                     <td class="small text-muted">{{ run.notes|truncatechars:60 }}</td>
+                    <td>
+                        <form method="post" onsubmit="return confirm('இந்த பதிவை நீக்கினால் இந்த வாரம் மீண்டும் இயக்கலாம். நீக்கவா?')">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="run_id" value="{{ run.pk }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" style="padding:2px 8px;font-size:11px;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
                 </tbody>
