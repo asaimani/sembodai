@@ -21,4 +21,6 @@ urlpatterns = [
     path('bio/<str:token>/', views.public_bio_view, name='public_bio'),
     path('bio-history/', views.bio_history, name='bio_history'),
     path('weekly-run-log/', views.weekly_run_log, name='weekly_run_log'),
+    path('media-files/', views.media_files, name='media_files'),
+    path('media-files/delete-orphan/', views.media_delete_orphan, name='media_delete_orphan'),
 ]

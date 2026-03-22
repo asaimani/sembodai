@@ -1142,3 +1142,108 @@ def weekly_run_log(request):
     from .models import WeeklyBioRun
     runs = WeeklyBioRun.objects.select_related('run_by').all()
     return render(request, 'matrimony/weekly_run_log.html', {'runs': runs})
+
+
+# ─────────────────────────────────────────────
+#  MEDIA FILES PAGE (superuser only)
+# ─────────────────────────────────────────────
+
+@login_required
+def media_files(request):
+    from django.http import HttpResponseForbidden
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("அனுமதி இல்லை")
+
+    from .models import CandidatePhoto, MaleCandidate, FemaleCandidate
+    import os
+    from django.conf import settings
+
+    # Handle delete
+    if request.method == 'POST' and request.POST.get('action') == 'delete':
+        photo_id = request.POST.get('photo_id')
+        try:
+            photo = CandidatePhoto.objects.get(pk=photo_id)
+            if photo.photo and os.path.isfile(photo.photo.path):
+                os.remove(photo.photo.path)
+            photo.delete()
+            messages.success(request, 'புகைப்படம் நீக்கப்பட்டது.')
+        except CandidatePhoto.DoesNotExist:
+            messages.error(request, 'புகைப்படம் கிடைக்கவில்லை.')
+        return redirect('media_files')
+
+    # Get all photos from DB
+    photos = CandidatePhoto.objects.select_related(
+        'male_candidate', 'female_candidate'
+    ).order_by('-uploaded_at')
+
+    rows = []
+    total_size = 0
+    for photo in photos:
+        candidate = photo.male_candidate or photo.female_candidate
+        gender = 'M' if photo.male_candidate else 'F'
+        file_size = 0
+        file_exists = False
+        try:
+            if photo.photo and os.path.isfile(photo.photo.path):
+                file_size = os.path.getsize(photo.photo.path)
+                file_exists = True
+                total_size += file_size
+        except Exception:
+            pass
+
+        rows.append({
+            'photo': photo,
+            'candidate': candidate,
+            'gender': gender,
+            'uid': candidate.uid if candidate else '-',
+            'name': candidate.name if candidate else '-',
+            'filename': os.path.basename(photo.photo.name) if photo.photo else '-',
+            'file_size': file_size,
+            'file_size_kb': round(file_size / 1024, 1),
+            'file_exists': file_exists,
+            'uploaded_at': photo.uploaded_at,
+        })
+
+    # Also scan for orphan files on disk not in DB
+    db_files = set(p.photo.name for p in photos if p.photo)
+    orphan_files = []
+    photos_dir = os.path.join(settings.MEDIA_ROOT, 'photos')
+    if os.path.isdir(photos_dir):
+        for fname in os.listdir(photos_dir):
+            fpath = f'photos/{fname}'
+            if fpath not in db_files:
+                full_path = os.path.join(photos_dir, fname)
+                fsize = os.path.getsize(full_path)
+                total_size += fsize
+                orphan_files.append({
+                    'filename': fname,
+                    'file_size_kb': round(fsize / 1024, 1),
+                    'full_path': full_path,
+                })
+
+    total_size_mb = round(total_size / (1024 * 1024), 2)
+
+    return render(request, 'matrimony/media_files.html', {
+        'rows': rows,
+        'orphan_files': orphan_files,
+        'total_count': len(rows),
+        'orphan_count': len(orphan_files),
+        'total_size_mb': total_size_mb,
+    })
+
+
+@login_required
+def media_delete_orphan(request):
+    from django.http import HttpResponseForbidden
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("அனுமதி இல்லை")
+    import os
+    from django.conf import settings
+    if request.method == 'POST':
+        filename = request.POST.get('filename')
+        if filename and '/' not in filename and '..' not in filename:
+            full_path = os.path.join(settings.MEDIA_ROOT, 'photos', filename)
+            if os.path.isfile(full_path):
+                os.remove(full_path)
+                messages.success(request, f'{filename} நீக்கப்பட்டது.')
+    return redirect('media_files')

@@ -214,6 +214,9 @@
         <a href="{% url 'weekly_run_log' %}" class="{% if request.resolver_match.url_name == 'weekly_run_log' %}active{% endif %}">
             <i class="fas fa-clipboard-list"></i> இயக்க பதிவு
         </a>
+        <a href="{% url 'media_files' %}" class="{% if request.resolver_match.url_name == 'media_files' %}active{% endif %}">
+            <i class="fas fa-images"></i> மீடியா கோப்புகள்
+        </a>
         <a href="/admin/">
             <i class="fas fa-cog"></i> அட்டவணை நிர்வாகம்
         </a>
