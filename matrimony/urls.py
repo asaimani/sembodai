@@ -20,4 +20,5 @@ urlpatterns = [
     path('weekly-send/mark-sent/<str:log_ids>/', views.mark_sent, name='mark_sent'),
     path('bio/<str:token>/', views.public_bio_view, name='public_bio'),
     path('bio-history/', views.bio_history, name='bio_history'),
+    path('weekly-run-log/', views.weekly_run_log, name='weekly_run_log'),
 ]

@@ -107,7 +107,7 @@ class PremiumType(models.Model):
     code          = models.CharField(max_length=20, unique=True, verbose_name="குறியீடு")
     name          = models.CharField(max_length=50, verbose_name="பெயர்")
     order         = models.PositiveIntegerField(default=0)
-    monthly_limit = models.PositiveIntegerField(default=5, verbose_name="மாத வரம்பு (0=வரம்பற்றது)")
+    weekly_limit  = models.PositiveIntegerField(default=5, verbose_name="வார வரம்பு (0=வரம்பற்றது)")
     def __str__(self): return self.name
     class Meta: verbose_name = "பிரீமியம் வகை"; ordering = ['order']
 
@@ -560,3 +560,25 @@ class BioSendLog(models.Model):
 
     def __str__(self):
         return f"{self.sender_gender}{self.sender_id} → {self.receiver_gender}{self.receiver_id} ({self.month_year})"
+
+
+# ─────────────────────────────────────────────
+#  WEEKLY BIO RUN LOG
+# ─────────────────────────────────────────────
+
+class WeeklyBioRun(models.Model):
+    run_at           = models.DateTimeField(auto_now_add=True, verbose_name="இயக்கிய நேரம்")
+    run_by           = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL, verbose_name="இயக்கியவர்")
+    week_start       = models.DateField(verbose_name="வார தொடக்கம் (ஞாயிறு)")
+    week_end         = models.DateField(verbose_name="வார முடிவு (சனி)")
+    male_processed   = models.PositiveIntegerField(default=0, verbose_name="ஆண் விண்ணப்பதாரர்கள்")
+    female_processed = models.PositiveIntegerField(default=0, verbose_name="பெண் விண்ணப்பதாரர்கள்")
+    matches_created  = models.PositiveIntegerField(default=0, verbose_name="பொருத்தங்கள் உருவாக்கப்பட்டன")
+    notes            = models.TextField(blank=True, verbose_name="குறிப்புகள்")
+
+    class Meta:
+        verbose_name = "வார இயக்க பதிவு"
+        ordering = ['-run_at']
+
+    def __str__(self):
+        return f"வார இயக்கம் {self.week_start} — {self.matches_created} பொருத்தங்கள்"

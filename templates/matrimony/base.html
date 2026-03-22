@@ -211,6 +211,9 @@
 
         {% if request.user.is_superuser %}
         <div class="nav-section">நிர்வாகம்</div>
+        <a href="{% url 'weekly_run_log' %}" class="{% if request.resolver_match.url_name == 'weekly_run_log' %}active{% endif %}">
+            <i class="fas fa-clipboard-list"></i> இயக்க பதிவு
+        </a>
         <a href="/admin/">
             <i class="fas fa-cog"></i> அட்டவணை நிர்வாகம்
         </a>

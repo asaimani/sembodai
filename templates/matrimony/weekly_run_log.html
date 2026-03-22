@@ -1,0 +1,53 @@
+{% extends 'matrimony/base.html' %}
+{% block title %}வார இயக்க பதிவு{% endblock %}
+{% block page_title %}வார இயக்க பதிவு{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-history me-2"></i>வார இயக்க பதிவு</span>
+        <span class="badge bg-secondary">{{ runs|length }} பதிவுகள்</span>
+    </div>
+    <div class="card-body p-0">
+        {% if runs %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" style="font-size:13px;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>வார தொடக்கம்</th>
+                        <th>வார முடிவு</th>
+                        <th>இயக்கிய நேரம்</th>
+                        <th>இயக்கியவர்</th>
+                        <th>ஆண் விண்ணப்பதாரர்கள்</th>
+                        <th>பெண் விண்ணப்பதாரர்கள்</th>
+                        <th>பொருத்தங்கள்</th>
+                        <th>குறிப்புகள்</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for run in runs %}
+                <tr>
+                    <td class="text-muted">{{ forloop.counter }}</td>
+                    <td><span class="badge bg-primary">{{ run.week_start|date:"d/m/Y" }}</span></td>
+                    <td><span class="badge bg-secondary">{{ run.week_end|date:"d/m/Y" }}</span></td>
+                    <td class="small text-muted">{{ run.run_at|date:"d/m/Y H:i" }}</td>
+                    <td>{{ run.run_by|default:"-" }}</td>
+                    <td><i class="fas fa-male text-primary me-1"></i>{{ run.male_processed }}</td>
+                    <td><i class="fas fa-female text-danger me-1"></i>{{ run.female_processed }}</td>
+                    <td><span class="badge bg-success">{{ run.matches_created }}</span></td>
+                    <td class="small text-muted">{{ run.notes|truncatechars:60 }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center p-5 text-muted">
+            <i class="fas fa-history fa-3x mb-3"></i>
+            <p>இயக்க பதிவுகள் இல்லை</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

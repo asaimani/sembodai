@@ -634,18 +634,37 @@ def weekly_send(request):
     # Trigger manual prepare if requested
     if request.method == 'POST' and request.POST.get('action') == 'prepare':
         from django.core.management import call_command
-        call_command('prepare_weekly_bios')
-        messages.success(request, 'பொருத்தங்கள் தயாரிக்கப்பட்டன.')
+        from .models import WeeklyBioRun
+        from datetime import date, timedelta
+        today = date.today()
+        days_since_sunday = (today.weekday() + 1) % 7
+        week_start = today - timedelta(days=days_since_sunday)
+        already_run = WeeklyBioRun.objects.filter(week_start=week_start).exists()
+        if already_run:
+            messages.error(request, f'இந்த வாரம் ({week_start}) ஏற்கனவே இயக்கப்பட்டது. மீண்டும் இயக்க முடியாது.')
+        else:
+            call_command('prepare_weekly_bios', user_id=request.user.pk)
+            messages.success(request, 'பொருத்தங்கள் தயாரிக்கப்பட்டன.')
         return redirect('weekly_send')
 
     # Get all pending logs grouped by sender
     male_logs   = _get_sender_summary('M', month_year)
     female_logs = _get_sender_summary('F', month_year)
 
+    # Check if already run this week
+    from .models import WeeklyBioRun
+    from datetime import timedelta
+    today = date.today()
+    days_since_sunday = (today.weekday() + 1) % 7
+    week_start = today - timedelta(days=days_since_sunday)
+    already_run_this_week = WeeklyBioRun.objects.filter(week_start=week_start).exists()
+
     return render(request, 'matrimony/weekly_send.html', {
         'male_logs': male_logs,
         'female_logs': female_logs,
         'month_year': month_year,
+        'already_run_this_week': already_run_this_week,
+        'week_start': week_start,
     })
 
 
@@ -989,3 +1008,17 @@ def bio_history(request):
         'months':   months,
         'total':    paginator.count,
     })
+
+
+# ─────────────────────────────────────────────
+#  WEEKLY RUN LOG PAGE (superuser only)
+# ─────────────────────────────────────────────
+
+@login_required
+def weekly_run_log(request):
+    from django.http import HttpResponseForbidden
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("அனுமதி இல்லை")
+    from .models import WeeklyBioRun
+    runs = WeeklyBioRun.objects.select_related('run_by').all()
+    return render(request, 'matrimony/weekly_run_log.html', {'runs': runs})
