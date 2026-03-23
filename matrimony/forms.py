@@ -118,7 +118,7 @@ class MaleCandidateForm(BaseCandidateForm):
             from datetime import date, timedelta
             today = date.today()
             self.fields['premium_start_date'].initial = today
-            self.fields['premium_end_date'].initial = today + timedelta(months=6)
+            self.fields['premium_end_date'].initial = today + timedelta(days=183)
 
 
 class FemaleCandidateForm(BaseCandidateForm):
@@ -137,4 +137,4 @@ class FemaleCandidateForm(BaseCandidateForm):
             from datetime import date, timedelta
             today = date.today()
             self.fields['premium_start_date'].initial = today
-            self.fields['premium_end_date'].initial = today + timedelta(months=6)
+            self.fields['premium_end_date'].initial = today + timedelta(days=183)
