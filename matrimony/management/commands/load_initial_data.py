@@ -269,18 +269,18 @@ class Command(BaseCommand):
 
         # ── Caste & SubCaste ──
         new_sub_castes = [
-            'படையாட்சி (Padayachi)',
-            'கவுண்டர் (Gounder)',
-            'பள்ளி (Palli)',
-            'நாயக்கர் (Naicker)',
-            'சம்புவரையர் (Sambuvarayar)',
-            'காடவராயர் (Kadavarayar)',
-            'கச்சிராயர் (Kachirayar)',
-            'காலிங்கராயர் (Kalingarayar)',
-            'மழவரையர் (Mazhavarayar)',
-            'உடையார் (Udaiyar)',
-            'சோழிங்கர் (Sozhingar)',
-            'ரெட்டியார் (Reddiar)',
+            'படையாட்சி',
+            'கவுண்டர்',
+            'பள்ளி',
+            'நாயக்கர்',
+            'சம்புவரையர்',
+            'காடவராயர்',
+            'கச்சிராயர்',
+            'காலிங்கராயர்',
+            'மழவரையர்',
+            'உடையார்',
+            'சோழிங்கர்',
+            'ரெட்டியார்',
         ]
         caste, _ = Caste.objects.get_or_create(name='வன்னியர்')
         # Remove old sub castes and replace with new list
