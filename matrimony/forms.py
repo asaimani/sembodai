@@ -115,6 +115,10 @@ class MaleCandidateForm(BaseCandidateForm):
             self.fields['premium_type'].initial = _get_silver_type()
             self.fields['complexion'].initial = _get_default_complexion()
             self.fields['caste'].initial = _get_default_caste()
+            from datetime import date, timedelta
+            today = date.today()
+            self.fields['premium_start_date'].initial = today
+            self.fields['premium_end_date'].initial = today + timedelta(months=6)
 
 
 class FemaleCandidateForm(BaseCandidateForm):
@@ -130,3 +134,7 @@ class FemaleCandidateForm(BaseCandidateForm):
             self.fields['premium_type'].initial = _get_silver_type()
             self.fields['complexion'].initial = _get_default_complexion()
             self.fields['caste'].initial = _get_default_caste()
+            from datetime import date, timedelta
+            today = date.today()
+            self.fields['premium_start_date'].initial = today
+            self.fields['premium_end_date'].initial = today + timedelta(months=6)
