@@ -562,7 +562,9 @@ def candidate_print(request, gender, pk):
     gender_code = 'M' if gender == 'M' else 'F'
     family_members = FamilyMember.objects.filter(candidate_gender=gender_code, candidate_id=candidate.pk)
     jathagam_map = candidate.get_jathagam_map()
-    return render(request, 'matrimony/candidate_print.html', {
+    is_plain = request.GET.get('plain') == '1'
+    template = 'matrimony/candidate_print_plain.html' if is_plain else 'matrimony/candidate_print.html'
+    return render(request, template, {
         'candidate': candidate,
         'admin_profile': admin_profile,
         'photo_base64': photo_base64,

@@ -11,6 +11,9 @@
     <a href="{% url 'candidate_print' gender candidate.pk %}" class="btn btn-dark btn-sm" target="_blank">
         <i class="fas fa-print me-1"></i>அச்சிடு
     </a>
+    <a href="{% url 'candidate_print' gender candidate.pk %}?plain=1" class="btn btn-outline-secondary btn-sm" target="_blank">
+        <i class="fas fa-file-alt me-1"></i>எளிய அச்சு
+    </a>
     <a href="{% url 'candidate_list' %}?gender={{ candidate.gender }}" class="btn btn-outline-secondary btn-sm">
         <i class="fas fa-arrow-left me-1"></i>திரும்பு
     </a>
