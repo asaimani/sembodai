@@ -115,10 +115,17 @@ class MaleCandidateForm(BaseCandidateForm):
             self.fields['premium_type'].initial = _get_silver_type()
             self.fields['complexion'].initial = _get_default_complexion()
             self.fields['caste'].initial = _get_default_caste()
-            from datetime import date, timedelta
+            from datetime import date
             today = date.today()
             self.fields['premium_start_date'].initial = today
-            self.fields['premium_end_date'].initial = today + timedelta(days=183)
+            # Add exactly 6 months (same day, 6 months later minus 1 day)
+            month = today.month + 6
+            year = today.year + (month - 1) // 12
+            month = (month - 1) % 12 + 1
+            import calendar
+            day = min(today.day, calendar.monthrange(year, month)[1])
+            end_date = date(year, month, day) - __import__('datetime').timedelta(days=1)
+            self.fields['premium_end_date'].initial = end_date
 
 
 class FemaleCandidateForm(BaseCandidateForm):
@@ -134,7 +141,14 @@ class FemaleCandidateForm(BaseCandidateForm):
             self.fields['premium_type'].initial = _get_silver_type()
             self.fields['complexion'].initial = _get_default_complexion()
             self.fields['caste'].initial = _get_default_caste()
-            from datetime import date, timedelta
+            from datetime import date
             today = date.today()
             self.fields['premium_start_date'].initial = today
-            self.fields['premium_end_date'].initial = today + timedelta(days=183)
+            # Add exactly 6 months (same day, 6 months later minus 1 day)
+            month = today.month + 6
+            year = today.year + (month - 1) // 12
+            month = (month - 1) % 12 + 1
+            import calendar
+            day = min(today.day, calendar.monthrange(year, month)[1])
+            end_date = date(year, month, day) - __import__('datetime').timedelta(days=1)
+            self.fields['premium_end_date'].initial = end_date
