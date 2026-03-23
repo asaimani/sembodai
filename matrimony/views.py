@@ -38,8 +38,8 @@ def dashboard(request):
     total = male_count + female_count
     new_male = MaleCandidate.objects.filter(created_at__date=today).order_by('-created_at')[:20]
     new_female = FemaleCandidate.objects.filter(created_at__date=today).order_by('-created_at')[:20]
-    expired_male_qs = MaleCandidate.objects.filter(premium_end_date__lt=today, status__code='active')
-    expired_female_qs = FemaleCandidate.objects.filter(premium_end_date__lt=today, status__code='active')
+    expired_male_qs = MaleCandidate.objects.filter(premium_end_date__lt=today)
+    expired_female_qs = FemaleCandidate.objects.filter(premium_end_date__lt=today)
     expired_male_count = expired_male_qs.count()
     expired_female_count = expired_female_qs.count()
     expired_entries = list(expired_male_qs.order_by('-premium_end_date')[:20]) + list(expired_female_qs.order_by('-premium_end_date')[:20])
