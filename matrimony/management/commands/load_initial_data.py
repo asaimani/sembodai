@@ -109,8 +109,8 @@ class Command(BaseCommand):
 
         # ── Candidate Status ──
         for order, code, name in [
-            (1, 'active',   'செயலில்'),
-            (2, 'inactive', 'செயலற்று'),
+            (1, 'searching',  'வரன் தேடல்'),
+            (2, 'married',    'திருமணம் முடிந்தது'),
         ]:
             CandidateStatus.objects.get_or_create(code=code, defaults={'name': name, 'order': order})
 
@@ -268,13 +268,25 @@ class Command(BaseCommand):
             Height.objects.get_or_create(name=h, defaults={'order': i})
 
         # ── Caste & SubCaste ──
-        caste_data = {
-            'வன்னியர்': ['படையாட்சி','கவுண்டர்','வன்னியர்','பல்லி வன்னியர்','நல்லி வன்னியர்','பாடி வன்னியர்'],
-        }
-        for caste_name, sub_castes in caste_data.items():
-            caste, _ = Caste.objects.get_or_create(name=caste_name)
-            for i, sc in enumerate(sub_castes, 1):
-                SubCaste.objects.get_or_create(name=sc, caste=caste, defaults={'order': i})
+        new_sub_castes = [
+            'படையாட்சி (Padayachi)',
+            'கவுண்டர் (Gounder)',
+            'பள்ளி (Palli)',
+            'நாயக்கர் (Naicker)',
+            'சம்புவரையர் (Sambuvarayar)',
+            'காடவராயர் (Kadavarayar)',
+            'கச்சிராயர் (Kachirayar)',
+            'காலிங்கராயர் (Kalingarayar)',
+            'மழவரையர் (Mazhavarayar)',
+            'உடையார் (Udaiyar)',
+            'சோழிங்கர் (Sozhingar)',
+            'ரெட்டியார் (Reddiar)',
+        ]
+        caste, _ = Caste.objects.get_or_create(name='வன்னியர்')
+        # Remove old sub castes and replace with new list
+        SubCaste.objects.filter(caste=caste).delete()
+        for i, sc in enumerate(new_sub_castes, 1):
+            SubCaste.objects.get_or_create(name=sc, caste=caste, defaults={'order': i})
 
 
         # ── Relation (உறவு) ──
