@@ -392,7 +392,7 @@ def candidate_add(request):
                 except Exception:
                     pass
             if not candidate.status_id:
-                active_status = CandidateStatus.objects.filter(code='active').first()
+                active_status = CandidateStatus.objects.filter(code='searching').first() or CandidateStatus.objects.filter(code='active').first()
                 if active_status:
                     candidate.status = active_status
             candidate.save()
@@ -475,7 +475,7 @@ def candidate_edit(request, gender, pk):
                 except Exception:
                     pass
             elif not saved.status_id:
-                active = CandidateStatus.objects.filter(code='active').first()
+                active = CandidateStatus.objects.filter(code='searching').first() or CandidateStatus.objects.filter(code='active').first()
                 if active:
                     saved.status = active
             saved.save()

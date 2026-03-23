@@ -72,9 +72,12 @@ class BaseCandidateForm(forms.ModelForm):
 def _get_active_status():
     from .models import CandidateStatus
     try:
-        return CandidateStatus.objects.get(code='active')
+        return CandidateStatus.objects.get(code='searching')
     except Exception:
-        return None
+        try:
+            return CandidateStatus.objects.get(code='active')
+        except Exception:
+            return None
 
 
 
@@ -82,6 +85,20 @@ def _get_silver_type():
     from .models import PremiumType
     try:
         return PremiumType.objects.get(code='silver')
+    except Exception:
+        return None
+
+def _get_default_complexion():
+    from .models import Complexion
+    try:
+        return Complexion.objects.get(name='மாநிறம்')
+    except Exception:
+        return None
+
+def _get_default_caste():
+    from .models import Caste
+    try:
+        return Caste.objects.get(name='வன்னியர்')
     except Exception:
         return None
 
@@ -96,6 +113,8 @@ class MaleCandidateForm(BaseCandidateForm):
         if not kwargs.get('instance'):
             self.fields['status'].initial = _get_active_status()
             self.fields['premium_type'].initial = _get_silver_type()
+            self.fields['complexion'].initial = _get_default_complexion()
+            self.fields['caste'].initial = _get_default_caste()
 
 
 class FemaleCandidateForm(BaseCandidateForm):
@@ -109,3 +128,5 @@ class FemaleCandidateForm(BaseCandidateForm):
         if not kwargs.get('instance'):
             self.fields['status'].initial = _get_active_status()
             self.fields['premium_type'].initial = _get_silver_type()
+            self.fields['complexion'].initial = _get_default_complexion()
+            self.fields['caste'].initial = _get_default_caste()
