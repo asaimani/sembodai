@@ -54,7 +54,7 @@
                 <div style="color:#666;font-size:11px;margin-top:3px;">வாழ்க்கை துணை தேடல் - சேவை</div>
             </td>
             <td style="width:25%;text-align:right;vertical-align:top;border:none;padding:0 0 0 8px;">
-                {% if candidate.old_reg_no %}<div style="font-size:11px;color:#555;white-space:nowrap;">ப.பதிவு எண்: {{ candidate.old_reg_no }}</div>{% endif %}
+                {% if candidate.old_reg_no %}<div style="font-size:12px;color:#555;white-space:nowrap;">ப.பதிவு எண்: {{ candidate.old_reg_no }}</div>{% endif %}
                 {% if candidate.sub_caste %}<div style="font-size:12px;color:#555;margin-top:4px;white-space:nowrap;">உட்பிரிவு: {{ candidate.sub_caste }}</div>{% endif %}
             </td>
         </tr>
@@ -74,13 +74,12 @@
 </div>
 
 <!-- UID Banner — name only, no பதிவு எண் -->
-<div class="uid-banner">{{ candidate.name }}</div>
+
 
 <!-- ROW 1: அடிப்படை (65%) | ஜோதிட (35%) -->
 <div style="display:grid;grid-template-columns:60% 40%;gap:10px;margin-bottom:10px;align-items:start;">
 
     <div class="section">
-        <div class="section-title">அடிப்படை விவரங்கள்</div>
         <table class="info-table">
             <tr><td>பெயர்</td><td>{{ candidate.name }}</td></tr>
             <tr><td>பிறந்த தேதி</td><td>{{ candidate.date_of_birth|date:"d/m/Y" }}</td></tr>
@@ -98,7 +97,6 @@
     </div>
 
     <div class="section">
-        <div class="section-title">ஜோதிட விவரங்கள்</div>
         <table class="info-table">
             {% if candidate.tamil_year %}<tr><td>தமிழ் வருடம்</td><td>{{ candidate.tamil_year }}</td></tr>{% endif %}
             {% if candidate.tamil_month %}<tr><td>தமிழ் மாதம்</td><td>{{ candidate.tamil_month }}</td></tr>{% endif %}
@@ -149,7 +147,7 @@
 
 <!-- ROW 3: ஜாதக சக்கரம் -->
 <div class="section">
-    <div class="section-title">ஜாதக சக்கரம்</div>
+    
     <div style="display:flex;gap:2%;justify-content:space-between;">
         <!-- Rasi -->
         <div style="width:48%;">
