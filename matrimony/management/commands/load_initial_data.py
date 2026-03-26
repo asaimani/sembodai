@@ -283,8 +283,7 @@ class Command(BaseCommand):
             'ரெட்டியார்',
         ]
         caste, _ = Caste.objects.get_or_create(name='வன்னியர்')
-        # Remove old sub castes and replace with new list
-        SubCaste.objects.filter(caste=caste).delete()
+        # Only add missing subcaste entries — never delete existing ones
         for i, sc in enumerate(new_sub_castes, 1):
             SubCaste.objects.get_or_create(name=sc, caste=caste, defaults={'order': i})
 
