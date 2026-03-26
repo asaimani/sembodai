@@ -9,83 +9,72 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * { font-family: 'Noto Sans Tamil', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #fff; color: #000; }
-        .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 10mm; background: #fff; }
-        /* Header */
-        .header { border: 2px solid #000; padding: 10px; margin-bottom: 10px; }
-        .header table { width: 100%; border-collapse: collapse; }
-        .header td { border: none; padding: 0; vertical-align: middle; }
-        /* Section titles */
-        .section-title { background: #000; color: #fff; padding: 3px 8px; font-size: 11px; font-weight: 700; margin-bottom: 5px; text-align: center; }
-        /* Info tables */
-        table.info { width: 100%; border-collapse: collapse; }
-        table.info td { padding: 2px 4px; font-size: 10.5px; border-bottom: 1px solid #ddd; vertical-align: top; }
-        table.info td:first-child { color: #444; white-space: nowrap; width: 1%; padding-right: 6px; font-weight: 500; }
-        table.info td:first-child::after { content: ':'; }
-        table.info td:last-child { font-weight: 600; }
-        /* Layout */
-        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-        .section { margin-bottom: 8px; }
-        /* Family table */
-        table.family { width: 100%; border-collapse: collapse; font-size: 10px; }
-        table.family th { background: #000; color: #fff; padding: 3px 5px; text-align: left; }
-        table.family td { padding: 2px 5px; border: 1px solid #ccc; }
-        /* Jathagam */
-        .jathagam-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
-        .jathagam-title { font-size: 10px; font-weight: 700; text-align: center; margin-bottom: 3px; }
+        body { background: #fff; color: #1a1a1a; }
+        .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 12mm; background: #fff; }
+        .header { text-align: center; border: 2px solid #000; padding: 12px; margin-bottom: 12px; }
+        .uid-banner { background: #000; color: #fff; text-align: center; padding: 6px; font-size: 14px; font-weight: 700; margin-bottom: 12px; border-radius: 4px; }
+        .section-title { background: #000; color: #fff; padding: 4px 10px; font-size: 11px; font-weight: 600; margin-bottom: 6px; text-align: center; }
+        table.info-table { width: 100%; border-collapse: collapse; table-layout: auto; }
+        table.info-table td { padding: 2px 5px; font-size: 11px; border-bottom: 1px solid #eee; vertical-align: top; }
+        table.info-table td:first-child { color: #666; white-space: nowrap; width: 1%; font-weight: 500; padding-right: 8px; }
+        table.info-table td:last-child { color: #1a1a1a; font-weight: 600; word-break: break-word; }
+        .section { margin-bottom: 10px; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        table.family-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+        table.family-table th { background: #000; color: #fff; padding: 3px 5px; text-align: left; }
+        table.family-table td { padding: 2px 5px; border: 1px solid #ccc; }
         .jathagam-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .jathagam-table td { border: 1px solid #000; padding: 3px; font-size: 9px; height: 26px; vertical-align: top; text-align: center; width: 25%; }
+        .jathagam-table td { border: 1px solid #000; padding: 3px; font-size: 9px; height: 28px; vertical-align: top; text-align: center; width: 25%; }
         .jathagam-table td.center-cell { background: #eee; font-weight: 700; font-size: 9px; vertical-align: middle; }
-        /* Photo */
-        .photo-box { width: 90px; height: 110px; object-fit: cover; border: 1px solid #000; display: block; }
-        .photo-placeholder { width: 90px; height: 110px; border: 1px dashed #999; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #aaa; }
-        /* Print */
-        @page { margin: 8mm; size: A4; }
+        @page { margin: 10mm; size: A4; }
         @media print {
             .no-print { display: none !important; }
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .page { margin: 0; padding: 5mm; }
+            .page { margin: 0; padding: 8mm; }
         }
     </style>
 </head>
 <body>
 
 <!-- Toolbar -->
-<div class="no-print" style="text-align:center;padding:10px;background:#f8f8f8;margin-bottom:10px;">
-    <button onclick="window.print()" style="background:#000;color:#fff;border:none;padding:8px 20px;border-radius:4px;cursor:pointer;font-family:inherit;">🖨️ அச்சிடு</button>
-    <button id="btn-toggle-address" onclick="toggleAddress()" style="background:#1d4ed8;color:#fff;border:none;padding:8px 20px;border-radius:4px;cursor:pointer;font-family:inherit;margin-left:8px;">முகவரி மறை</button>
-    <button onclick="window.close()" style="background:#666;color:#fff;border:none;padding:8px 20px;border-radius:4px;cursor:pointer;font-family:inherit;margin-left:8px;">✖ மூடு</button>
+<div class="no-print" style="text-align:center;padding:10px;background:#f8f8f8;">
+    <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:8px 16px;display:inline-block;margin-bottom:8px;font-size:12px;color:#856404;">
+        ⚠️ அச்சிடுவதற்கு முன்: Print dialog → <strong>More settings</strong> → <strong>Headers and footers</strong> → <strong>uncheck</strong> செய்யவும்
+    </div><br>
+    <button onclick="window.print()" style="background:#000;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit;">🖨️ அச்சிடு</button>
+    <button id="btn-toggle-address" onclick="toggleAddress()" style="background:#1d4ed8;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px;">முகவரி மறை</button>
+    <button onclick="window.close()" style="background:#666;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px;">✖ மூடு</button>
 </div>
 
 <div class="page">
 
-<!-- Header -->
+<!-- Header — same layout as normal print -->
 <div class="header">
-    <table>
+    <table style="width:100%;border:none;border-collapse:collapse;">
         <tr>
-            <td style="width:18%;text-align:left;" rowspan="2">
-                <img src="{% static 'images/logoprint.png' %}" alt="Logo" style="width:110px;height:110px;object-fit:contain;">
+            <td style="width:20%;text-align:left;vertical-align:middle;border:none;padding:0;" rowspan="2">
+                <img src="{% static 'images/logoprint.png' %}" alt="Logo" style="width:130px;height:130px;object-fit:contain;">
             </td>
-            <td style="width:55%;text-align:center;padding:0 8px;">
-                <div style="font-size:17px;font-weight:700;">செம்போடையார்</div>
-                <div style="font-size:13px;font-weight:700;">வன்னியர் திருமண தகவல் மையம்</div>
-                <div style="font-size:10px;color:#444;margin-top:2px;">வாழ்க்கை துணை தேடல் - சேவை</div>
+            <td style="width:55%;text-align:center;vertical-align:middle;border:none;padding:0 8px;">
+                <div style="font-size:18px;font-weight:700;">செம்போடையார்</div>
+                <div style="font-size:14px;font-weight:700;white-space:nowrap;">வன்னியர் திருமண தகவல் மையம்</div>
+                <div style="color:#666;font-size:11px;margin-top:3px;">வாழ்க்கை துணை தேடல் - சேவை</div>
             </td>
-            <td style="width:27%;text-align:right;vertical-align:top;padding-left:8px;">
-                <div style="font-size:12px;font-weight:700;">பதிவு எண்: {{ candidate.uid }}</div>
-                {% if candidate.old_reg_no %}<div style="font-size:10px;color:#555;margin-top:2px;">ப.பதிவு எண்: {{ candidate.old_reg_no }}</div>{% endif %}
-                {% if candidate.sub_caste %}<div style="font-size:10px;color:#555;margin-top:2px;">உட்பிரிவு: {{ candidate.sub_caste }}</div>{% endif %}
+            <td style="width:25%;text-align:right;vertical-align:top;border:none;padding:0 0 0 8px;">
+                {% if candidate.old_reg_no %}<div style="font-size:11px;color:#555;margin-top:3px;white-space:nowrap;">ப.பதிவு எண்: {{ candidate.old_reg_no }}</div>{% endif %}
+                {% if candidate.sub_caste %}
+                <div style="font-size:12px;color:#555;margin-top:4px;white-space:nowrap;">உட்பிரிவு: {{ candidate.sub_caste }}</div>
+                {% endif %}
             </td>
         </tr>
         {% if admin_profile %}
         <tr>
-            <td colspan="2" style="border-top:1px solid #ccc;padding:4px 8px 0 8px;">
-                <div style="font-size:10px;color:#333;line-height:1.7;">
-                    📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}
+            <td colspan="2" style="border:none;border-top:1px solid #ccc;padding:5px 8px 0 8px;">
+                <div style="font-size:11px;color:#333;line-height:1.8;">
+                    📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}<br>
                     {% if admin_profile.address_line2 %} {{ admin_profile.address_line2 }}{% endif %}
                     {% if admin_profile.address_line3 %} {{ admin_profile.address_line3 }}{% endif %}<br>
-                    📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}
-                    {% if admin_profile.email %} &nbsp;&nbsp;✉ {{ admin_profile.email }}{% endif %}
+                    📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}{% if admin_profile.email %} &nbsp;&nbsp; ✉ {{ admin_profile.email }}{% endif %}
                 </div>
             </td>
         </tr>
@@ -93,12 +82,14 @@
     </table>
 </div>
 
-<!-- ROW 1: Basic + Jothida + Photo -->
-<div style="display:grid;grid-template-columns:1fr 1fr 95px;gap:8px;margin-bottom:8px;align-items:start;">
+<!-- UID Banner -->
+<div class="uid-banner">{{ candidate.uid }} — {{ candidate.name }}</div>
 
+<!-- ROW 1: அடிப்படை (left) | ஜோதிட (right) -->
+<div class="two-col">
     <div>
         <div class="section-title">அடிப்படை விவரங்கள்</div>
-        <table class="info">
+        <table class="info-table">
             {% if candidate.name %}<tr><td>பெயர்</td><td>{{ candidate.name }}</td></tr>{% endif %}
             {% if candidate.date_of_birth %}<tr><td>பிறந்த தேதி</td><td>{{ candidate.date_of_birth|date:"d/m/Y" }} ({{ candidate.age }} வயது)</td></tr>{% endif %}
             {% if candidate.height %}<tr><td>உயரம்</td><td>{{ candidate.height }}</td></tr>{% endif %}
@@ -115,10 +106,9 @@
             {% if candidate.pureveegam %}<tr><td>பூர்வீகம்</td><td>{{ candidate.pureveegam }}</td></tr>{% endif %}
         </table>
     </div>
-
     <div>
         <div class="section-title">ஜோதிட விவரங்கள்</div>
-        <table class="info">
+        <table class="info-table">
             {% if candidate.birth_time %}<tr><td>பிறந்த நேரம்</td><td>{{ candidate.birth_time|format_12hr }}</td></tr>{% endif %}
             {% if candidate.birth_place %}<tr><td>பிறந்த ஊர்</td><td>{{ candidate.birth_place }}</td></tr>{% endif %}
             {% if candidate.tamil_year %}<tr><td>தமிழ் வருடம்</td><td>{{ candidate.tamil_year }}</td></tr>{% endif %}
@@ -134,43 +124,37 @@
             {% if candidate.thisai_iruppu %}<tr><td>திசை இருப்பு</td><td>{{ candidate.thisai_iruppu }}</td></tr>{% endif %}
         </table>
     </div>
-
-    <div>
-        {% if photo_base64 %}
-            <img src="{{ photo_base64 }}" class="photo-box">
-        {% else %}
-            <div class="photo-placeholder">👤</div>
-        {% endif %}
-    </div>
 </div>
 
-<!-- குடும்பத்தினர் விவரம் -->
+<!-- ROW 2: குடும்பத்தினர் -->
 {% if family_members %}
-<div class="section-title">குடும்பத்தினர் விவரம்</div>
-<table class="family" style="margin-bottom:8px;">
-    <thead>
-        <tr><th style="width:3%">#</th><th style="width:18%">பெயர்</th><th style="width:20%">படிப்பு</th><th style="width:8%">உறவு</th><th style="width:8%">திருமணம்</th><th>பணி விவரம்</th></tr>
-    </thead>
-    <tbody>
-        {% for fm in family_members %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ fm.name }}</td>
-            <td>{{ fm.education|default:"-" }}</td>
-            <td>{{ fm.relation|default:"-" }}</td>
-            <td>{{ fm.marital_status|default:"-" }}</td>
-            <td>{{ fm.job_info|default:"-" }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="section" style="margin-bottom:10px;">
+    <div class="section-title">குடும்பத்தினர் விவரம்</div>
+    <table class="family-table">
+        <thead>
+            <tr><th style="width:3%">#</th><th style="width:18%">பெயர்</th><th style="width:20%">படிப்பு</th><th style="width:10%">உறவு</th><th style="width:10%">திருமணம்</th><th>பணி விவரம்</th></tr>
+        </thead>
+        <tbody>
+            {% for fm in family_members %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ fm.name }}</td>
+                <td>{{ fm.education|default:"-" }}</td>
+                <td>{{ fm.relation|default:"-" }}</td>
+                <td>{{ fm.marital_status|default:"-" }}</td>
+                <td>{{ fm.job_info|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endif %}
 
-<!-- ஜாதக சக்கரம் -->
+<!-- ROW 3: ஜாதக சக்கரம் -->
 <div class="section-title">ஜாதக சக்கரம்</div>
-<div class="jathagam-grid" style="margin-bottom:8px;">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
     <div>
-        <div class="jathagam-title">ராசி</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;margin-bottom:3px;">ராசி</div>
         <table class="jathagam-table">
             <tr>
                 <td>{% house_display jathagam_map 'R' 12 %}</td>
@@ -196,7 +180,7 @@
         </table>
     </div>
     <div>
-        <div class="jathagam-title">நவாம்சம்</div>
+        <div style="text-align:center;font-size:10px;font-weight:700;margin-bottom:3px;">நவாம்சம்</div>
         <table class="jathagam-table">
             <tr>
                 <td>{% house_display jathagam_map 'N' 12 %}</td>
@@ -223,31 +207,45 @@
     </div>
 </div>
 
-<!-- முகவரி -->
-<div id="address-section">
-    <div class="section-title">முகவரி</div>
-    <div style="font-size:11px;line-height:1.8;">
-        {% if candidate.address_name %}<div style="font-weight:600;">{{ candidate.address_name }},</div>{% endif %}
-        {% if candidate.address_line1 %}<div>{{ candidate.address_line1 }},</div>{% endif %}
-        {% if candidate.address_line2 %}<div>{{ candidate.address_line2 }},</div>{% endif %}
-        <div>{% if candidate.address_line3 %}{{ candidate.address_line3 }},{% endif %} {% if candidate.pincode %}{{ candidate.pincode }}.{% endif %}</div>
-        <div style="margin-top:4px;">
-            {% if candidate.mobile_number %}📞 {{ candidate.mobile_number }}.{% endif %}
-            {% if candidate.whatsapp_number %}&nbsp;&nbsp;<i class="fab fa-whatsapp" style="color:#25D366;font-size:12px;"></i> {{ candidate.whatsapp_number }}.{% endif %}
+<!-- ROW 4: முகவரி (left) | Photo (right) -->
+<div style="display:grid;grid-template-columns:1fr 135px;gap:10px;align-items:start;margin-bottom:10px;">
+
+    <div>
+        <!-- Disclaimer when address hidden -->
+        <div id="no-address-notice" style="display:none;">
+            <div style="font-size:11px;font-weight:700;margin-bottom:5px;">செம்போடையார் வன்னியர் திருமண தகவல் மையம்</div>
+            <ul style="font-size:10px;line-height:1.8;color:#333;margin:0;padding-left:14px;list-style-type:disc;">
+                <li>கடந்த 30 ஆண்டுகளாக நம்பிக்கையான திருமண சேவையை வழங்கி வருகிறோம்.</li>
+                <li>பாதுகாப்பு கருதி, முகவரி இல்லாத சுயவிவரங்களை (Bio-data) மட்டும் அனுப்பியுள்ளோம்.</li>
+                <li>எங்கள் சேவையில் எவ்வித தரகு (Brokerage) அல்லது கமிஷன் (%) கட்டணமும் கண்டிப்பாக கிடையாது.</li>
+                <li>இந்த வரன் பிடித்திருந்தால், மேலும் விவரங்களுக்கு எங்களைத் தொடர்பு கொள்ளவும்.</li>
+                <li>அளவற்ற வரன்களின் விவரங்களை அன்போடு வழங்குகிறோம்; எங்கள் சந்தா 1 வருடத்திற்கு ₹2500 மட்டுமே.</li>
+            </ul>
+        </div>
+
+        <div class="section" id="address-section">
+            <div class="section-title">முகவரி</div>
+            <div style="font-size:11px;line-height:1.8;">
+                {% if candidate.address_name %}<div style="font-weight:600;">{{ candidate.address_name }},</div>{% endif %}
+                {% if candidate.address_line1 %}<div>{{ candidate.address_line1 }},</div>{% endif %}
+                {% if candidate.address_line2 %}<div>{{ candidate.address_line2 }},</div>{% endif %}
+                <div>{% if candidate.address_line3 %}{{ candidate.address_line3 }},{% endif %} {% if candidate.pincode %}{{ candidate.pincode }}.{% endif %}</div>
+                <div style="margin-top:4px;">
+                    {% if candidate.mobile_number %}📞 {{ candidate.mobile_number }}.{% endif %}
+                    {% if candidate.whatsapp_number %}&nbsp;&nbsp;<i class="fab fa-whatsapp" style="color:#25D366;font-size:12px;"></i> {{ candidate.whatsapp_number }}.{% endif %}
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Disclaimer when address hidden -->
-<div id="no-address-notice" style="display:none;">
-    <div style="font-size:11px;font-weight:700;margin-bottom:5px;">செம்போடையார் வன்னியர் திருமண தகவல் மையம்</div>
-    <ul style="font-size:10px;line-height:1.8;color:#333;margin:0;padding-left:14px;list-style-type:disc;">
-        <li>கடந்த 30 ஆண்டுகளாக நம்பிக்கையான திருமண சேவையை வழங்கி வருகிறோம்.</li>
-        <li>பாதுகாப்பு கருதி, முகவரி இல்லாத சுயவிவரங்களை (Bio-data) மட்டும் அனுப்பியுள்ளோம்.</li>
-        <li>எங்கள் சேவையில் எவ்விதமான தரகு (Brokerage) அல்லது கமிஷன் (%) கட்டணமும் கண்டிப்பாக கிடையாது.</li>
-        <li>இந்த வரன் பிடித்திருந்தால், மேலும் விவரங்களுக்கு எங்களைத் தொடர்பு கொள்ளவும்.</li>
-        <li>அளவற்ற வரன்களின் விவரங்களை அன்போடு வழங்குகிறோம்; எங்கள் சந்தா 1 வருடத்திற்கு ₹2500, 6 மாதத்திற்கு ₹1500 மட்டுமே.</li>
-    </ul>
+    <!-- Photo -->
+    <div style="text-align:right;">
+        {% if photo_base64 %}
+            <img src="{{ photo_base64 }}" style="width:130px;height:155px;object-fit:cover;border:2px solid #000;display:block;">
+        {% else %}
+            <div style="width:130px;height:155px;display:flex;align-items:center;justify-content:center;border:2px dashed #999;font-size:40px;color:#ccc;">👤</div>
+        {% endif %}
+    </div>
 </div>
 
 </div><!-- end .page -->
@@ -256,8 +254,8 @@
 function toggleAddress() {
     var section = document.getElementById('address-section');
     var notice  = document.getElementById('no-address-notice');
-    var btn = document.getElementById('btn-toggle-address');
-    var hidden = section.style.display === 'none';
+    var btn     = document.getElementById('btn-toggle-address');
+    var hidden  = section.style.display === 'none';
     section.style.display = hidden ? '' : 'none';
     notice.style.display  = hidden ? 'none' : 'block';
     btn.textContent = hidden ? 'முகவரி மறை' : 'முகவரி காட்டு';
