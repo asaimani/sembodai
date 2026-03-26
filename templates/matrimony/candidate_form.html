@@ -19,7 +19,7 @@ var BAMINI_MAP = {
 'M': 'ஆ', 'N': 'ே', 'O': 'ழூ', 'P': 'ீ', 'Q': 'ஞ', 'R': 'சு',
 'S': 'ளு', 'T': 'வு', 'U': 'ரு', 'V': 'ஏ', 'W': 'று', 'X': 'ஓ',
 'Y': 'லு', 'Z': 'ணு',
-'ண}': 'ணூ', 'd}': 'னூ', 'j}': 'தூ', 'y}': 'லூ', 'w}': 'றூ',
+
 // Modifiers & Special
 '`': 'ஷ', '=': 'ஸ்ரீ',  '@':  'ளு',
 '#': 'சூ', '$': 'கூ' ,  '%': 'மூ', 
@@ -27,6 +27,12 @@ var BAMINI_MAP = {
 ',': 'இ', '/': 'ஃ',    ';': '்', 
 
 };
+
+// Two-key combos: first key + second key => output
+var BAMINI_COMBO = {
+  'z}': 'ணூ', 'd}': 'னூ', 'j}': 'தூ', 'y}': 'லூ', 'w}': 'றூ',
+};
+var _baminiPending = {};  // track pending first key per input element id
 </script>
 <form method="post" enctype="multipart/form-data">
 
@@ -584,6 +590,24 @@ function handleJobKeydown(e) {
   if (e.key.length !== 1) return;
   e.preventDefault();
   var key = e.shiftKey ? e.key.toUpperCase() : e.key;
+  var inputId = e.target.id || e.target.name || 'default';
+  // Check two-key combo
+  if (_baminiPending[inputId]) {
+    var combo = _baminiPending[inputId] + key;
+    delete _baminiPending[inputId];
+    if (BAMINI_COMBO[combo] !== undefined) {
+      e.preventDefault();
+      var s = e.target.selectionStart, en = e.target.selectionEnd;
+      // Remove the pending char already inserted and replace with combo
+      e.target.value = e.target.value.slice(0, s - 1) + BAMINI_COMBO[combo] + e.target.value.slice(en);
+      e.target.selectionStart = e.target.selectionEnd = s - 1 + BAMINI_COMBO[combo].length;
+      return;
+    }
+  }
+  // Check if this key starts a combo
+  var startsCombo = Object.keys(BAMINI_COMBO).some(function(k){ return k[0] === key; });
+  if (startsCombo) { _baminiPending[inputId] = key; }
+  else { delete _baminiPending[inputId]; }
   var ch = (BAMINI_MAP[key] !== undefined) ? BAMINI_MAP[key] : e.key;
   var s = input.selectionStart, en = input.selectionEnd;
   input.value = input.value.slice(0,s) + ch + input.value.slice(en);
@@ -637,6 +661,24 @@ document.addEventListener('keydown', function(e) {
   e.preventDefault();
   var input = e.target;
   var key = e.shiftKey ? e.key.toUpperCase() : e.key;
+  var inputId = e.target.id || e.target.name || 'default';
+  // Check two-key combo
+  if (_baminiPending[inputId]) {
+    var combo = _baminiPending[inputId] + key;
+    delete _baminiPending[inputId];
+    if (BAMINI_COMBO[combo] !== undefined) {
+      e.preventDefault();
+      var s = e.target.selectionStart, en = e.target.selectionEnd;
+      // Remove the pending char already inserted and replace with combo
+      e.target.value = e.target.value.slice(0, s - 1) + BAMINI_COMBO[combo] + e.target.value.slice(en);
+      e.target.selectionStart = e.target.selectionEnd = s - 1 + BAMINI_COMBO[combo].length;
+      return;
+    }
+  }
+  // Check if this key starts a combo
+  var startsCombo = Object.keys(BAMINI_COMBO).some(function(k){ return k[0] === key; });
+  if (startsCombo) { _baminiPending[inputId] = key; }
+  else { delete _baminiPending[inputId]; }
   var ch = (BAMINI_MAP[key] !== undefined) ? BAMINI_MAP[key] : e.key;
   var s = input.selectionStart, en = input.selectionEnd;
   input.value = input.value.slice(0, s) + ch + input.value.slice(en);
@@ -665,6 +707,24 @@ document.addEventListener('keydown', function(e) {
   if (e.key.length !== 1) return;
   e.preventDefault();
   var key = e.shiftKey ? e.key.toUpperCase() : e.key;
+  var inputId = e.target.id || e.target.name || 'default';
+  // Check two-key combo
+  if (_baminiPending[inputId]) {
+    var combo = _baminiPending[inputId] + key;
+    delete _baminiPending[inputId];
+    if (BAMINI_COMBO[combo] !== undefined) {
+      e.preventDefault();
+      var s = e.target.selectionStart, en = e.target.selectionEnd;
+      // Remove the pending char already inserted and replace with combo
+      e.target.value = e.target.value.slice(0, s - 1) + BAMINI_COMBO[combo] + e.target.value.slice(en);
+      e.target.selectionStart = e.target.selectionEnd = s - 1 + BAMINI_COMBO[combo].length;
+      return;
+    }
+  }
+  // Check if this key starts a combo
+  var startsCombo = Object.keys(BAMINI_COMBO).some(function(k){ return k[0] === key; });
+  if (startsCombo) { _baminiPending[inputId] = key; }
+  else { delete _baminiPending[inputId]; }
   var ch = (BAMINI_MAP[key] !== undefined) ? BAMINI_MAP[key] : e.key;
   var input = e.target;
   var s = input.selectionStart, en = input.selectionEnd;
@@ -697,6 +757,21 @@ function setupBamini(fid) {
     if (e.key.length !== 1) return;
     e.preventDefault();
     var key = e.shiftKey ? e.key.toUpperCase() : e.key;
+    var inputId = el.id || el.name || 'default';
+    if (_baminiPending[inputId]) {
+      var combo = _baminiPending[inputId] + key;
+      delete _baminiPending[inputId];
+      if (BAMINI_COMBO[combo] !== undefined) {
+        e.preventDefault();
+        var s2 = el.selectionStart, en2 = el.selectionEnd;
+        el.value = el.value.slice(0, s2 - 1) + BAMINI_COMBO[combo] + el.value.slice(en2);
+        el.selectionStart = el.selectionEnd = s2 - 1 + BAMINI_COMBO[combo].length;
+        return;
+      }
+    }
+    var startsCombo2 = Object.keys(BAMINI_COMBO).some(function(k){ return k[0] === key; });
+    if (startsCombo2) { _baminiPending[inputId] = key; }
+    else { delete _baminiPending[inputId]; }
     var ch = (BAMINI_MAP[key] !== undefined) ? BAMINI_MAP[key] : e.key;
     var s = el.selectionStart, en = el.selectionEnd;
     el.value = el.value.slice(0, s) + ch + el.value.slice(en);
