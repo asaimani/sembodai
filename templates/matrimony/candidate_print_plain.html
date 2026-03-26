@@ -19,13 +19,6 @@
         table.info-table td:first-child { color: #666; white-space: nowrap; width: 1%; font-weight: 500; padding-right: 8px; }
         table.info-table td:last-child { color: #1a1a1a; font-weight: 600; word-break: break-word; }
         .section { margin-bottom: 10px; }
-        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        table.family-table { width: 100%; border-collapse: collapse; font-size: 10px; }
-        table.family-table th { background: #000; color: #fff; padding: 3px 5px; text-align: left; }
-        table.family-table td { padding: 2px 5px; border: 1px solid #ccc; }
-        .jathagam-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .jathagam-table td { border: 1px solid #000; padding: 3px; font-size: 9px; height: 28px; vertical-align: top; text-align: center; width: 25%; }
-        .jathagam-table td.center-cell { background: #eee; font-weight: 700; font-size: 9px; vertical-align: middle; }
         @page { margin: 10mm; size: A4; }
         @media print {
             .no-print { display: none !important; }
@@ -48,7 +41,7 @@
 
 <div class="page">
 
-<!-- Header — same layout as normal print -->
+<!-- Header -->
 <div class="header">
     <table style="width:100%;border:none;border-collapse:collapse;">
         <tr>
@@ -61,10 +54,8 @@
                 <div style="color:#666;font-size:11px;margin-top:3px;">வாழ்க்கை துணை தேடல் - சேவை</div>
             </td>
             <td style="width:25%;text-align:right;vertical-align:top;border:none;padding:0 0 0 8px;">
-                {% if candidate.old_reg_no %}<div style="font-size:11px;color:#555;margin-top:3px;white-space:nowrap;">ப.பதிவு எண்: {{ candidate.old_reg_no }}</div>{% endif %}
-                {% if candidate.sub_caste %}
-                <div style="font-size:12px;color:#555;margin-top:4px;white-space:nowrap;">உட்பிரிவு: {{ candidate.sub_caste }}</div>
-                {% endif %}
+                {% if candidate.old_reg_no %}<div style="font-size:11px;color:#555;white-space:nowrap;">ப.பதிவு எண்: {{ candidate.old_reg_no }}</div>{% endif %}
+                {% if candidate.sub_caste %}<div style="font-size:12px;color:#555;margin-top:4px;white-space:nowrap;">உட்பிரிவு: {{ candidate.sub_caste }}</div>{% endif %}
             </td>
         </tr>
         {% if admin_profile %}
@@ -72,9 +63,9 @@
             <td colspan="2" style="border:none;border-top:1px solid #ccc;padding:5px 8px 0 8px;">
                 <div style="font-size:11px;color:#333;line-height:1.8;">
                     📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}<br>
-                    {% if admin_profile.address_line2 %} {{ admin_profile.address_line2 }}{% endif %}
+                    {% if admin_profile.address_line2 %}{{ admin_profile.address_line2 }}{% endif %}
                     {% if admin_profile.address_line3 %} {{ admin_profile.address_line3 }}{% endif %}<br>
-                    📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}{% if admin_profile.email %} &nbsp;&nbsp; ✉ {{ admin_profile.email }}{% endif %}
+                    📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}{% if admin_profile.email %} &nbsp;&nbsp;✉ {{ admin_profile.email }}{% endif %}
                 </div>
             </td>
         </tr>
@@ -82,67 +73,73 @@
     </table>
 </div>
 
-<!-- UID Banner -->
-<div class="uid-banner">{{ candidate.uid }} — {{ candidate.name }}</div>
+<!-- UID Banner — name only, no பதிவு எண் -->
+<div class="uid-banner">{{ candidate.name }}</div>
 
-<!-- ROW 1: அடிப்படை (left) | ஜோதிட (right) -->
-<div class="two-col">
-    <div>
+<!-- ROW 1: அடிப்படை (65%) | ஜோதிட (35%) -->
+<div style="display:grid;grid-template-columns:65% 35%;gap:10px;margin-bottom:10px;align-items:start;">
+
+    <div class="section">
         <div class="section-title">அடிப்படை விவரங்கள்</div>
         <table class="info-table">
-            {% if candidate.name %}<tr><td>பெயர்</td><td>{{ candidate.name }}</td></tr>{% endif %}
-            {% if candidate.date_of_birth %}<tr><td>பிறந்த தேதி</td><td>{{ candidate.date_of_birth|date:"d/m/Y" }} ({{ candidate.age }} வயது)</td></tr>{% endif %}
-            {% if candidate.height %}<tr><td>உயரம்</td><td>{{ candidate.height }}</td></tr>{% endif %}
-            {% if candidate.complexion %}<tr><td>நிறம்</td><td>{{ candidate.complexion }}</td></tr>{% endif %}
-            {% if candidate.caste %}<tr><td>சாதி</td><td>{{ candidate.caste }}</td></tr>{% endif %}
-            {% if candidate.sub_caste %}<tr><td>உட்பிரிவு</td><td>{{ candidate.sub_caste }}</td></tr>{% endif %}
-            {% if candidate.birth_order %}<tr><td>பிறப்பு வரிசை</td><td>{{ candidate.birth_order }}</td></tr>{% endif %}
-            {% if candidate.education %}<tr><td>கல்வி</td><td>{{ candidate.education }}</td></tr>{% endif %}
+            <tr><td>பெயர்</td><td>{{ candidate.name }}</td></tr>
+            <tr><td>பிறந்த தேதி</td><td>{{ candidate.date_of_birth|date:"d/m/Y" }}</td></tr>
+            {% if candidate.educational_qualification %}<tr><td>கல்வி</td><td>{{ candidate.educational_qualification }}</td></tr>{% endif %}
             {% if candidate.profession %}<tr><td>பணி</td><td>{{ candidate.profession }}</td></tr>{% endif %}
-            {% if candidate.organization %}<tr><td>அலுவலகம்</td><td>{{ candidate.organization }}</td></tr>{% endif %}
+            {% if candidate.profession_comments %}<tr><td>அலுவலகம்</td><td>{{ candidate.profession_comments }}</td></tr>{% endif %}
             {% if candidate.monthly_salary %}<tr><td>மாத வருமானம்</td><td>{{ candidate.monthly_salary|amount_in_tamil_words }}</td></tr>{% endif %}
-            {% if candidate.property_value %}<tr><td>நிலம்</td><td>{{ candidate.property_value }}</td></tr>{% endif %}
+            {% if candidate.complexion %}<tr><td>நிறம்</td><td>{{ candidate.complexion }}</td></tr>{% endif %}
+            {% if candidate.height %}<tr><td>உயரம்</td><td>{{ candidate.height }}</td></tr>{% endif %}
+            {% if candidate.birth_order %}<tr><td>பிறப்பு வரிசை</td><td>{{ candidate.birth_order }}</td></tr>{% endif %}
             {% if candidate.own_house %}<tr><td>சொந்த வீடு</td><td>{{ candidate.own_house }}</td></tr>{% endif %}
-            {% if candidate.pureveegam %}<tr><td>பூர்வீகம்</td><td>{{ candidate.pureveegam }}</td></tr>{% endif %}
+            {% if candidate.property_value %}<tr><td>நிலம்</td><td>{{ candidate.property_value }}</td></tr>{% endif %}
+            {% if candidate.native_place %}<tr><td>பூர்வீகம்</td><td>{{ candidate.native_place }}</td></tr>{% endif %}
         </table>
     </div>
-    <div>
+
+    <div class="section">
         <div class="section-title">ஜோதிட விவரங்கள்</div>
         <table class="info-table">
-            {% if candidate.birth_time %}<tr><td>பிறந்த நேரம்</td><td>{{ candidate.birth_time|format_12hr }}</td></tr>{% endif %}
-            {% if candidate.birth_place %}<tr><td>பிறந்த ஊர்</td><td>{{ candidate.birth_place }}</td></tr>{% endif %}
             {% if candidate.tamil_year %}<tr><td>தமிழ் வருடம்</td><td>{{ candidate.tamil_year }}</td></tr>{% endif %}
             {% if candidate.tamil_month %}<tr><td>தமிழ் மாதம்</td><td>{{ candidate.tamil_month }}</td></tr>{% endif %}
             {% if candidate.tamil_date %}<tr><td>தமிழ் தேதி</td><td>{{ candidate.tamil_date }}</td></tr>{% endif %}
             {% if candidate.tamil_kizhamai %}<tr><td>தமிழ் கிழமை</td><td>{{ candidate.tamil_kizhamai }}</td></tr>{% endif %}
+            {% if candidate.birth_time %}<tr><td>பிறந்த நேரம்</td><td>{{ candidate.birth_time|time:"h:i A" }}</td></tr>{% endif %}
             {% if candidate.rasi %}<tr><td>ராசி</td><td>{{ candidate.rasi }}</td></tr>{% endif %}
             {% if candidate.nachathiram %}<tr><td>நட்சத்திரம்</td><td>{{ candidate.nachathiram }}</td></tr>{% endif %}
             {% if candidate.lagnam %}<tr><td>லக்னம்</td><td>{{ candidate.lagnam }}</td></tr>{% endif %}
             {% if candidate.sevadosham %}<tr><td>செ. தோஷம்</td><td>{{ candidate.sevadosham }}</td></tr>{% endif %}
             {% if candidate.ragu_kethu %}<tr><td>ராகு/கேது</td><td>{{ candidate.ragu_kethu }}</td></tr>{% endif %}
-            {% if candidate.native_place %}<tr><td>பிறந்த ஊர்</td><td>{{ candidate.native_place }}</td></tr>{% endif %}
             {% if candidate.thisai_iruppu %}<tr><td>திசை இருப்பு</td><td>{{ candidate.thisai_iruppu }}</td></tr>{% endif %}
+            {% if candidate.birth_place %}<tr><td>பிறந்த ஊர்</td><td>{{ candidate.birth_place }}</td></tr>{% endif %}
         </table>
     </div>
 </div>
 
-<!-- ROW 2: குடும்பத்தினர் -->
+<!-- ROW 2: குடும்பத்தினர் விவரம் -->
 {% if family_members %}
-<div class="section" style="margin-bottom:10px;">
+<div class="section">
     <div class="section-title">குடும்பத்தினர் விவரம்</div>
-    <table class="family-table">
+    <table style="width:100%;border-collapse:collapse;font-size:10px;">
         <thead>
-            <tr><th style="width:3%">#</th><th style="width:18%">பெயர்</th><th style="width:20%">படிப்பு</th><th style="width:10%">உறவு</th><th style="width:10%">திருமணம்</th><th>பணி விவரம்</th></tr>
+            <tr style="background:#000;color:#fff;">
+                <th style="padding:4px;border:1px solid #ccc;text-align:left;width:3%">#</th>
+                <th style="padding:4px;border:1px solid #ccc;text-align:left;width:18%">பெயர்</th>
+                <th style="padding:4px;border:1px solid #ccc;text-align:left;width:20%">படிப்பு</th>
+                <th style="padding:4px;border:1px solid #ccc;text-align:left;width:8%">உறவு</th>
+                <th style="padding:4px;border:1px solid #ccc;text-align:left;width:8%">திருமணம்</th>
+                <th style="padding:4px;border:1px solid #ccc;text-align:left;">பணி விவரம்</th>
+            </tr>
         </thead>
         <tbody>
             {% for fm in family_members %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ fm.name }}</td>
-                <td>{{ fm.education|default:"-" }}</td>
-                <td>{{ fm.relation|default:"-" }}</td>
-                <td>{{ fm.marital_status|default:"-" }}</td>
-                <td>{{ fm.job_info|default:"-" }}</td>
+            <tr style="background:{% if forloop.counter|divisibleby:2 %}#f5f5f5{% else %}white{% endif %};">
+                <td style="padding:4px;border:1px solid #ccc;">{{ forloop.counter }}</td>
+                <td style="padding:4px;border:1px solid #ccc;">{{ fm.name }}</td>
+                <td style="padding:4px;border:1px solid #ccc;">{{ fm.education|default:"-" }}</td>
+                <td style="padding:4px;border:1px solid #ccc;">{{ fm.relation|default:"-" }}</td>
+                <td style="padding:4px;border:1px solid #ccc;">{{ fm.marital_status|default:"-" }}</td>
+                <td style="padding:4px;border:1px solid #ccc;">{{ fm.job_info|default:"-" }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -151,59 +148,61 @@
 {% endif %}
 
 <!-- ROW 3: ஜாதக சக்கரம் -->
-<div class="section-title">ஜாதக சக்கரம்</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-    <div>
-        <div style="text-align:center;font-size:10px;font-weight:700;margin-bottom:3px;">ராசி</div>
-        <table class="jathagam-table">
-            <tr>
-                <td>{% house_display jathagam_map 'R' 12 %}</td>
-                <td>{% house_display jathagam_map 'R' 1 %}</td>
-                <td>{% house_display jathagam_map 'R' 2 %}</td>
-                <td>{% house_display jathagam_map 'R' 3 %}</td>
-            </tr>
-            <tr>
-                <td>{% house_display jathagam_map 'R' 11 %}</td>
-                <td colspan="2" rowspan="2" class="center-cell">ராசி</td>
-                <td>{% house_display jathagam_map 'R' 4 %}</td>
-            </tr>
-            <tr>
-                <td>{% house_display jathagam_map 'R' 10 %}</td>
-                <td>{% house_display jathagam_map 'R' 5 %}</td>
-            </tr>
-            <tr>
-                <td>{% house_display jathagam_map 'R' 9 %}</td>
-                <td>{% house_display jathagam_map 'R' 8 %}</td>
-                <td>{% house_display jathagam_map 'R' 7 %}</td>
-                <td>{% house_display jathagam_map 'R' 6 %}</td>
-            </tr>
-        </table>
-    </div>
-    <div>
-        <div style="text-align:center;font-size:10px;font-weight:700;margin-bottom:3px;">நவாம்சம்</div>
-        <table class="jathagam-table">
-            <tr>
-                <td>{% house_display jathagam_map 'N' 12 %}</td>
-                <td>{% house_display jathagam_map 'N' 1 %}</td>
-                <td>{% house_display jathagam_map 'N' 2 %}</td>
-                <td>{% house_display jathagam_map 'N' 3 %}</td>
-            </tr>
-            <tr>
-                <td>{% house_display jathagam_map 'N' 11 %}</td>
-                <td colspan="2" rowspan="2" class="center-cell">நவாம்சம்</td>
-                <td>{% house_display jathagam_map 'N' 4 %}</td>
-            </tr>
-            <tr>
-                <td>{% house_display jathagam_map 'N' 10 %}</td>
-                <td>{% house_display jathagam_map 'N' 5 %}</td>
-            </tr>
-            <tr>
-                <td>{% house_display jathagam_map 'N' 9 %}</td>
-                <td>{% house_display jathagam_map 'N' 8 %}</td>
-                <td>{% house_display jathagam_map 'N' 7 %}</td>
-                <td>{% house_display jathagam_map 'N' 6 %}</td>
-            </tr>
-        </table>
+<div class="section">
+    <div class="section-title">ஜாதக சக்கரம்</div>
+    <div style="display:flex;gap:2%;justify-content:space-between;">
+        <!-- Rasi -->
+        <div style="width:48%;">
+            <table style="width:100%;border-collapse:collapse;border:1px solid #000;">
+                <tr>
+                    <td style="width:25%;height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 12 %}</td>
+                    <td style="width:25%;height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 1 %}</td>
+                    <td style="width:25%;height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 2 %}</td>
+                    <td style="width:25%;height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 3 %}</td>
+                </tr>
+                <tr>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 11 %}</td>
+                    <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #000;background:#eee;font-weight:700;font-size:11px;">ராசி</td>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 4 %}</td>
+                </tr>
+                <tr>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 10 %}</td>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 5 %}</td>
+                </tr>
+                <tr>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 9 %}</td>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 8 %}</td>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 7 %}</td>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 6 %}</td>
+                </tr>
+            </table>
+        </div>
+        <!-- Navamsam -->
+        <div style="width:48%;">
+            <table style="width:100%;border-collapse:collapse;border:1px solid #000;">
+                <tr>
+                    <td style="width:25%;height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 12 %}</td>
+                    <td style="width:25%;height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 1 %}</td>
+                    <td style="width:25%;height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 2 %}</td>
+                    <td style="width:25%;height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 3 %}</td>
+                </tr>
+                <tr>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 11 %}</td>
+                    <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #000;background:#eee;font-weight:700;font-size:11px;">நவாம்சம்</td>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 4 %}</td>
+                </tr>
+                <tr>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 10 %}</td>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 5 %}</td>
+                </tr>
+                <tr>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 9 %}</td>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 8 %}</td>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 7 %}</td>
+                    <td style="height:45px;border:1px solid #000;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 6 %}</td>
+                </tr>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -211,7 +210,6 @@
 <div style="display:grid;grid-template-columns:1fr 135px;gap:10px;align-items:start;margin-bottom:10px;">
 
     <div>
-        <!-- Disclaimer when address hidden -->
         <div id="no-address-notice" style="display:none;">
             <div style="font-size:11px;font-weight:700;margin-bottom:5px;">செம்போடையார் வன்னியர் திருமண தகவல் மையம்</div>
             <ul style="font-size:10px;line-height:1.8;color:#333;margin:0;padding-left:14px;list-style-type:disc;">
@@ -222,7 +220,6 @@
                 <li>அளவற்ற வரன்களின் விவரங்களை அன்போடு வழங்குகிறோம்; எங்கள் சந்தா 1 வருடத்திற்கு ₹2500 மட்டுமே.</li>
             </ul>
         </div>
-
         <div class="section" id="address-section">
             <div class="section-title">முகவரி</div>
             <div style="font-size:11px;line-height:1.8;">
@@ -238,7 +235,6 @@
         </div>
     </div>
 
-    <!-- Photo -->
     <div style="text-align:right;">
         {% if photo_base64 %}
             <img src="{{ photo_base64 }}" style="width:130px;height:155px;object-fit:cover;border:2px solid #000;display:block;">
@@ -248,7 +244,7 @@
     </div>
 </div>
 
-</div><!-- end .page -->
+</div>
 
 <script>
 function toggleAddress() {
