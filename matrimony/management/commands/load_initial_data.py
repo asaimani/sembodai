@@ -36,7 +36,7 @@ class Command(BaseCommand):
             'அவிட்டம் 1,2', 'அவிட்டம் 3,4',
             'பூரட்டாதி 1,2,3', 'பூரட்டாதி 4',
         ]
-        Nachathiram.objects.filter(name__in=old_combined).delete()
+        # Skip deleting old nachathirams — candidates may still reference them
         for rasi_name, nachs in rasis_data:
             rasi, _ = Rasi.objects.get_or_create(name=rasi_name)
             for n in nachs:
@@ -88,10 +88,18 @@ class Command(BaseCommand):
             (29, 'லக்,சு',   'லக்னம் + சுக்கிரன்'),
             (30, 'லக்,சனி',  'லக்னம் + சனி'),
         ]
-        # Update planets — wipe and recreate cleanly to avoid duplicates
-        Planet.objects.all().delete()
+        # Update planets safely — never delete, update in place by order
+        # This preserves all existing FK references from JathagamEntry
         for order, code, name in planets:
-            Planet.objects.create(code=code, name=name, order=order)
+            existing = Planet.objects.filter(order=order).first()
+            if existing:
+                # Update code and name in place — FK references stay intact
+                existing.code = code
+                existing.name = name
+                existing.save()
+            else:
+                # Only create if this order doesn't exist yet
+                Planet.objects.get_or_create(code=code, defaults={'name': name, 'order': order})
 
         # ── Sevadosham ──
         # Clear old entries first
