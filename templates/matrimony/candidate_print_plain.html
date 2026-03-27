@@ -48,7 +48,7 @@
 
         /* Info tables */
         table.info-table { width: 100%; border-collapse: collapse; }
-        table.info-table td { padding: 2px 5px; font-size: 11px; border-bottom: 1px solid #e8d9a0; vertical-align: top; }
+        table.info-table td { padding: 2px 5px; font-size: 11px; border-bottom: none; vertical-align: top; }
         table.info-table td:first-child { color: var(--navy); white-space: nowrap; width: 1%; font-weight: 600; padding-right: 8px; }
         table.info-table td:last-child  { color: #1a1a1a; font-weight: 500; word-break: break-word; }
 
@@ -112,7 +112,7 @@
         <tr>
             <td colspan="2" style="border:none;" class="header-divider">
                 <div class="header-admin">
-                    📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}
+                    📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}<br>
                     {% if admin_profile.address_line2 %} {{ admin_profile.address_line2 }}{% endif %}
                     {% if admin_profile.address_line3 %} {{ admin_profile.address_line3 }}{% endif %}<br>
                     📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}{% if admin_profile.email %} &nbsp;&nbsp;✉ {{ admin_profile.email }}{% endif %}
