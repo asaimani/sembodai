@@ -63,7 +63,7 @@
         /* Jathagam */
         .jathagam-outer { width: 100%; border-collapse: collapse; border: 2px solid var(--gold); background: var(--cream); }
         .jathagam-outer td { border: 1px solid var(--gold2); padding: 3px; font-size: 10px; font-weight: 600; height: 45px; vertical-align: middle; text-align: center; width: 25%; }
-        .jathagam-center { background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%); color: var(--gold2); font-weight: 700; font-size: 11px; }
+        .jathagam-center { background: #fff; color: #1a1a1a; font-weight: 700; font-size: 11px; border: 1px solid var(--gold2); }
 
         /* Photo */
         .photo-img { width: 130px; height: 155px; object-fit: cover; border: 2px solid var(--gold); display: block; }
@@ -96,12 +96,12 @@
     <table style="width:100%;border:none;border-collapse:collapse;">
         <tr>
             <td style="width:20%;text-align:left;vertical-align:middle;border:none;padding:0;" rowspan="2">
-                <img src="{% static 'images/bluelogo.png' %}" alt="Logo" style="width:130px;height:130px;object-fit:contain;">
+                <img src="{% static 'images/blueprintlogo.png' %}" alt="Logo" style="width:130px;height:130px;object-fit:contain;">
             </td>
             <td style="width:55%;text-align:center;vertical-align:middle;border:none;padding:0 8px;">
-                <div class="header-title-main">செம்போடையார்</div>
-                <div class="header-title-sub">வன்னியர் திருமண தகவல் மையம்</div>
-                <div class="header-tagline">வாழ்க்கை துணை தேடல் - சேவை</div>
+                <div style="font-size:18px;font-weight:700;color:var(--navy);">செம்போடையார்</div>
+                <div style="font-size:14px;font-weight:700;color:var(--navy);white-space:nowrap;">வன்னியர் திருமண தகவல் மையம்</div>
+                <div style="color:var(--gold);font-size:11px;margin-top:3px;">வாழ்க்கை துணை தேடல் - சேவை</div>
             </td>
             <td style="width:25%;text-align:right;vertical-align:top;border:none;padding:0 0 0 8px;">
                 {% if candidate.old_reg_no %}<div style="font-size:12px;color:#555;white-space:nowrap;">ப.பதிவு எண்: {{ candidate.old_reg_no }}</div>{% endif %}
@@ -110,12 +110,12 @@
         </tr>
         {% if admin_profile %}
         <tr>
-            <td colspan="2" style="border:none;" class="header-divider">
-                <div class="header-admin">
+            <td colspan="2" style="border:none;border-top:1px solid var(--gold2);padding:5px 8px 0 8px;">
+                <div style="font-size:11px;color:#333;line-height:1.8;">
                     📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}<br>
-                    {% if admin_profile.address_line2 %} {{ admin_profile.address_line2 }}{% endif %}
+                    {% if admin_profile.address_line2 %}{{ admin_profile.address_line2 }}{% endif %}
                     {% if admin_profile.address_line3 %} {{ admin_profile.address_line3 }}{% endif %}<br>
-                    📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}{% if admin_profile.email %} &nbsp;&nbsp;✉ {{ admin_profile.email }}{% endif %}
+                    📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}{% if admin_profile.email %} &nbsp;&nbsp; ✉ {{ admin_profile.email }}{% endif %}
                 </div>
             </td>
         </tr>
@@ -196,7 +196,6 @@
 <div class="section">
     <div style="display:flex;gap:2%;justify-content:space-between;">
         <div style="width:48%;">
-            <div style="text-align:center;font-size:10px;font-weight:700;color:var(--navy);margin-bottom:3px;">ராசி</div>
             <table class="jathagam-outer">
                 <tr>
                     <td>{% house_display jathagam_map 'R' 12 %}</td>
@@ -222,7 +221,6 @@
             </table>
         </div>
         <div style="width:48%;">
-            <div style="text-align:center;font-size:10px;font-weight:700;color:var(--navy);margin-bottom:3px;">நவாம்சம்</div>
             <table class="jathagam-outer">
                 <tr>
                     <td>{% house_display jathagam_map 'N' 12 %}</td>
