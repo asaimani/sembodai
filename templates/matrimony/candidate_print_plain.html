@@ -96,7 +96,7 @@
     <table style="width:100%;border:none;border-collapse:collapse;">
         <tr>
             <td style="width:20%;text-align:left;vertical-align:middle;border:none;padding:0;" rowspan="2">
-                <img src="{% static 'images/bluelogo.png' %}" alt="Logo" style="width:130px;height:130px;object-fit:contain;">
+                <img src="{% static 'images/blueprintlogo.png' %}" alt="Logo" style="width:130px;height:130px;object-fit:contain;">
             </td>
             <td style="width:55%;text-align:center;vertical-align:middle;border:none;padding:0 8px;">
                 <div style="font-size:18px;font-weight:700;color:var(--navy);">செம்போடையார்</div>
@@ -110,10 +110,9 @@
         </tr>
         {% if admin_profile %}
         <tr>
-            <td colspan="2" style="border:none;border-top:1px solid var(--gold2);padding:5px 8px 0 8px;">
+            <td colspan="2" style="border:none;border-top:1px solid var(--gold2);padding:5px 8px 0 8px;text-align:center;">
                 <div style="font-size:11px;color:#333;line-height:1.8;">
-                    📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;{% if admin_profile.address_line2 %} {{ admin_profile.address_line2 }}{% endif %}{% if admin_profile.address_line3 %} {{ admin_profile.address_line3 }}{% endif %}<br>
+                    📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}{% if admin_profile.address_line2 %} {{ admin_profile.address_line2 }}{% endif %}{% if admin_profile.address_line3 %} {{ admin_profile.address_line3 }}{% endif %}<br>
                     <span style="white-space:nowrap;">📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}{% if admin_profile.email %} &nbsp;&nbsp; ✉ {{ admin_profile.email }}{% endif %}</span>
                 </div>
             </td>
