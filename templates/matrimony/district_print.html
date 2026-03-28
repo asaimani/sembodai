@@ -10,39 +10,16 @@
     <style>
         * { font-family: 'Noto Sans Tamil', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #fff; color: #1a1a1a; }
-
-        /* Each candidate on its own page */
-        .candidate-page {
-            width: 210mm;
-            min-height: 297mm;
-            margin: 0 auto;
-            padding: 10mm;
-            background: #fff;
-            page-break-after: always;
-        }
+        .candidate-page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 12mm; background: #fff; page-break-after: always; }
         .candidate-page:last-child { page-break-after: auto; }
-
-        .header { border: 3px double #b91c1c; padding: 12px; margin-bottom: 10px; }
-        .uid-banner { background: #000; color: #fff; text-align: center; padding: 5px; font-size: 13px; font-weight: 700; margin-bottom: 10px; border-radius: 4px; }
-        .section-title { background: #000; color: #fff; padding: 3px 10px; font-size: 11px; font-weight: 600; margin-bottom: 5px; text-align: center; }
-
-        table.info-table { width: 100%; border-collapse: collapse; }
-        table.info-table td { padding: 2px 5px; font-size: 10.5px; border-bottom: none; vertical-align: top; }
-        table.info-table td:first-child { color: #666; white-space: nowrap; width: 1%; font-weight: 500; padding-right: 6px; }
+        .header { text-align: center; border: 3px double #b91c1c; padding: 12px; margin-bottom: 12px; background: linear-gradient(135deg, #fff, #fff); }
+        .section-title { background: #000000; color: #fff; padding: 4px 10px; font-size: 11px; font-weight: 600; margin-bottom: 6px; text-align: center; }
+        table.info-table { width: 100%; border-collapse: collapse; table-layout: auto; }
+        table.info-table td { padding: 2px 5px; font-size: 11px; border-bottom: none; vertical-align: top; }
+        table.info-table td:first-child { color: #666; white-space: nowrap; width: 1%; font-weight: 500; padding-right: 8px; }
         table.info-table td:last-child { color: #1a1a1a; font-weight: 600; word-break: break-word; }
-
-        .section { margin-bottom: 8px; }
-
-        table.family-table { width: 100%; border-collapse: collapse; font-size: 10px; }
-        table.family-table th { background: #000; color: #fff; padding: 3px 4px; text-align: left; }
-        table.family-table td { padding: 2px 4px; border: 1px solid #ccc; font-size: 10px; }
-        table.family-table tr:nth-child(even) td { background: #f9f9f9; }
-
-        .jathagam-table { width: 100%; border-collapse: collapse; }
-        .jathagam-table td { border: 1px solid #000; padding: 2px; font-size: 9px; height: 40px; vertical-align: middle; text-align: center; width: 25%; font-weight: 600; }
-        .jathagam-center { background: #eee; font-weight: 700; font-size: 10px; }
-
-        @page { margin: 8mm; size: A4; }
+        .section { margin-bottom: 10px; }
+        @page { margin: 10mm; size: A4; }
         @media print {
             .no-print { display: none !important; }
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -53,14 +30,14 @@
 <body>
 
 <!-- Toolbar -->
-<div class="no-print" style="text-align:center;padding:12px;background:#f8f8f8;position:sticky;top:0;z-index:100;border-bottom:1px solid #ddd;">
-    <strong style="font-size:14px;">
-        {{ district.name }} — {% if gender == 'M' %}ஆண்{% else %}பெண்{% endif %} விண்ணப்பதாரர்கள் ({{ total }})
+<div class="no-print" style="text-align:center;padding:10px;background:#f8f8f8;position:sticky;top:0;z-index:100;border-bottom:1px solid #ddd;">
+    <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:6px 16px;display:inline-block;margin-bottom:6px;font-size:12px;color:#856404;">
+        ⚠️ Print dialog → <strong>More settings</strong> → <strong>Headers and footers</strong> → <strong>uncheck</strong>
+    </div><br>
+    <strong style="font-size:14px;margin-right:12px;">
+        {{ district.name }} — {% if gender == 'M' %}ஆண்{% else %}பெண்{% endif %} ({{ total }} பக்கங்கள்)
     </strong>
-    &nbsp;&nbsp;
-    <button onclick="window.print()" style="background:#b91c1c;color:#fff;border:none;padding:8px 24px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px;">
-        🖨️ அனைத்தையும் அச்சிடு ({{ total }} பக்கங்கள்)
-    </button>
+    <button onclick="window.print()" style="background:#b91c1c;color:#fff;border:none;padding:8px 24px;border-radius:6px;cursor:pointer;font-family:inherit;">🖨️ அனைத்தையும் அச்சிடு</button>
     <button onclick="window.close()" style="background:#666;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px;">✖ மூடு</button>
 </div>
 
@@ -68,30 +45,32 @@
 {% with candidate=item.candidate family_members=item.family_members jathagam_map=item.jathagam_map photo_base64=item.photo_base64 %}
 <div class="candidate-page">
 
-    <!-- Header -->
+    <!-- Header — exact same as normal print -->
     <div class="header">
         <table style="width:100%;border:none;border-collapse:collapse;">
             <tr>
                 <td style="width:20%;text-align:left;vertical-align:middle;border:none;padding:0;" rowspan="2">
-                    <img src="{% static 'images/logoprint.png' %}" alt="Logo" style="width:110px;height:110px;object-fit:contain;">
+                    <img src="{% static 'images/logoprint.png' %}" alt="Logo" style="width:130px;height:130px;object-fit:contain;">
                 </td>
                 <td style="width:55%;text-align:center;vertical-align:middle;border:none;padding:0 8px;">
-                    <div style="font-size:17px;font-weight:700;color:#b91c1c;">செம்போடையார்</div>
-                    <div style="font-size:13px;font-weight:700;color:#b91c1c;">வன்னியர் திருமண தகவல் மையம்</div>
-                    <div style="color:#666;font-size:10px;margin-top:2px;">வாழ்க்கை துணை தேடல் - சேவை</div>
+                    <div style="font-size:18px;font-weight:700;color:#b91c1c;">செம்போடையார்</div>
+                    <div style="font-size:14px;font-weight:700;color:#b91c1c;white-space:nowrap;">வன்னியர் திருமண தகவல் மையம்</div>
+                    <div style="color:#666;font-size:11px;margin-top:3px;">வாழ்க்கை துணை தேடல் - சேவை</div>
                 </td>
                 <td style="width:25%;text-align:right;vertical-align:top;border:none;padding:0 0 0 8px;">
-                    <div style="font-size:13px;font-weight:700;color:#8b1a1a;">பதிவு எண்: {{ candidate.uid }}</div>
-                    {% if candidate.old_reg_no %}<div style="font-size:11px;color:#555;margin-top:2px;">ப.பதிவு: {{ candidate.old_reg_no }}</div>{% endif %}
-                    {% if candidate.sub_caste %}<div style="font-size:11px;color:#555;margin-top:2px;">உட்பிரிவு: {{ candidate.sub_caste }}</div>{% endif %}
+                    <div style="font-size:13px;font-weight:700;color:#8b1a1a;white-space:nowrap;">பதிவு எண்: {{ candidate.uid }}</div>
+                    {% if candidate.old_reg_no %}<div style="font-size:11px;color:#555;margin-top:3px;white-space:nowrap;">ப.பதிவு எண்: {{ candidate.old_reg_no }}</div>{% endif %}
+                    {% if candidate.sub_caste %}<div style="font-size:12px;color:#555;margin-top:4px;white-space:nowrap;">உட்பிரிவு: {{ candidate.sub_caste }}</div>{% endif %}
                 </td>
             </tr>
             {% if admin_profile %}
             <tr>
-                <td colspan="2" style="border:none;border-top:1px solid #f0c0c0;padding:4px 8px 0 8px;text-align:center;">
-                    <div style="font-size:10px;color:#333;line-height:1.7;">
-                        📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}{% if admin_profile.address_line2 %} {{ admin_profile.address_line2 }}{% endif %}{% if admin_profile.address_line3 %} {{ admin_profile.address_line3 }}{% endif %}<br>
-                        <span style="white-space:nowrap;">📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}{% if admin_profile.email %} &nbsp;&nbsp;✉ {{ admin_profile.email }}{% endif %}</span>
+                <td colspan="2" style="border:none;border-top:1px solid #f0c0c0;padding:5px 8px 0 8px;">
+                    <div style="font-size:11px;color:#333;line-height:1.8;">
+                        📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}<br>
+                        {% if admin_profile.address_line2 %} {{ admin_profile.address_line2 }}{% endif %}
+                        {% if admin_profile.address_line3 %} {{ admin_profile.address_line3 }}{% endif %}<br>
+                        📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}{% if admin_profile.email %} &nbsp;&nbsp; ✉ {{ admin_profile.email }}{% endif %}
                     </div>
                 </td>
             </tr>
@@ -99,11 +78,8 @@
         </table>
     </div>
 
-    <!-- UID Banner -->
-    <div class="uid-banner">{{ candidate.name }}</div>
-
     <!-- ROW 1: அடிப்படை | ஜோதிட -->
-    <div style="display:grid;grid-template-columns:60% 40%;gap:8px;margin-bottom:8px;align-items:start;">
+    <div style="display:grid;grid-template-columns:60% 40%;gap:10px;margin-bottom:10px;align-items:start;">
         <div class="section">
             <div class="section-title">அடிப்படை விவரங்கள்</div>
             <table class="info-table">
@@ -144,19 +120,26 @@
     {% if family_members %}
     <div class="section">
         <div class="section-title">குடும்பத்தினர் விவரம்</div>
-        <table class="family-table">
+        <table style="width:100%;border-collapse:collapse;font-size:10px;">
             <thead>
-                <tr><th style="width:3%">#</th><th style="width:18%">பெயர்</th><th style="width:20%">படிப்பு</th><th style="width:9%">உறவு</th><th style="width:9%">திருமணம்</th><th>பணி விவரம்</th></tr>
+                <tr style="background:#8b1a1a;color:white;">
+                    <th style="padding:4px;border:1px solid #d4a0a0;text-align:left;width:3%">#</th>
+                    <th style="padding:4px;border:1px solid #d4a0a0;text-align:left;width:18%">பெயர்</th>
+                    <th style="padding:4px;border:1px solid #d4a0a0;text-align:left;width:20%">படிப்பு</th>
+                    <th style="padding:4px;border:1px solid #d4a0a0;text-align:left;width:8%">உறவு</th>
+                    <th style="padding:4px;border:1px solid #d4a0a0;text-align:left;width:8%">திருமணம்</th>
+                    <th style="padding:4px;border:1px solid #d4a0a0;text-align:left;">பணி விவரம்</th>
+                </tr>
             </thead>
             <tbody>
                 {% for fm in family_members %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ fm.name }}</td>
-                    <td>{{ fm.education|default:"-" }}</td>
-                    <td>{{ fm.relation|default:"-" }}</td>
-                    <td>{{ fm.marital_status|default:"-" }}</td>
-                    <td>{{ fm.job_info|default:"-" }}</td>
+                <tr style="background:{% if forloop.counter|divisibleby:2 %}#fef9ee{% else %}white{% endif %};">
+                    <td style="padding:4px;border:1px solid #e0c0c0;">{{ forloop.counter }}</td>
+                    <td style="padding:4px;border:1px solid #e0c0c0;">{{ fm.name }}</td>
+                    <td style="padding:4px;border:1px solid #e0c0c0;">{{ fm.education|default:"-" }}</td>
+                    <td style="padding:4px;border:1px solid #e0c0c0;">{{ fm.relation|default:"-" }}</td>
+                    <td style="padding:4px;border:1px solid #e0c0c0;">{{ fm.marital_status|default:"-" }}</td>
+                    <td style="padding:4px;border:1px solid #e0c0c0;">{{ fm.job_info|default:"-" }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -164,49 +147,57 @@
     </div>
     {% endif %}
 
-    <!-- ROW 3: ஜாதக சக்கரம் -->
+    <!-- ROW 3: ஜாதக சக்கரம் — no ராசி/நவாம்சம் header divs -->
     <div class="section">
         <div class="section-title">ஜாதக சக்கரம்</div>
         <div style="display:flex;gap:2%;justify-content:space-between;">
             <div style="width:48%;">
-                <div style="text-align:center;font-size:9px;font-weight:700;margin-bottom:2px;">ராசி</div>
-                <table class="jathagam-table">
+                <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fffdf5;">
                     <tr>
-                        <td>{% house_display jathagam_map 'R' 12 %}</td><td>{% house_display jathagam_map 'R' 1 %}</td>
-                        <td>{% house_display jathagam_map 'R' 2 %}</td><td>{% house_display jathagam_map 'R' 3 %}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 12 %}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 1 %}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 2 %}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 3 %}</td>
                     </tr>
                     <tr>
-                        <td>{% house_display jathagam_map 'R' 11 %}</td>
-                        <td colspan="2" rowspan="2" class="jathagam-center">ராசி</td>
-                        <td>{% house_display jathagam_map 'R' 4 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 11 %}</td>
+                        <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fef9ee;font-weight:700;color:#7f1d1d;font-size:11px;">ராசி</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 4 %}</td>
                     </tr>
                     <tr>
-                        <td>{% house_display jathagam_map 'R' 10 %}</td><td>{% house_display jathagam_map 'R' 5 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 10 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 5 %}</td>
                     </tr>
                     <tr>
-                        <td>{% house_display jathagam_map 'R' 9 %}</td><td>{% house_display jathagam_map 'R' 8 %}</td>
-                        <td>{% house_display jathagam_map 'R' 7 %}</td><td>{% house_display jathagam_map 'R' 6 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 9 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 8 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 7 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 6 %}</td>
                     </tr>
                 </table>
             </div>
             <div style="width:48%;">
-                <div style="text-align:center;font-size:9px;font-weight:700;margin-bottom:2px;">நவாம்சம்</div>
-                <table class="jathagam-table">
+                <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fffdf5;">
                     <tr>
-                        <td>{% house_display jathagam_map 'N' 12 %}</td><td>{% house_display jathagam_map 'N' 1 %}</td>
-                        <td>{% house_display jathagam_map 'N' 2 %}</td><td>{% house_display jathagam_map 'N' 3 %}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 12 %}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 1 %}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 2 %}</td>
+                        <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 3 %}</td>
                     </tr>
                     <tr>
-                        <td>{% house_display jathagam_map 'N' 11 %}</td>
-                        <td colspan="2" rowspan="2" class="jathagam-center">நவாம்சம்</td>
-                        <td>{% house_display jathagam_map 'N' 4 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 11 %}</td>
+                        <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fef9ee;font-weight:700;color:#7f1d1d;font-size:11px;">நவாம்சம்</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 4 %}</td>
                     </tr>
                     <tr>
-                        <td>{% house_display jathagam_map 'N' 10 %}</td><td>{% house_display jathagam_map 'N' 5 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 10 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 5 %}</td>
                     </tr>
                     <tr>
-                        <td>{% house_display jathagam_map 'N' 9 %}</td><td>{% house_display jathagam_map 'N' 8 %}</td>
-                        <td>{% house_display jathagam_map 'N' 7 %}</td><td>{% house_display jathagam_map 'N' 6 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 9 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 8 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 7 %}</td>
+                        <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 6 %}</td>
                     </tr>
                 </table>
             </div>
@@ -214,7 +205,7 @@
     </div>
 
     <!-- ROW 4: முகவரி | Photo -->
-    <div style="display:grid;grid-template-columns:1fr 135px;gap:10px;align-items:start;">
+    <div style="display:grid;grid-template-columns:1fr 135px;gap:10px;align-items:start;margin-bottom:10px;">
         <div class="section">
             <div class="section-title">முகவரி</div>
             <div style="font-size:11px;line-height:1.8;">
@@ -224,7 +215,7 @@
                 <div>{% if candidate.address_line3 %}{{ candidate.address_line3 }},{% endif %} {% if candidate.pincode %}{{ candidate.pincode }}.{% endif %}</div>
                 <div style="margin-top:4px;">
                     {% if candidate.mobile_number %}📞 {{ candidate.mobile_number }}.{% endif %}
-                    {% if candidate.whatsapp_number %}&nbsp;&nbsp;<i class="fab fa-whatsapp" style="color:#25D366;"></i> {{ candidate.whatsapp_number }}.{% endif %}
+                    {% if candidate.whatsapp_number %}&nbsp;&nbsp;<i class="fab fa-whatsapp" style="color:#25D366;font-size:12px;"></i> {{ candidate.whatsapp_number }}.{% endif %}
                 </div>
             </div>
         </div>
