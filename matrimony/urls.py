@@ -23,4 +23,6 @@ urlpatterns = [
     path('weekly-run-log/', views.weekly_run_log, name='weekly_run_log'),
     path('media-files/', views.media_files, name='media_files'),
     path('media-files/delete-orphan/', views.media_delete_orphan, name='media_delete_orphan'),
+    path('district-print/', views.district_print_list, name='district_print_list'),
+    path('district-print/<int:district_id>/<str:gender>/', views.district_print, name='district_print'),
 ]

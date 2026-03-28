@@ -205,6 +205,9 @@
         <a href="{% url 'weekly_send' %}" class="{% if request.resolver_match.url_name == 'weekly_send' %}active{% endif %}">
             <i class="fas fa-paper-plane"></i> வார அனுப்பல்
         </a>
+        <a href="{% url 'district_print_list' %}" class="{% if request.resolver_match.url_name == 'district_print_list' %}active{% endif %}">
+            <i class="fas fa-map-marker-alt"></i> மாவட்டம் வாரியான அச்சு
+        </a>
         <a href="{% url 'bio_history' %}" class="{% if request.resolver_match.url_name == 'bio_history' %}active{% endif %}">
             <i class="fas fa-history"></i> அனுப்பல் வரலாறு
         </a>

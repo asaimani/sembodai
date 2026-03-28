@@ -1,0 +1,80 @@
+{% extends 'matrimony/base.html' %}
+{% block title %}மாவட்டம் வாரியான அச்சு{% endblock %}
+{% block page_title %}மாவட்டம் வாரியான அச்சு{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-map-marker-alt me-2"></i>மாவட்டம் வாரியான விண்ணப்பதாரர் பட்டியல்</span>
+        <span class="badge bg-secondary">{{ rows|length }} மாவட்டங்கள்</span>
+    </div>
+    <div class="card-body p-0">
+        {% if rows %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" style="font-size:13px;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>மாவட்டம்</th>
+                        <th class="text-center">ஆண் <i class="fas fa-male text-primary"></i></th>
+                        <th class="text-center">பெண் <i class="fas fa-female text-danger"></i></th>
+                        <th class="text-center">மொத்தம்</th>
+                        <th class="text-center">அச்சிடு</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td class="text-muted">{{ forloop.counter }}</td>
+                    <td class="fw-bold">{{ row.district.name }}</td>
+                    <td class="text-center">
+                        {% if row.male_count > 0 %}
+                            <span class="badge bg-primary">{{ row.male_count }}</span>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if row.female_count > 0 %}
+                            <span class="badge bg-danger">{{ row.female_count }}</span>
+                        {% else %}
+                            <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <span class="badge bg-secondary">{{ row.total }}</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex gap-1 justify-content-center">
+                            {% if row.male_count > 0 %}
+                            <a href="{% url 'district_print' row.district.pk 'M' %}"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-primary"
+                               title="ஆண் விண்ணப்பதாரர்கள் அச்சிடு">
+                                <i class="fas fa-male me-1"></i>ஆண் அச்சு
+                            </a>
+                            {% endif %}
+                            {% if row.female_count > 0 %}
+                            <a href="{% url 'district_print' row.district.pk 'F' %}"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-danger"
+                               title="பெண் விண்ணப்பதாரர்கள் அச்சிடு">
+                                <i class="fas fa-female me-1"></i>பெண் அச்சு
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center p-5 text-muted">
+            <i class="fas fa-map-marker-alt fa-3x mb-3"></i>
+            <p>மாவட்டம் பதிவுகள் இல்லை</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
