@@ -652,7 +652,7 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
     from datetime import date, timedelta
 
     # Delete BioSendLog older than 6 months
-    cutoff = (date.today() - timedelta(days=180)).strftime('%Y-%m-%d')
+    cutoff = (date.today() - timedelta(days=365)).strftime('%Y-%m-%d')
     BioSendLog.objects.filter(month_year__lt=cutoff).delete()
 
     def get_weekly_limit(candidate):
@@ -714,7 +714,7 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
                 matches = _find_matches_inline(exp, receiver_model, sent_ids, qs_age)
             except CandidateExpectation.DoesNotExist:
                 matches = list(
-                    qs_age.exclude(pk__in=sent_ids).exclude(whatsapp_number='').order_by('-created_at')[:remaining]
+                    qs_age.exclude(pk__in=sent_ids).exclude(whatsapp_number='').order_by('-premium_start_date')[:remaining]
                 )
 
             if not matches:
@@ -769,7 +769,7 @@ def _find_matches_inline(exp, receiver_model, sent_ids, qs_age=None):
     comp_ids = list(exp.complexions.values_list('complexion_id', flat=True))
     if comp_ids:
         qs = qs.filter(complexion_id__in=comp_ids)
-    return list(qs.order_by('-created_at')[:50])
+    return list(qs.order_by('-premium_start_date')[:50])
 
 
 # ─────────────────────────────────────────────
@@ -803,8 +803,18 @@ def weekly_send(request):
         return redirect('weekly_send')
 
     # Get all pending logs grouped by sender using week_key
-    male_logs   = _get_sender_summary('M', week_key)
-    female_logs = _get_sender_summary('F', week_key)
+    # Get all week_keys from last 12 months for display
+    from datetime import date as _d, timedelta as _td
+    _cutoff = (_d.today() - _td(days=365)).strftime('%Y-%m-%d')
+    _recent_week_keys = list(
+        BioSendLog.objects
+        .filter(month_year__gte=_cutoff)
+        .values_list('month_year', flat=True)
+        .distinct()
+        .order_by('-month_year')
+    )
+    male_logs   = _get_sender_summary('M', week_key, recent_week_keys=_recent_week_keys)
+    female_logs = _get_sender_summary('F', week_key, recent_week_keys=_recent_week_keys)
 
     already_run_this_week = WeeklyBioRun.objects.filter(week_start=week_start).exists()
 
@@ -817,99 +827,113 @@ def weekly_send(request):
     })
 
 
-def _get_sender_summary(sender_gender, month_year):
+def _get_sender_summary(sender_gender, month_year, recent_week_keys=None):
     from .models import BioSendLog, BioToken, MaleCandidate, FemaleCandidate
+    from collections import defaultdict
+    from datetime import date as _date, timedelta as _td
     CandidateModel = MaleCandidate if sender_gender == 'M' else FemaleCandidate
     opposite_gender = 'F' if sender_gender == 'M' else 'M'
     OppModel = FemaleCandidate if sender_gender == 'M' else MaleCandidate
+    _today = _date.today()
 
-    logs = (BioSendLog.objects
-            .filter(sender_gender=sender_gender, month_year=month_year)
-            .select_related('bio_token')
-            .order_by('sender_id'))
+    # Load logs from last 12 months for display
+    cutoff_12m = (_today - _td(days=365)).strftime('%Y-%m-%d')
+    all_logs = (BioSendLog.objects
+        .filter(sender_gender=sender_gender, month_year__gte=cutoff_12m)
+        .select_related('bio_token')
+        .order_by('-prepared_at'))
 
-    # Group by sender
-    from collections import defaultdict
-    sender_map = defaultdict(list)
-    for log in logs:
-        sender_map[log.sender_id].append(log)
+    # Group by sender — collect all weeks
+    sender_all_logs = defaultdict(list)
+    for log in all_logs:
+        sender_all_logs[log.sender_id].append(log)
 
-    from datetime import date as _date2
-    _today2 = _date2.today()
-    result = []
-    for sender_id, send_logs in sender_map.items():
+    # Current week logs separately for WhatsApp message
+    current_logs = (BioSendLog.objects
+        .filter(sender_gender=sender_gender, month_year=month_year)
+        .select_related('bio_token'))
+    sender_current = defaultdict(list)
+    for log in current_logs:
+        sender_current[log.sender_id].append(log)
+
+    result_with_logs = []
+    result_no_logs   = []
+    result_expired   = []
+
+    # Candidates with logs (last 12 months) — non-expired first
+    processed_ids = set()
+    for sender_id, send_logs in sender_all_logs.items():
+        if sender_id in processed_ids:
+            continue
+        processed_ids.add(sender_id)
         try:
             sender = CandidateModel.objects.get(pk=sender_id)
         except CandidateModel.DoesNotExist:
             continue
-        # Skip expired candidates from display
-        if sender.premium_end_date and sender.premium_end_date < _today2:
-            continue
 
-        pending_logs = [l for l in send_logs if l.status == 'pending']
-        sent_count   = len([l for l in send_logs if l.status == 'sent'])
-        total_count  = len(send_logs)
+        is_expired = bool(sender.premium_end_date and sender.premium_end_date < _today)
 
-        # Build WhatsApp message for pending bios
-        wa_message = _build_wa_message(sender, pending_logs, OppModel, opposite_gender)
+        # Current week stats
+        cur_logs     = sender_current.get(sender_id, [])
+        pending_logs = [l for l in cur_logs if l.status == 'pending']
+        sent_count   = len([l for l in cur_logs if l.status == 'sent'])
+        total_count  = len(cur_logs)
 
+        # All-time stats for display
+        all_sent  = len([l for l in send_logs if l.status == 'sent'])
+        all_total = len(send_logs)
+
+        wa_message = _build_wa_message(sender, pending_logs, OppModel, opposite_gender) if pending_logs else ''
         pending_log_ids = [str(l.pk) for l in pending_logs]
-        result.append({
+
+        row = {
             'sender': sender,
             'sender_gender': sender_gender,
             'pending_logs': pending_logs,
             'pending_log_ids': ','.join(pending_log_ids),
             'sent_count': sent_count,
             'total_count': total_count,
+            'all_sent': all_sent,
+            'all_total': all_total,
             'wa_message': wa_message,
             'has_pending': len(pending_logs) > 0,
-            'is_warning': False,
-        })
+            'is_warning': is_expired,
+            'warning_reason': 'காலாவதியான பிரீமியம்' if is_expired else '',
+            'latest_prepared_at': send_logs[0].prepared_at if send_logs else None,
+        }
+        if is_expired:
+            result_expired.append(row)
+        else:
+            result_with_logs.append(row)
 
-    # Also show candidates with NO logs yet — only non-expired ones
-    from datetime import date as _date
-    _today = _date.today()
+    # Sort latest run first
+    result_with_logs.sort(key=lambda x: x['latest_prepared_at'] or _date.min, reverse=True)
+
+    # Candidates with NO logs at all (non-expired, active)
     all_senders = CandidateModel.objects.filter(
         whatsapp_number__isnull=False
     ).exclude(whatsapp_number='').filter(
         Q(premium_end_date__isnull=True) | Q(premium_end_date__gte=_today)
     )
-    existing_ids = set(sender_map.keys())
     for sender in all_senders:
-        if sender.pk not in existing_ids:
-            result.append({
+        if sender.pk not in processed_ids:
+            result_no_logs.append({
                 'sender': sender,
                 'sender_gender': sender_gender,
                 'pending_logs': [],
                 'pending_log_ids': '',
                 'sent_count': 0,
                 'total_count': 0,
+                'all_sent': 0,
+                'all_total': 0,
                 'wa_message': '',
                 'has_pending': False,
                 'is_warning': False,
+                'latest_prepared_at': None,
             })
 
-    # Show expired candidates at the very bottom with warning highlight
-    expired_senders = CandidateModel.objects.filter(
-        whatsapp_number__isnull=False
-    ).exclude(whatsapp_number='').filter(
-        premium_end_date__lt=_today
-    )
-    for sender in expired_senders:
-        result.append({
-            'sender': sender,
-            'sender_gender': sender_gender,
-            'pending_logs': [],
-            'pending_log_ids': '',
-            'sent_count': 0,
-            'total_count': 0,
-            'wa_message': '',
-            'has_pending': False,
-            'is_warning': True,
-            'warning_reason': 'காலாவதியான பிரீமியம்',
-        })
-
-    return result
+    # Final order: latest run → no logs → expired
+    return result_with_logs + result_no_logs + result_expired
 
 
 def _build_wa_message(sender, pending_logs, OppModel, opp_gender):

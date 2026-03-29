@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
         # 2. Delete BioSendLog older than 6 months
         if not dry_run:
-            cutoff_month = (date.today() - timedelta(days=180)).strftime('%Y-%m-%d')
+            cutoff_month = (date.today() - timedelta(days=365)).strftime('%Y-%m-%d')
             deleted, _ = BioSendLog.objects.filter(month_year__lt=cutoff_month).delete()
             if deleted:
                 self.stdout.write(f"{deleted} பழைய பதிவுகள் நீக்கப்பட்டன.")
@@ -135,7 +135,7 @@ class Command(BaseCommand):
                 matches = self._find_matches(exp, receiver_model, sent_ids, sender_gender, qs_age)
             except CandidateExpectation.DoesNotExist:
                 matches = list(
-                    qs_age.exclude(pk__in=sent_ids).exclude(whatsapp_number='').order_by('-created_at')[:remaining]
+                    qs_age.exclude(pk__in=sent_ids).exclude(whatsapp_number='').order_by('-premium_start_date')[:remaining]
                 )
 
             if not matches:
@@ -181,4 +181,4 @@ class Command(BaseCommand):
         comp_ids = list(exp.complexions.values_list('complexion_id', flat=True))
         if comp_ids:
             qs = qs.filter(complexion_id__in=comp_ids)
-        return list(qs.order_by('-created_at')[:50])
+        return list(qs.order_by('-premium_start_date')[:50])

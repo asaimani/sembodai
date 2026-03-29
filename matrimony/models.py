@@ -528,7 +528,7 @@ class BioToken(models.Model):
             token=secrets.token_urlsafe(32),
             candidate_gender=gender,
             candidate_id=candidate_id,
-            expires_at=timezone.now() + timedelta(days=7),
+            expires_at=timezone.now() + timedelta(days=30),
         )
 
 
