@@ -848,14 +848,6 @@ def _get_sender_summary(sender_gender, month_year, recent_week_keys=None):
     for log in all_logs:
         sender_all_logs[log.sender_id].append(log)
 
-    # Current week logs separately for WhatsApp message
-    current_logs = (BioSendLog.objects
-        .filter(sender_gender=sender_gender, month_year=month_year)
-        .select_related('bio_token'))
-    sender_current = defaultdict(list)
-    for log in current_logs:
-        sender_current[log.sender_id].append(log)
-
     result_with_logs = []
     result_no_logs   = []
     result_expired   = []
@@ -873,15 +865,19 @@ def _get_sender_summary(sender_gender, month_year, recent_week_keys=None):
 
         is_expired = bool(sender.premium_end_date and sender.premium_end_date < _today)
 
-        # Current week stats
-        cur_logs     = sender_current.get(sender_id, [])
-        pending_logs = [l for l in cur_logs if l.status == 'pending']
-        sent_count   = len([l for l in cur_logs if l.status == 'sent'])
-        total_count  = len(cur_logs)
+        # ALL pending logs across all weeks — for WhatsApp button
+        pending_logs = [l for l in send_logs if l.status == 'pending']
+        sent_count   = len([l for l in send_logs if l.status == 'sent'])
+        total_count  = len(send_logs)
+
+        # Current week stats for மாதம் badge
+        cur_pending = len([l for l in send_logs if l.status == 'pending' and l.month_year == month_year])
+        cur_sent    = len([l for l in send_logs if l.status == 'sent' and l.month_year == month_year])
+        cur_total   = len([l for l in send_logs if l.month_year == month_year])
 
         # All-time stats for display
-        all_sent  = len([l for l in send_logs if l.status == 'sent'])
-        all_total = len(send_logs)
+        all_sent  = sent_count
+        all_total = total_count
 
         wa_message = _build_wa_message(sender, pending_logs, OppModel, opposite_gender) if pending_logs else ''
         pending_log_ids = [str(l.pk) for l in pending_logs]
@@ -891,8 +887,8 @@ def _get_sender_summary(sender_gender, month_year, recent_week_keys=None):
             'sender_gender': sender_gender,
             'pending_logs': pending_logs,
             'pending_log_ids': ','.join(pending_log_ids),
-            'sent_count': sent_count,
-            'total_count': total_count,
+            'sent_count': cur_sent,
+            'total_count': cur_total,
             'all_sent': all_sent,
             'all_total': all_total,
             'wa_message': wa_message,
