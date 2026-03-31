@@ -651,7 +651,7 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
                           BioToken, BioSendLog, WeeklyBioRun)
     from datetime import date, timedelta
 
-    # Delete BioSendLog older than 6 months
+    # Delete BioSendLog older than 12 months
     cutoff = (date.today() - timedelta(days=365)).strftime('%Y-%m-%d')
     BioSendLog.objects.filter(month_year__lt=cutoff).delete()
 
@@ -803,18 +803,8 @@ def weekly_send(request):
         return redirect('weekly_send')
 
     # Get all pending logs grouped by sender using week_key
-    # Get all week_keys from last 12 months for display
-    from datetime import date as _d, timedelta as _td
-    _cutoff = (_d.today() - _td(days=365)).strftime('%Y-%m-%d')
-    _recent_week_keys = list(
-        BioSendLog.objects
-        .filter(month_year__gte=_cutoff)
-        .values_list('month_year', flat=True)
-        .distinct()
-        .order_by('-month_year')
-    )
-    male_logs   = _get_sender_summary('M', week_key, recent_week_keys=_recent_week_keys)
-    female_logs = _get_sender_summary('F', week_key, recent_week_keys=_recent_week_keys)
+    male_logs   = _get_sender_summary('M', week_key)
+    female_logs = _get_sender_summary('F', week_key)
 
     already_run_this_week = WeeklyBioRun.objects.filter(week_start=week_start).exists()
 
@@ -851,8 +841,8 @@ def _get_sender_summary(sender_gender, month_year, recent_week_keys=None):
     result_with_logs = []
     result_no_logs   = []
     result_expired   = []
-
-    # Candidates with logs (last 12 months) — non-expired first
+    
+   # Candidates with logs (last 12 months) — non-expired first
     processed_ids = set()
     for sender_id, send_logs in sender_all_logs.items():
         if sender_id in processed_ids:
@@ -875,11 +865,12 @@ def _get_sender_summary(sender_gender, month_year, recent_week_keys=None):
         cur_sent    = len([l for l in send_logs if l.status == 'sent' and l.month_year == month_year])
         cur_total   = len([l for l in send_logs if l.month_year == month_year])
 
-        # All-time stats for display
+        # All-time stats
         all_sent  = sent_count
         all_total = total_count
 
         wa_message = _build_wa_message(sender, pending_logs, OppModel, opposite_gender) if pending_logs else ''
+        wa_url = _build_wa_url(sender, wa_message) if wa_message else ''
         pending_log_ids = [str(l.pk) for l in pending_logs]
 
         row = {
@@ -892,6 +883,7 @@ def _get_sender_summary(sender_gender, month_year, recent_week_keys=None):
             'all_sent': all_sent,
             'all_total': all_total,
             'wa_message': wa_message,
+            'wa_url': wa_url,
             'has_pending': len(pending_logs) > 0,
             'is_warning': is_expired,
             'warning_reason': 'காலாவதியான பிரீமியம்' if is_expired else '',
@@ -902,10 +894,10 @@ def _get_sender_summary(sender_gender, month_year, recent_week_keys=None):
         else:
             result_with_logs.append(row)
 
-    # Sort latest run first
+    # Sort: latest run first
     result_with_logs.sort(key=lambda x: x['latest_prepared_at'] or _date.min, reverse=True)
 
-    # Candidates with NO logs at all (non-expired, active)
+    # Candidates with NO logs — non-expired only
     all_senders = CandidateModel.objects.filter(
         whatsapp_number__isnull=False
     ).exclude(whatsapp_number='').filter(
@@ -923,6 +915,7 @@ def _get_sender_summary(sender_gender, month_year, recent_week_keys=None):
                 'all_sent': 0,
                 'all_total': 0,
                 'wa_message': '',
+                'wa_url': '',
                 'has_pending': False,
                 'is_warning': False,
                 'latest_prepared_at': None,
@@ -961,6 +954,18 @@ def _build_wa_message(sender, pending_logs, OppModel, opp_gender):
 
     lines.append("- செம்போடையார் வன்னியர் திருமண மையம்")
     return "\n".join(lines)
+
+
+def _build_wa_url(sender, wa_message):
+    """Build properly encoded WhatsApp URL — single encoding only."""
+    from urllib.parse import quote
+    if not wa_message:
+        return ''
+    phone = str(sender.whatsapp_number).strip().replace(' ', '').replace('-', '')
+    if not phone.startswith('91'):
+        phone = '91' + phone
+    encoded = quote(wa_message, safe='')
+    return f"https://wa.me/{phone}?text={encoded}"
 
 
 @login_required
