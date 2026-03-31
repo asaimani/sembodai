@@ -52,7 +52,7 @@
                     <td>
                         {% if row.has_pending and row.sender.whatsapp_number %}
                         <div class="d-flex gap-1">
-                            <a href="https://wa.me/91{{ row.sender.whatsapp_number }}?text={{ row.wa_message|urlencode }}"
+                            <a href="{{ row.wa_url }}"
                                target="_blank"
                                class="btn btn-sm btn-success"
                                title="WhatsApp திற">
