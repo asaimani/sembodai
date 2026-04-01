@@ -1,0 +1,111 @@
+{% extends 'matrimony/base.html' %}
+{% block title %}திருமணமான வரன்கள்{% endblock %}
+{% block page_title %}திருமணமான வரன்கள்{% endblock %}
+
+{% block content %}
+
+<!-- Filter -->
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-auto">
+                <div class="btn-group btn-group-sm">
+                    <a href="?{% if search %}search={{ search }}{% endif %}" class="btn {% if not gender %}btn-secondary{% else %}btn-outline-secondary{% endif %}">அனைத்தும்</a>
+                    <a href="?gender=M{% if search %}&search={{ search }}{% endif %}" class="btn {% if gender == 'M' %}btn-primary{% else %}btn-outline-primary{% endif %}"><i class="fas fa-male me-1"></i>ஆண்</a>
+                    <a href="?gender=F{% if search %}&search={{ search }}{% endif %}" class="btn {% if gender == 'F' %}btn-danger{% else %}btn-outline-danger{% endif %}"><i class="fas fa-female me-1"></i>பெண்</a>
+                </div>
+                <input type="hidden" name="gender" value="{{ gender }}">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="search" value="{{ search }}" class="form-control form-control-sm" placeholder="பெயர் / UID தேடல்...">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> தேடு</button>
+                <a href="{% url 'married_list' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-heart me-2 text-danger"></i>திருமணமான வரன்கள் — மொத்தம் {{ total }}</span>
+        <small class="text-muted">3 மாதத்திற்கு பிறகு தானாக நீக்கப்படும்</small>
+    </div>
+    <div class="card-body p-0">
+        {% if rows %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" style="font-size:13px;">
+                <thead>
+                    <tr>
+                        <th>UID</th>
+                        <th>பெயர்</th>
+                        <th>பாலினம்</th>
+                        <th>மாவட்டம்</th>
+                        <th>சேர்த்தவர்</th>
+                        <th>திருமணம் பதிவு தேதி</th>
+                        <th>செயல்கள்</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>
+                        {% if row.candidate %}
+                        <a href="{% url 'candidate_detail' row.mc.gender row.mc.candidate_id %}" class="fw-bold text-danger text-decoration-none">{{ row.mc.uid }}</a>
+                        {% else %}
+                        <span class="fw-bold text-muted">{{ row.mc.uid }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="fw-500">{{ row.mc.name }}</td>
+                    <td>
+                        {% if row.mc.gender == 'M' %}
+                            <span class="badge badge-male">ஆண்</span>
+                        {% else %}
+                            <span class="badge badge-female">பெண்</span>
+                        {% endif %}
+                    </td>
+                    <td class="small">{{ row.mc.district|default:"-" }}</td>
+                    <td class="small text-muted">{{ row.mc.created_by|default:"-" }}</td>
+                    <td class="small text-muted">{{ row.mc.married_at|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if row.candidate %}
+                        <a href="{% url 'candidate_detail' row.mc.gender row.mc.candidate_id %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center p-5 text-muted">
+            <i class="fas fa-heart fa-3x mb-3"></i>
+            <p>திருமணமான வரன்கள் இல்லை</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="card-footer d-flex justify-content-between align-items-center py-2">
+        <small class="text-muted">பக்கம் {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</small>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?gender={{ gender }}&search={{ search }}&page={{ page_obj.previous_page_number }}"><i class="fas fa-chevron-left"></i></a></li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-left"></i></span></li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?gender={{ gender }}&search={{ search }}&page={{ page_obj.next_page_number }}"><i class="fas fa-chevron-right"></i></a></li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-right"></i></span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

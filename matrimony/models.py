@@ -582,3 +582,72 @@ class WeeklyBioRun(models.Model):
 
     def __str__(self):
         return f"வார இயக்கம் {self.week_start} — {self.matches_created} பொருத்தங்கள்"
+
+
+# ─────────────────────────────────────────────
+#  MARRIED CANDIDATE (moved when status = married)
+# ─────────────────────────────────────────────
+
+class MarriedCandidate(models.Model):
+    GENDER_CHOICES = [('M', 'ஆண்'), ('F', 'பெண்')]
+    gender          = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    candidate_id    = models.PositiveIntegerField()
+    uid             = models.CharField(max_length=20)
+    name            = models.CharField(max_length=200)
+    married_at      = models.DateTimeField(auto_now_add=True, verbose_name="திருமணம் பதிவு நேரம்")
+    # Store a snapshot of key fields
+    date_of_birth   = models.DateField(null=True, blank=True)
+    mobile_number   = models.CharField(max_length=20, blank=True)
+    whatsapp_number = models.CharField(max_length=20, blank=True)
+    district        = models.ForeignKey(District, null=True, blank=True, on_delete=models.SET_NULL)
+    created_by      = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL)
+
+    class Meta:
+        verbose_name = "திருமணமான வரன்"
+        ordering = ['-married_at']
+        unique_together = [['gender', 'candidate_id']]
+
+    def __str__(self):
+        return f"{self.uid} — {self.name}"
+
+
+# ─────────────────────────────────────────────
+#  SIGNAL: Auto-move to MarriedCandidate when status = married
+# ─────────────────────────────────────────────
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+def _move_to_married(candidate, gender):
+    """Move candidate to MarriedCandidate table."""
+    try:
+        MarriedCandidate.objects.update_or_create(
+            gender=gender,
+            candidate_id=candidate.pk,
+            defaults={
+                'uid': candidate.uid,
+                'name': candidate.name,
+                'date_of_birth': candidate.date_of_birth,
+                'mobile_number': candidate.mobile_number or '',
+                'whatsapp_number': candidate.whatsapp_number or '',
+                'district': candidate.district,
+                'created_by': candidate.created_by,
+            }
+        )
+    except Exception:
+        pass
+
+@receiver(post_save, sender=MaleCandidate)
+def male_candidate_saved(sender, instance, **kwargs):
+    if instance.status and instance.status.code == 'married':
+        _move_to_married(instance, 'M')
+    else:
+        # Remove from married table if status changed away from married
+        MarriedCandidate.objects.filter(gender='M', candidate_id=instance.pk).delete()
+
+@receiver(post_save, sender=FemaleCandidate)
+def female_candidate_saved(sender, instance, **kwargs):
+    if instance.status and instance.status.code == 'married':
+        _move_to_married(instance, 'F')
+    else:
+        MarriedCandidate.objects.filter(gender='F', candidate_id=instance.pk).delete()

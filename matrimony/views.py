@@ -655,6 +655,20 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
     cutoff = (date.today() - timedelta(days=365)).strftime('%Y-%m-%d')
     BioSendLog.objects.filter(month_year__lt=cutoff).delete()
 
+    # Delete MarriedCandidate entries older than 3 months + related records
+    from .models import MarriedCandidate
+    from django.utils import timezone as _tz
+    married_cutoff = _tz.now() - timedelta(days=90)
+    old_married = list(MarriedCandidate.objects.filter(married_at__lt=married_cutoff))
+    for mc in old_married:
+        BioSendLog.objects.filter(sender_gender=mc.gender, sender_id=mc.candidate_id).delete()
+        BioSendLog.objects.filter(receiver_gender=mc.gender, receiver_id=mc.candidate_id).delete()
+        if mc.gender == 'M':
+            MaleCandidate.objects.filter(pk=mc.candidate_id).delete()
+        else:
+            FemaleCandidate.objects.filter(pk=mc.candidate_id).delete()
+    MarriedCandidate.objects.filter(married_at__lt=married_cutoff).delete()
+
     def get_weekly_limit(candidate):
         if candidate.premium_type:
             limit = candidate.premium_type.weekly_limit
@@ -1463,4 +1477,41 @@ def district_print(request, district_id, gender):
         'candidate_data': candidate_data,
         'admin_profile': admin_profile,
         'total': len(candidate_data),
+    })
+
+
+# ─────────────────────────────────────────────
+#  MARRIED CANDIDATES LIST
+# ─────────────────────────────────────────────
+
+@login_required
+def married_list(request):
+    from .models import MarriedCandidate, MaleCandidate, FemaleCandidate
+    gender = request.GET.get('gender', '')
+    search = request.GET.get('search', '').strip()
+
+    qs = MarriedCandidate.objects.select_related('district', 'created_by').order_by('-married_at')
+    if gender:
+        qs = qs.filter(gender=gender)
+    if search:
+        qs = qs.filter(Q(name__icontains=search) | Q(uid__icontains=search))
+
+    from django.core.paginator import Paginator
+    paginator = Paginator(qs, 50)
+    page_obj = paginator.get_page(request.GET.get('page', 1))
+
+    rows = []
+    for mc in page_obj:
+        try:
+            candidate = MaleCandidate.objects.get(pk=mc.candidate_id) if mc.gender == 'M' else FemaleCandidate.objects.get(pk=mc.candidate_id)
+        except Exception:
+            candidate = None
+        rows.append({'mc': mc, 'candidate': candidate})
+
+    return render(request, 'matrimony/married_list.html', {
+        'rows': rows,
+        'page_obj': page_obj,
+        'total': paginator.count,
+        'gender': gender,
+        'search': search,
     })
