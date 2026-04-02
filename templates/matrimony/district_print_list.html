@@ -6,7 +6,7 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span><i class="fas fa-map-marker-alt me-2"></i>மாவட்டம் வாரியான விண்ணப்பதாரர் பட்டியல்</span>
-        <span class="badge bg-secondary">{{ rows|length }} மாவட்டங்கள்</span>
+        <span class="badge bg-secondary">{{ rows|length }} வரிசைகள்</span>
     </div>
     <div class="card-body p-0">
         {% if rows %}
@@ -24,22 +24,46 @@
                 </thead>
                 <tbody>
                 {% for row in rows %}
+                {% if row.is_remarriage %}
+                <tr style="background:#e0f2fe;border-top:2px solid #0ea5e9;">
+                    <td class="text-muted">—</td>
+                    <td class="fw-bold" style="color:#0369a1;">
+                        <i class="fas fa-heart me-1" style="color:#0ea5e9;"></i>மறுமணம்
+                        <small class="text-muted d-block" style="font-size:11px;">அனைத்து மாவட்டங்கள்</small>
+                    </td>
+                    <td class="text-center">
+                        {% if row.male_count > 0 %}<span class="badge" style="background:#0369a1;">{{ row.male_count }}</span>{% else %}<span class="text-muted">-</span>{% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if row.female_count > 0 %}<span class="badge" style="background:#0ea5e9;">{{ row.female_count }}</span>{% else %}<span class="text-muted">-</span>{% endif %}
+                    </td>
+                    <td class="text-center">
+                        <span class="badge" style="background:#075985;">{{ row.total }}</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex gap-1 justify-content-center">
+                            {% if row.male_count > 0 %}
+                            <a href="{% url 'remarriage_print' 'M' %}" target="_blank" class="btn btn-sm" style="background:#0369a1;color:#fff;">
+                                <i class="fas fa-male me-1"></i>ஆண் அச்சு
+                            </a>
+                            {% endif %}
+                            {% if row.female_count > 0 %}
+                            <a href="{% url 'remarriage_print' 'F' %}" target="_blank" class="btn btn-sm" style="background:#0ea5e9;color:#fff;">
+                                <i class="fas fa-female me-1"></i>பெண் அச்சு
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
                 <tr>
                     <td class="text-muted">{{ forloop.counter }}</td>
                     <td class="fw-bold">{{ row.district.name }}</td>
                     <td class="text-center">
-                        {% if row.male_count > 0 %}
-                            <span class="badge bg-primary">{{ row.male_count }}</span>
-                        {% else %}
-                            <span class="text-muted">-</span>
-                        {% endif %}
+                        {% if row.male_count > 0 %}<span class="badge bg-primary">{{ row.male_count }}</span>{% else %}<span class="text-muted">-</span>{% endif %}
                     </td>
                     <td class="text-center">
-                        {% if row.female_count > 0 %}
-                            <span class="badge bg-danger">{{ row.female_count }}</span>
-                        {% else %}
-                            <span class="text-muted">-</span>
-                        {% endif %}
+                        {% if row.female_count > 0 %}<span class="badge bg-danger">{{ row.female_count }}</span>{% else %}<span class="text-muted">-</span>{% endif %}
                     </td>
                     <td class="text-center">
                         <span class="badge bg-secondary">{{ row.total }}</span>
@@ -47,24 +71,19 @@
                     <td class="text-center">
                         <div class="d-flex gap-1 justify-content-center">
                             {% if row.male_count > 0 %}
-                            <a href="{% url 'district_print' row.district.pk 'M' %}"
-                               target="_blank"
-                               class="btn btn-sm btn-outline-primary"
-                               title="ஆண் விண்ணப்பதாரர்கள் அச்சிடு">
+                            <a href="{% url 'district_print' row.district.pk 'M' %}" target="_blank" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-male me-1"></i>ஆண் அச்சு
                             </a>
                             {% endif %}
                             {% if row.female_count > 0 %}
-                            <a href="{% url 'district_print' row.district.pk 'F' %}"
-                               target="_blank"
-                               class="btn btn-sm btn-outline-danger"
-                               title="பெண் விண்ணப்பதாரர்கள் அச்சிடு">
+                            <a href="{% url 'district_print' row.district.pk 'F' %}" target="_blank" class="btn btn-sm btn-outline-danger">
                                 <i class="fas fa-female me-1"></i>பெண் அச்சு
                             </a>
                             {% endif %}
                         </div>
                     </td>
                 </tr>
+                {% endif %}
                 {% endfor %}
                 </tbody>
             </table>

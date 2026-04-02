@@ -5,7 +5,7 @@
 <html lang="ta">
 <head>
     <meta charset="UTF-8">
-    <title>{{ district.name }} — {% if gender == 'M' %}ஆண்{% else %}பெண்{% endif %} விண்ணப்பதாரர்கள்</title>
+    <title>{% if is_remarriage %}மறுமணம்{% else %}{{ district.name }}{% endif %} — {% if gender == 'M' %}ஆண்{% else %}பெண்{% endif %} விண்ணப்பதாரர்கள்</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -36,7 +36,7 @@
         ⚠️ Print dialog → <strong>More settings</strong> → <strong>Headers and footers</strong> → <strong>uncheck</strong>
     </div><br>
     <strong style="font-size:14px;margin-right:12px;">
-        {{ district.name }} — {% if gender == 'M' %}ஆண்{% else %}பெண்{% endif %} ({{ total }} பக்கங்கள்)
+        {% if is_remarriage %}மறுமணம்{% else %}{{ district.name }}{% endif %} — {% if gender == 'M' %}ஆண்{% else %}பெண்{% endif %} ({{ total }} பக்கங்கள்)
     </strong>
     <button onclick="window.print()" style="background:#b91c1c;color:#fff;border:none;padding:8px 24px;border-radius:6px;cursor:pointer;font-family:inherit;">🖨️ அனைத்தையும் அச்சிடு</button>
     <button onclick="window.close()" style="background:#666;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px;">✖ மூடு</button>

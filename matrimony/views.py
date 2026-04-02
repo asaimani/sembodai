@@ -1397,20 +1397,21 @@ def district_print_list(request):
     from .models import District, MaleCandidate, FemaleCandidate
     from django.db.models import Count
 
-    # Get districts that have at least one candidate
+    # Exclude married and remarriage from district rows
     male_districts = (MaleCandidate.objects
         .exclude(district=None)
+        .exclude(status__code__in=['married', 'remarriage'])
         .values('district_id', 'district__name')
         .annotate(count=Count('id'))
         .order_by('district__name'))
 
     female_districts = (FemaleCandidate.objects
         .exclude(district=None)
+        .exclude(status__code__in=['married', 'remarriage'])
         .values('district_id', 'district__name')
         .annotate(count=Count('id'))
         .order_by('district__name'))
 
-    # Build unified district list
     all_district_ids = set(
         [r['district_id'] for r in male_districts] +
         [r['district_id'] for r in female_districts]
@@ -1427,6 +1428,19 @@ def district_print_list(request):
             'male_count': male_map.get(d.pk, 0),
             'female_count': female_map.get(d.pk, 0),
             'total': male_map.get(d.pk, 0) + female_map.get(d.pk, 0),
+            'is_remarriage': False,
+        })
+
+    # Add மறுமணம் row at the end
+    rem_male   = MaleCandidate.objects.filter(status__code='remarriage').count()
+    rem_female = FemaleCandidate.objects.filter(status__code='remarriage').count()
+    if rem_male + rem_female > 0:
+        rows.append({
+            'district': None,
+            'male_count': rem_male,
+            'female_count': rem_female,
+            'total': rem_male + rem_female,
+            'is_remarriage': True,
         })
 
     return render(request, 'matrimony/district_print_list.html', {'rows': rows})
@@ -1446,9 +1460,9 @@ def district_print(request, district_id, gender):
         pass
 
     if gender == 'M':
-        candidates = MaleCandidate.objects.filter(district=district).order_by('name')
+        candidates = MaleCandidate.objects.filter(district=district).exclude(status__code__in=['married','remarriage']).order_by('name')
     else:
-        candidates = FemaleCandidate.objects.filter(district=district).order_by('name')
+        candidates = FemaleCandidate.objects.filter(district=district).exclude(status__code__in=['married','remarriage']).order_by('name')
 
     # Build candidate data with photo and jathagam
     candidate_data = []
@@ -1627,4 +1641,54 @@ def remarriage_list(request):
         'created_by_users': created_by_users,
         'gender': gender,
         'search': search,
+    })
+
+
+@login_required
+def remarriage_print(request, gender):
+    """Print all மறுமணம் candidates for a gender."""
+    import base64, os
+    from .models import MaleCandidate, FemaleCandidate, FamilyMember
+
+    admin_profile = None
+    try:
+        admin_profile = request.user.adminprofile
+    except Exception:
+        pass
+
+    if gender == 'M':
+        candidates = MaleCandidate.objects.filter(status__code='remarriage').order_by('name')
+    else:
+        candidates = FemaleCandidate.objects.filter(status__code='remarriage').order_by('name')
+
+    candidate_data = []
+    for candidate in candidates:
+        photo_base64 = None
+        first_photo = candidate.photos.first()
+        if first_photo:
+            try:
+                photo_path = first_photo.photo.path
+                if os.path.exists(photo_path):
+                    with open(photo_path, 'rb') as img_file:
+                        ext = os.path.splitext(photo_path)[1].lower().replace('.', '')
+                        if ext == 'jpg': ext = 'jpeg'
+                        photo_base64 = f"data:image/{ext};base64,{base64.b64encode(img_file.read()).decode()}"
+            except Exception:
+                pass
+        family_members = FamilyMember.objects.filter(candidate_gender=gender, candidate_id=candidate.pk)
+        jathagam_map = candidate.get_jathagam_map()
+        candidate_data.append({
+            'candidate': candidate,
+            'photo_base64': photo_base64,
+            'family_members': family_members,
+            'jathagam_map': jathagam_map,
+        })
+
+    return render(request, 'matrimony/district_print.html', {
+        'district': None,
+        'gender': gender,
+        'candidate_data': candidate_data,
+        'admin_profile': admin_profile,
+        'total': len(candidate_data),
+        'is_remarriage': True,
     })
