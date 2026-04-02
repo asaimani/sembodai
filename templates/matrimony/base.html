@@ -193,28 +193,25 @@
             <i class="fas fa-tachometer-alt"></i> டாஷ்போர்டு
         </a>
         
-        <div class="nav-section">விண்ணப்பங்கள்</div>
+        <div class="sidebar-section-header">விண்ணப்பங்கள்</div>
         <a href="{% url 'candidate_add' %}?gender=M">
             <i class="fas fa-male"></i> ஆண் விண்ணப்பம் சேர்க்க
         </a>
         <a href="{% url 'candidate_add' %}?gender=F">
             <i class="fas fa-female"></i> பெண் விண்ணப்பம் சேர்க்க
         </a>
-        <div class="sidebar-section-header">விண்ணப்பங்கள்</div>
+
+        <div class="sidebar-section-header">பட்டியல்</div>
         <a href="{% url 'candidate_list' %}?gender=M" class="{% if request.resolver_match.url_name == 'candidate_list' and request.GET.gender == 'M' %}active{% endif %}">
-            <i class="fas fa-list"></i> ஆண் பட்டியல்
+            <i class="fas fa-male"></i> ஆண் பட்டியல்
         </a>
-        <a href="{% url 'candidate_list' %}?gender=F">
-            <i class="fas fa-list"></i> பெண் பட்டியல்
+        <a href="{% url 'candidate_list' %}?gender=F" class="{% if request.resolver_match.url_name == 'candidate_list' and request.GET.gender == 'F' %}active{% endif %}">
+            <i class="fas fa-female"></i> பெண் பட்டியல்
         </a>
-        <a href="{% url 'candidate_list' %}">
+        <a href="{% url 'candidate_list' %}" class="{% if request.resolver_match.url_name == 'candidate_list' and not request.GET.gender %}active{% endif %}">
             <i class="fas fa-users"></i> அனைத்தும்
         </a>
-        
-        <div class="nav-section">அனுப்பல்</div>
-        <a href="{% url 'weekly_send' %}" class="{% if request.resolver_match.url_name == 'weekly_send' %}active{% endif %}">
-            <i class="fas fa-paper-plane"></i> வார அனுப்பல்
-        </a>
+
         <div class="sidebar-section-header">மறுமணம்</div>
         <a href="{% url 'remarriage_list' %}?gender=M" class="{% if request.resolver_match.url_name == 'remarriage_list' and request.GET.gender == 'M' %}active{% endif %}">
             <i class="fas fa-male"></i> மறுமணம் ஆண்
@@ -225,14 +222,19 @@
         <a href="{% url 'remarriage_list' %}" class="{% if request.resolver_match.url_name == 'remarriage_list' and not request.GET.gender %}active{% endif %}">
             <i class="fas fa-users"></i> மறுமணம் அனைத்தும்
         </a>
-        <a href="{% url 'married_list' %}" class="{% if request.resolver_match.url_name == 'married_list' %}active{% endif %}">
-            <i class="fas fa-heart"></i> திருமணமான வரன்கள்
-        </a>
-        <a href="{% url 'district_print_list' %}" class="{% if request.resolver_match.url_name == 'district_print_list' %}active{% endif %}">
-            <i class="fas fa-map-marker-alt"></i> மாவட்டம் வாரியான அச்சு
+
+        <div class="sidebar-section-header">அனுப்பல்</div>
+        <a href="{% url 'weekly_send' %}" class="{% if request.resolver_match.url_name == 'weekly_send' %}active{% endif %}">
+            <i class="fas fa-paper-plane"></i> வார அனுப்பல்
         </a>
         <a href="{% url 'bio_history' %}" class="{% if request.resolver_match.url_name == 'bio_history' %}active{% endif %}">
             <i class="fas fa-history"></i> அனுப்பல் வரலாறு
+        </a>
+        <a href="{% url 'district_print_list' %}" class="{% if request.resolver_match.url_name == 'district_print_list' %}active{% endif %}">
+            <i class="fas fa-map-marker-alt"></i> மாவட்ட வாரியான அச்சு
+        </a>
+        <a href="{% url 'married_list' %}" class="{% if request.resolver_match.url_name == 'married_list' %}active{% endif %}">
+            <i class="fas fa-heart"></i> திருமணமான வரன்கள்
         </a>
 
         {% if request.user.is_superuser %}
