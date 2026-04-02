@@ -213,7 +213,7 @@ class Command(BaseCommand):
         for order, name in tamil_kizhamai_list:
             TamilKizhamai.objects.get_or_create(name=name, defaults={'order': order})
 
-        for i in range(1, 31):
+        for i in range(1, 33):  # 1-32
             TamilDate.objects.get_or_create(name=str(i), defaults={'order': i})
 
         # ── Own House ──

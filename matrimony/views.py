@@ -109,7 +109,7 @@ def candidate_list(request):
 
     if gender == 'M':
         qs = apply_filters(
-            MaleCandidate.objects.all()
+            MaleCandidate.objects.exclude(status__code='married')
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
         )
@@ -120,7 +120,7 @@ def candidate_list(request):
 
     elif gender == 'F':
         qs = apply_filters(
-            FemaleCandidate.objects.all()
+            FemaleCandidate.objects.exclude(status__code='married')
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
         )
@@ -134,12 +134,12 @@ def candidate_list(request):
         # To avoid in-memory sort of 2M rows, paginate each independently
         # and show them as two separate sorted querysets using DB ordering
         males_qs_full = apply_filters(
-            MaleCandidate.objects.all()
+            MaleCandidate.objects.exclude(status__code='married')
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
         )
         females_qs_full = apply_filters(
-            FemaleCandidate.objects.all()
+            FemaleCandidate.objects.exclude(status__code='married')
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
         )
@@ -682,7 +682,7 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
         # Only active (non-expired) candidates as senders
         senders = sender_model.objects.select_related('premium_type').filter(
             Q(premium_end_date__isnull=True) | Q(premium_end_date__gte=today)
-        )
+        ).exclude(status__code='married')
         for sender in senders:
             if not sender.whatsapp_number:
                 continue
@@ -1489,6 +1489,24 @@ def married_list(request):
     from .models import MarriedCandidate, MaleCandidate, FemaleCandidate
     gender = request.GET.get('gender', '')
     search = request.GET.get('search', '').strip()
+
+    # Delete (superuser only)
+    if request.method == 'POST' and request.POST.get('action') == 'delete':
+        if request.user.is_superuser:
+            mc_id = request.POST.get('mc_id')
+            try:
+                mc = MarriedCandidate.objects.get(pk=mc_id)
+                BioSendLog.objects.filter(sender_gender=mc.gender, sender_id=mc.candidate_id).delete()
+                BioSendLog.objects.filter(receiver_gender=mc.gender, receiver_id=mc.candidate_id).delete()
+                if mc.gender == 'M':
+                    MaleCandidate.objects.filter(pk=mc.candidate_id).delete()
+                else:
+                    FemaleCandidate.objects.filter(pk=mc.candidate_id).delete()
+                mc.delete()
+                messages.success(request, 'பதிவு நீக்கப்பட்டது.')
+            except Exception as e:
+                messages.error(request, f'பிழை: {str(e)}')
+        return redirect('married_list')
 
     qs = MarriedCandidate.objects.select_related('district', 'created_by').order_by('-married_at')
     if gender:

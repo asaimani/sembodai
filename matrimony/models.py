@@ -585,7 +585,7 @@ class WeeklyBioRun(models.Model):
 
 
 # ─────────────────────────────────────────────
-#  MARRIED CANDIDATE (moved when status = married)
+#  MARRIED CANDIDATE
 # ─────────────────────────────────────────────
 
 class MarriedCandidate(models.Model):
@@ -595,7 +595,6 @@ class MarriedCandidate(models.Model):
     uid             = models.CharField(max_length=20)
     name            = models.CharField(max_length=200)
     married_at      = models.DateTimeField(auto_now_add=True, verbose_name="திருமணம் பதிவு நேரம்")
-    # Store a snapshot of key fields
     date_of_birth   = models.DateField(null=True, blank=True)
     mobile_number   = models.CharField(max_length=20, blank=True)
     whatsapp_number = models.CharField(max_length=20, blank=True)
@@ -612,42 +611,54 @@ class MarriedCandidate(models.Model):
 
 
 # ─────────────────────────────────────────────
-#  SIGNAL: Auto-move to MarriedCandidate when status = married
+#  SIGNAL: Move to MarriedCandidate when status = married
 # ─────────────────────────────────────────────
 
-from django.db.models.signals import post_save
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
-def _move_to_married(candidate, gender):
-    """Move candidate to MarriedCandidate table."""
+def _snapshot_to_married(candidate, gender):
+    """Copy candidate data to MarriedCandidate table."""
+    MarriedCandidate.objects.update_or_create(
+        gender=gender,
+        candidate_id=candidate.pk,
+        defaults={
+            'uid': candidate.uid,
+            'name': candidate.name,
+            'date_of_birth': candidate.date_of_birth,
+            'mobile_number': candidate.mobile_number or '',
+            'whatsapp_number': candidate.whatsapp_number or '',
+            'district': candidate.district,
+            'created_by': candidate.created_by,
+        }
+    )
+
+@receiver(pre_save, sender=MaleCandidate)
+def male_candidate_pre_save(sender, instance, **kwargs):
+    if not instance.pk:
+        return
     try:
-        MarriedCandidate.objects.update_or_create(
-            gender=gender,
-            candidate_id=candidate.pk,
-            defaults={
-                'uid': candidate.uid,
-                'name': candidate.name,
-                'date_of_birth': candidate.date_of_birth,
-                'mobile_number': candidate.mobile_number or '',
-                'whatsapp_number': candidate.whatsapp_number or '',
-                'district': candidate.district,
-                'created_by': candidate.created_by,
-            }
-        )
+        old = MaleCandidate.objects.get(pk=instance.pk)
+        old_code = old.status.code if old.status else ''
+        new_code = instance.status.code if instance.status else ''
+        if new_code == 'married' and old_code != 'married':
+            _snapshot_to_married(instance, 'M')
+        elif old_code == 'married' and new_code != 'married':
+            MarriedCandidate.objects.filter(gender='M', candidate_id=instance.pk).delete()
     except Exception:
         pass
 
-@receiver(post_save, sender=MaleCandidate)
-def male_candidate_saved(sender, instance, **kwargs):
-    if instance.status and instance.status.code == 'married':
-        _move_to_married(instance, 'M')
-    else:
-        # Remove from married table if status changed away from married
-        MarriedCandidate.objects.filter(gender='M', candidate_id=instance.pk).delete()
-
-@receiver(post_save, sender=FemaleCandidate)
-def female_candidate_saved(sender, instance, **kwargs):
-    if instance.status and instance.status.code == 'married':
-        _move_to_married(instance, 'F')
-    else:
-        MarriedCandidate.objects.filter(gender='F', candidate_id=instance.pk).delete()
+@receiver(pre_save, sender=FemaleCandidate)
+def female_candidate_pre_save(sender, instance, **kwargs):
+    if not instance.pk:
+        return
+    try:
+        old = FemaleCandidate.objects.get(pk=instance.pk)
+        old_code = old.status.code if old.status else ''
+        new_code = instance.status.code if instance.status else ''
+        if new_code == 'married' and old_code != 'married':
+            _snapshot_to_married(instance, 'F')
+        elif old_code == 'married' and new_code != 'married':
+            MarriedCandidate.objects.filter(gender='F', candidate_id=instance.pk).delete()
+    except Exception:
+        pass

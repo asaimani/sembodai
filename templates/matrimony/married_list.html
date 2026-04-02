@@ -14,10 +14,10 @@
                     <a href="?gender=M{% if search %}&search={{ search }}{% endif %}" class="btn {% if gender == 'M' %}btn-primary{% else %}btn-outline-primary{% endif %}"><i class="fas fa-male me-1"></i>ஆண்</a>
                     <a href="?gender=F{% if search %}&search={{ search }}{% endif %}" class="btn {% if gender == 'F' %}btn-danger{% else %}btn-outline-danger{% endif %}"><i class="fas fa-female me-1"></i>பெண்</a>
                 </div>
-                <input type="hidden" name="gender" value="{{ gender }}">
             </div>
             <div class="col-md-3">
                 <input type="text" name="search" value="{{ search }}" class="form-control form-control-sm" placeholder="பெயர் / UID தேடல்...">
+                {% if gender %}<input type="hidden" name="gender" value="{{ gender }}">{% endif %}
             </div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> தேடு</button>
@@ -44,7 +44,7 @@
                         <th>பாலினம்</th>
                         <th>மாவட்டம்</th>
                         <th>சேர்த்தவர்</th>
-                        <th>திருமணம் பதிவு தேதி</th>
+                        <th>திருமணம் பதிவு</th>
                         <th>செயல்கள்</th>
                     </tr>
                 </thead>
@@ -70,9 +70,19 @@
                     <td class="small text-muted">{{ row.mc.created_by|default:"-" }}</td>
                     <td class="small text-muted">{{ row.mc.married_at|date:"d/m/Y" }}</td>
                     <td>
-                        {% if row.candidate %}
-                        <a href="{% url 'candidate_detail' row.mc.gender row.mc.candidate_id %}" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a>
-                        {% endif %}
+                        <div class="d-flex gap-1">
+                            {% if row.candidate %}
+                            <a href="{% url 'candidate_detail' row.mc.gender row.mc.candidate_id %}" class="btn btn-sm btn-outline-primary" title="பார்க்க"><i class="fas fa-eye"></i></a>
+                            {% endif %}
+                            {% if request.user.is_superuser %}
+                            <form method="post" onsubmit="return confirm('இந்த பதிவை முழுமையாக நீக்கவா? (வேட்பாளர் பதிவும் நீக்கப்படும்)')">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="mc_id" value="{{ row.mc.pk }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="நீக்கு"><i class="fas fa-trash"></i></button>
+                            </form>
+                            {% endif %}
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
