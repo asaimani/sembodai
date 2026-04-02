@@ -71,6 +71,9 @@
                     {% if candidate.sub_caste %}
                     <div style="font-size:12px;color:#555;margin-top:4px;white-space:nowrap;">உட்பிரிவு: {{ candidate.sub_caste }}</div>
                     {% endif %}
+                    {% if candidate.status and candidate.status.code == 'remarriage' %}
+                    <div style="font-size:12px;font-weight:700;color:#0369a1;margin-top:3px;white-space:nowrap;">💑 மறுமணம்</div>
+                    {% endif %}
                 </td>
             </tr>
             <!-- ROW 2: Address spans full width (excluding logo) -->

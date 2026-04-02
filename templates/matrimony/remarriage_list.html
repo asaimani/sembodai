@@ -1,0 +1,197 @@
+{% extends 'matrimony/base.html' %}
+{% block title %}மறுமணம் பட்டியல்{% endblock %}
+{% block page_title %}
+    {% if gender == 'M' %}மறுமணம் — ஆண்{% elif gender == 'F' %}மறுமணம் — பெண்{% else %}மறுமணம் — அனைத்தும்{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Search/Filter Card -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <input type="hidden" name="gender" value="{{ gender }}">
+            <div class="col-12 col-md-3">
+                <label class="form-label small fw-500">பெயர் / UID தேடல்</label>
+                <input type="text" name="search" value="{{ search }}" class="form-control form-control-sm" placeholder="பெயர் / UID / ப.பதிவு எண்...">
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small fw-500">ராசி</label>
+                <select name="rasi" class="form-select form-select-sm">
+                    <option value="">எல்லாம்</option>
+                    {% for r in rasis %}<option value="{{ r.id }}" {% if request.GET.rasi == r.id|stringformat:"s" %}selected{% endif %}>{{ r.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small fw-500">நட்சத்திரம்</label>
+                <select name="nachathiram" class="form-select form-select-sm">
+                    <option value="">எல்லாம்</option>
+                    {% for n in nachathirams %}<option value="{{ n.id }}" {% if request.GET.nachathiram == n.id|stringformat:"s" %}selected{% endif %}>{{ n.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-4 col-md-1">
+                <label class="form-label small fw-500">வயது (குறைந்தது)</label>
+                <input type="number" name="age_min" value="{{ request.GET.age_min }}" class="form-control form-control-sm" placeholder="18" min="18" max="60">
+            </div>
+            <div class="col-4 col-md-1">
+                <label class="form-label small fw-500">வயது (அதிகம்)</label>
+                <input type="number" name="age_max" value="{{ request.GET.age_max }}" class="form-control form-control-sm" placeholder="60" min="18" max="60">
+            </div>
+            <div class="col-4 col-md-2">
+                <label class="form-label small fw-500">சம்பளம் (குறைந்தது)</label>
+                <input type="number" name="salary_min" value="{{ request.GET.salary_min }}" class="form-control form-control-sm" placeholder="₹">
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small fw-500">மாவட்டம்</label>
+                <select name="district" class="form-select form-select-sm">
+                    <option value="">எல்லாம்</option>
+                    {% for d in districts %}<option value="{{ d.id }}" {% if request.GET.district == d.id|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small fw-500">சேர்த்தவர்</label>
+                <select name="created_by" class="form-select form-select-sm">
+                    <option value="">எல்லாம்</option>
+                    {% for u in created_by_users %}<option value="{{ u.id }}" {% if request.GET.created_by == u.id|stringformat:"s" %}selected{% endif %}>{{ u.get_full_name|default:u.username }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-1">
+                <button type="submit" class="btn btn-primary btn-sm w-100">
+                    <i class="fas fa-search"></i> தேடு
+                </button>
+            </div>
+            <div class="col-12 col-md-auto">
+                <a href="{% url 'remarriage_list' %}{% if gender %}?gender={{ gender }}{% endif %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-times"></i> நீக்கு
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>
+            {% if gender == 'M' %}<i class="fas fa-male me-2"></i>ஆண்{% elif gender == 'F' %}<i class="fas fa-female me-2"></i>பெண்{% else %}<i class="fas fa-users me-2"></i>அனைத்து{% endif %}
+            விண்ணப்பங்கள் ({{ total_count }})
+        </span>
+        <div class="d-flex gap-2">
+            <a href="{% url 'candidate_add' %}?gender={% if gender %}{{ gender }}{% else %}M{% endif %}" class="btn btn-sm btn-light">
+                <i class="fas fa-plus me-1"></i>புதிது சேர்க்க
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if candidates %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>UID</th>
+                        <th>ப.பதிவு எண்</th>
+                        <th>பெயர்</th>
+                        <th>பாலினம்</th>
+                        <th>வயது</th>
+                        <th>ராசி</th>
+                        <th>நட்சத்திரம்</th>
+                        <th>தொழில்</th>
+                        <th>சம்பளம்</th>
+                        <th>மாவட்டம்</th>
+                        <th>சேர்த்தவர்</th>
+                        <th>பிரீமியம்</th>
+                        <th>செயல்கள்</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for g, c in candidates %}
+                <tr>
+                    <td>
+                        <a href="{% url 'candidate_detail' g c.pk %}" class="fw-bold text-danger text-decoration-none">{{ c.uid }}</a>
+                        {% if c.is_new %}<span class="badge bg-success ms-1" style="font-size:9px">புதிது</span>{% endif %}
+                    </td>
+                    <td class="text-muted" style="font-size:12px;">{{ c.old_reg_no|default:"-" }}</td>
+                    <td class="fw-500">{{ c.name }}</td>
+                    <td>
+                        {% if c.gender == 'M' %}
+                            <span class="badge badge-male">ஆண்</span>
+                        {% else %}
+                            <span class="badge badge-female">பெண்</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ c.age }}</td>
+                    <td>{{ c.rasi }}</td>
+                    <td>{{ c.nachathiram }}</td>
+                    <td>{{ c.profession }}</td>
+                    <td>{% if c.monthly_salary %}₹{{ c.monthly_salary|floatformat:0 }}{% else %}-{% endif %}</td>
+                    <td class="small">{{ c.district|default:"-" }}</td>
+                    <td class="small text-muted">{{ c.created_by|default:"-" }}</td>
+                    <td>
+                        {% if c.premium_type %}
+                            {% if c.premium_type.code == 'diamond' %}
+                                <span class="badge" style="background:#1a1a2e;color:#e0d5f5;">💎 Diamond</span>
+                            {% elif c.premium_type.code == 'platinum' %}
+                                <span class="badge" style="background:#2d4a6b;color:#c8e6ff;">🏆 Platinum</span>
+                            {% elif c.premium_type.code == 'gold' %}
+                                <span class="badge" style="background:#7c5c00;color:#ffe88a;">🥇 Gold</span>
+                            {% else %}
+                                <span class="badge" style="background:#3d3d3d;color:#e0e0e0;">🥈 Silver</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-secondary">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'candidate_detail' g c.pk %}" class="btn btn-sm btn-outline-primary" title="பார்க்க"><i class="fas fa-eye"></i></a>
+                            <a href="{% url 'candidate_edit' g c.pk %}" class="btn btn-sm btn-outline-warning" title="திருத்த"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'candidate_print' g c.pk %}" class="btn btn-sm btn-outline-dark" title="அச்சிடு" target="_blank"><i class="fas fa-print"></i></a>
+                            <a href="{% url 'candidate_print' g c.pk %}?plain=1" class="btn btn-sm btn-outline-secondary" title="எளிய அச்சு" target="_blank"><i class="fas fa-file-alt"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center p-5 text-muted">
+            <i class="fas fa-search fa-3x mb-3"></i>
+            <p>விண்ணப்பங்கள் எதுவும் கிடைக்கவில்லை</p>
+        </div>
+        {% endif %}
+    </div>
+    {% if page_obj and page_obj.paginator.num_pages > 1 %}
+    <div class="card-footer d-flex justify-content-between align-items-center py-2">
+        <small class="text-muted">
+            பக்கம் {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            &nbsp;·&nbsp; மொத்தம் {{ total_count }} பதிவுகள்
+        </small>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if gender %}gender={{ gender }}&{% endif %}{% if search %}search={{ search }}&{% endif %}{% if request.GET.rasi %}rasi={{ request.GET.rasi }}&{% endif %}{% if request.GET.district %}district={{ request.GET.district }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-left"></i></span></li>
+                {% endif %}
+
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if gender %}gender={{ gender }}&{% endif %}{% if search %}search={{ search }}&{% endif %}{% if request.GET.rasi %}rasi={{ request.GET.rasi }}&{% endif %}{% if request.GET.district %}district={{ request.GET.district }}&{% endif %}page={{ page_obj.next_page_number }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-right"></i></span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

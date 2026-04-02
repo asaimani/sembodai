@@ -26,4 +26,5 @@ urlpatterns = [
     path('district-print/', views.district_print_list, name='district_print_list'),
     path('district-print/<int:district_id>/<str:gender>/', views.district_print, name='district_print'),
     path('married/', views.married_list, name='married_list'),
+    path('remarriage/', views.remarriage_list, name='remarriage_list'),
 ]

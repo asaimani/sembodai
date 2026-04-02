@@ -290,11 +290,13 @@ class MaleCandidate(BaseCandidateModel):
 
     def save(self, *args, **kwargs):
         if not self.uid:
+            status_code = self.status.code if self.status else ''
+            prefix = 'MM' if status_code == 'remarriage' else 'M'
             count = MaleCandidate.objects.count() + 1
-            uid = f"M{count:07d}"
+            uid = f"{prefix}{count:07d}"
             while MaleCandidate.objects.filter(uid=uid).exists():
                 count += 1
-                uid = f"M{count:07d}"
+                uid = f"{prefix}{count:07d}"
             self.uid = uid
         super().save(*args, **kwargs)
 
@@ -309,11 +311,13 @@ class FemaleCandidate(BaseCandidateModel):
 
     def save(self, *args, **kwargs):
         if not self.uid:
+            status_code = self.status.code if self.status else ''
+            prefix = 'MF' if status_code == 'remarriage' else 'F'
             count = FemaleCandidate.objects.count() + 1
-            uid = f"F{count:07d}"
+            uid = f"{prefix}{count:07d}"
             while FemaleCandidate.objects.filter(uid=uid).exists():
                 count += 1
-                uid = f"F{count:07d}"
+                uid = f"{prefix}{count:07d}"
             self.uid = uid
         super().save(*args, **kwargs)
 
@@ -633,6 +637,19 @@ def _snapshot_to_married(candidate, gender):
         }
     )
 
+def _assign_remarriage_uid(instance, prefix):
+    """Assign MM/MF prefixed UID when status changes to remarriage."""
+    new_uid = f"{prefix}{instance.pk:07d}"
+    # Ensure uniqueness
+    if prefix == 'MM':
+        while MaleCandidate.objects.filter(uid=new_uid).exclude(pk=instance.pk).exists():
+            new_uid = f"{prefix}{int(new_uid[2:])+1:07d}"
+    else:
+        while FemaleCandidate.objects.filter(uid=new_uid).exclude(pk=instance.pk).exists():
+            new_uid = f"{prefix}{int(new_uid[2:])+1:07d}"
+    instance.uid = new_uid
+
+
 @receiver(pre_save, sender=MaleCandidate)
 def male_candidate_pre_save(sender, instance, **kwargs):
     if not instance.pk:
@@ -641,12 +658,27 @@ def male_candidate_pre_save(sender, instance, **kwargs):
         old = MaleCandidate.objects.get(pk=instance.pk)
         old_code = old.status.code if old.status else ''
         new_code = instance.status.code if instance.status else ''
+        # Status → married: snapshot
         if new_code == 'married' and old_code != 'married':
             _snapshot_to_married(instance, 'M')
         elif old_code == 'married' and new_code != 'married':
             MarriedCandidate.objects.filter(gender='M', candidate_id=instance.pk).delete()
+        # Status → remarriage: reassign UID to MM prefix
+        if new_code == 'remarriage' and old_code != 'remarriage':
+            if not instance.uid.startswith('MM'):
+                _assign_remarriage_uid(instance, 'MM')
+        # Status changed away from remarriage: restore M prefix
+        elif old_code == 'remarriage' and new_code != 'remarriage' and new_code != 'married':
+            if instance.uid.startswith('MM'):
+                count = MaleCandidate.objects.count() + 1
+                new_uid = f"M{count:07d}"
+                while MaleCandidate.objects.filter(uid=new_uid).exclude(pk=instance.pk).exists():
+                    count += 1
+                    new_uid = f"M{count:07d}"
+                instance.uid = new_uid
     except Exception:
         pass
+
 
 @receiver(pre_save, sender=FemaleCandidate)
 def female_candidate_pre_save(sender, instance, **kwargs):
@@ -656,9 +688,23 @@ def female_candidate_pre_save(sender, instance, **kwargs):
         old = FemaleCandidate.objects.get(pk=instance.pk)
         old_code = old.status.code if old.status else ''
         new_code = instance.status.code if instance.status else ''
+        # Status → married: snapshot
         if new_code == 'married' and old_code != 'married':
             _snapshot_to_married(instance, 'F')
         elif old_code == 'married' and new_code != 'married':
             MarriedCandidate.objects.filter(gender='F', candidate_id=instance.pk).delete()
+        # Status → remarriage: reassign UID to MF prefix
+        if new_code == 'remarriage' and old_code != 'remarriage':
+            if not instance.uid.startswith('MF'):
+                _assign_remarriage_uid(instance, 'MF')
+        # Status changed away from remarriage: restore F prefix
+        elif old_code == 'remarriage' and new_code != 'remarriage' and new_code != 'married':
+            if instance.uid.startswith('MF'):
+                count = FemaleCandidate.objects.count() + 1
+                new_uid = f"F{count:07d}"
+                while FemaleCandidate.objects.filter(uid=new_uid).exclude(pk=instance.pk).exists():
+                    count += 1
+                    new_uid = f"F{count:07d}"
+                instance.uid = new_uid
     except Exception:
         pass

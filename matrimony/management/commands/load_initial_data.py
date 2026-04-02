@@ -119,8 +119,9 @@ class Command(BaseCommand):
 
         # ── Candidate Status ──
         for order, code, name in [
-            (1, 'searching',  'வரன் தேடல்'),
-            (2, 'married',    'திருமணம் முடிந்தது'),
+            (1, 'searching',   'வரன் தேடல்'),
+            (2, 'married',     'திருமணம் முடிந்தது'),
+            (3, 'remarriage',  'மறுமணம்'),
         ]:
             CandidateStatus.objects.get_or_create(code=code, defaults={'name': name, 'order': order})
 

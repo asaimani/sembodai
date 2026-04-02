@@ -109,7 +109,7 @@ def candidate_list(request):
 
     if gender == 'M':
         qs = apply_filters(
-            MaleCandidate.objects.exclude(status__code='married')
+            MaleCandidate.objects.exclude(status__code__in=['married','remarriage'])
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
         )
@@ -120,7 +120,7 @@ def candidate_list(request):
 
     elif gender == 'F':
         qs = apply_filters(
-            FemaleCandidate.objects.exclude(status__code='married')
+            FemaleCandidate.objects.exclude(status__code__in=['married','remarriage'])
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
         )
@@ -134,12 +134,12 @@ def candidate_list(request):
         # To avoid in-memory sort of 2M rows, paginate each independently
         # and show them as two separate sorted querysets using DB ordering
         males_qs_full = apply_filters(
-            MaleCandidate.objects.exclude(status__code='married')
+            MaleCandidate.objects.exclude(status__code__in=['married','remarriage'])
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
         )
         females_qs_full = apply_filters(
-            FemaleCandidate.objects.exclude(status__code='married')
+            FemaleCandidate.objects.exclude(status__code__in=['married','remarriage'])
             .select_related(*base_select['select_related'])
             .order_by('-created_at')
         )
@@ -712,12 +712,19 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
             ).values_list('receiver_id', flat=True))
 
             sender_dob = sender.date_of_birth
-            if sender_gender == 'M' and sender_dob:
-                qs_age = receiver_model.objects.filter(date_of_birth__gt=sender_dob)
-            elif sender_gender == 'F' and sender_dob:
-                qs_age = receiver_model.objects.filter(date_of_birth__lt=sender_dob)
+            # Match divorced with divorced, non-divorced with non-divorced
+            sender_is_divorced = (sender.status and sender.status.code == 'remarriage')
+            if sender_is_divorced:
+                receiver_qs = receiver_model.objects.filter(status__code='remarriage')
             else:
-                qs_age = receiver_model.objects.all()
+                receiver_qs = receiver_model.objects.exclude(status__code='remarriage')
+
+            if sender_gender == 'M' and sender_dob:
+                qs_age = receiver_qs.filter(date_of_birth__gt=sender_dob)
+            elif sender_gender == 'F' and sender_dob:
+                qs_age = receiver_qs.filter(date_of_birth__lt=sender_dob)
+            else:
+                qs_age = receiver_qs.all()
 
             try:
                 from .models import CandidateExpectation
@@ -1530,6 +1537,94 @@ def married_list(request):
         'rows': rows,
         'page_obj': page_obj,
         'total': paginator.count,
+        'gender': gender,
+        'search': search,
+    })
+
+
+# ─────────────────────────────────────────────
+#  மறுமணம் CANDIDATE LIST
+# ─────────────────────────────────────────────
+
+@login_required
+def remarriage_list(request):
+    gender = request.GET.get('gender', '')
+    search = request.GET.get('search', '')
+    district_id = request.GET.get('district', '')
+    created_by_id = request.GET.get('created_by', '')
+    page_num = request.GET.get('page', 1)
+    PER_PAGE = 50
+
+    def apply_filters(qs):
+        if search:
+            qs = qs.filter(Q(name__icontains=search) | Q(uid__icontains=search) | Q(old_reg_no__icontains=search))
+        if district_id:
+            qs = qs.filter(district_id=district_id)
+        if created_by_id:
+            qs = qs.filter(created_by_id=created_by_id)
+        return qs
+
+    base_select = ['rasi', 'nachathiram', 'profession', 'state', 'district', 'created_by', 'status']
+    MAX_RESULTS = 500
+
+    if gender == 'M':
+        qs = apply_filters(MaleCandidate.objects.filter(status__code='remarriage').select_related(*base_select).order_by('-created_at'))
+        total_count = min(qs.count(), MAX_RESULTS)
+        paginator = Paginator(qs[:MAX_RESULTS], PER_PAGE)
+        page_obj = paginator.get_page(page_num)
+        candidates = [('M', c) for c in page_obj]
+
+    elif gender == 'F':
+        qs = apply_filters(FemaleCandidate.objects.filter(status__code='remarriage').select_related(*base_select).order_by('-created_at'))
+        total_count = min(qs.count(), MAX_RESULTS)
+        paginator = Paginator(qs[:MAX_RESULTS], PER_PAGE)
+        page_obj = paginator.get_page(page_num)
+        candidates = [('F', c) for c in page_obj]
+
+    else:
+        males_qs = apply_filters(MaleCandidate.objects.filter(status__code='remarriage').select_related(*base_select).order_by('-created_at'))
+        females_qs = apply_filters(FemaleCandidate.objects.filter(status__code='remarriage').select_related(*base_select).order_by('-created_at'))
+        male_count = min(males_qs.count(), MAX_RESULTS)
+        female_count = min(females_qs.count(), MAX_RESULTS)
+        total_count = male_count + female_count
+        import math
+        half = PER_PAGE // 2
+        try:
+            page_num_int = int(page_num)
+        except (ValueError, TypeError):
+            page_num_int = 1
+        offset = (page_num_int - 1) * half
+        males_page = list(males_qs[:MAX_RESULTS][offset:offset + half])
+        females_page = list(females_qs[:MAX_RESULTS][offset:offset + half])
+        candidates = []
+        for i in range(max(len(males_page), len(females_page))):
+            if i < len(males_page): candidates.append(('M', males_page[i]))
+            if i < len(females_page): candidates.append(('F', females_page[i]))
+        total_pages = math.ceil(max(male_count, female_count) / half) if total_count else 1
+        page_obj = type('PageObj', (), {
+            'number': page_num_int,
+            'has_previous': page_num_int > 1,
+            'has_next': page_num_int < total_pages,
+            'previous_page_number': lambda self: self.number - 1,
+            'next_page_number': lambda self: self.number + 1,
+            'paginator': type('Pag', (), {'num_pages': total_pages, 'count': total_count})(),
+        })()
+
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    _m_dist  = MaleCandidate.objects.filter(status__code='remarriage').exclude(district=None).values_list('district_id', flat=True).distinct()
+    _f_dist  = FemaleCandidate.objects.filter(status__code='remarriage').exclude(district=None).values_list('district_id', flat=True).distinct()
+    _m_users = MaleCandidate.objects.filter(status__code='remarriage').exclude(created_by=None).values_list('created_by_id', flat=True).distinct()
+    _f_users = FemaleCandidate.objects.filter(status__code='remarriage').exclude(created_by=None).values_list('created_by_id', flat=True).distinct()
+    districts        = District.objects.filter(pk__in=set(list(_m_dist)+list(_f_dist))).order_by('name')
+    created_by_users = User.objects.filter(pk__in=set(list(_m_users)+list(_f_users))).order_by('username')
+
+    return render(request, 'matrimony/remarriage_list.html', {
+        'candidates': candidates,
+        'page_obj': page_obj,
+        'total_count': total_count,
+        'districts': districts,
+        'created_by_users': created_by_users,
         'gender': gender,
         'search': search,
     })

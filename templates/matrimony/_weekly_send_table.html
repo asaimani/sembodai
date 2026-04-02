@@ -16,9 +16,9 @@
                 </thead>
                 <tbody>
                 {% for row in logs %}
-                <tr {% if row.is_warning %}style="background:#fff3cd;opacity:0.8;"{% endif %}>
+                <tr {% if row.is_warning %}style="background:#fff3cd;opacity:0.8;"{% elif row.sender.status and row.sender.status.code == "remarriage" %}style="background:#e0f2fe;"{% endif %}>
                     <td><span class="fw-bold text-danger">{{ row.sender.uid }}</span></td>
-                    <td>{{ row.sender.name }}</td>
+                    <td>{{ row.sender.name }}{% if row.sender.status and row.sender.status.code == "remarriage" %} <span class="badge" style="background:#0ea5e9;font-size:9px;">மறுமணம்</span>{% endif %}</td>
                     <td>
                         {% if row.sender.whatsapp_number %}
                             <span class="text-success">{{ row.sender.whatsapp_number }}</span>

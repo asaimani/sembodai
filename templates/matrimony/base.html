@@ -205,6 +205,15 @@
         <a href="{% url 'weekly_send' %}" class="{% if request.resolver_match.url_name == 'weekly_send' %}active{% endif %}">
             <i class="fas fa-paper-plane"></i> வார அனுப்பல்
         </a>
+        <a href="{% url 'remarriage_list' %}?gender=M" class="{% if request.resolver_match.url_name == 'remarriage_list' and request.GET.gender == 'M' %}active{% endif %}">
+            <i class="fas fa-male"></i> மறுமணம் ஆண்
+        </a>
+        <a href="{% url 'remarriage_list' %}?gender=F" class="{% if request.resolver_match.url_name == 'remarriage_list' and request.GET.gender == 'F' %}active{% endif %}">
+            <i class="fas fa-female"></i> மறுமணம் பெண்
+        </a>
+        <a href="{% url 'remarriage_list' %}" class="{% if request.resolver_match.url_name == 'remarriage_list' and not request.GET.gender %}active{% endif %}">
+            <i class="fas fa-users"></i> மறுமணம் அனைத்தும்
+        </a>
         <a href="{% url 'married_list' %}" class="{% if request.resolver_match.url_name == 'married_list' %}active{% endif %}">
             <i class="fas fa-heart"></i> திருமணமான வரன்கள்
         </a>

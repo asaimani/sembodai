@@ -107,6 +107,7 @@
             <td style="width:25%;text-align:right;vertical-align:top;border:none;padding:0 0 0 8px;">
                 {% if candidate.old_reg_no %}<div style="font-size:12px;color:#555;white-space:nowrap;">ப.பதிவு எண்: {{ candidate.old_reg_no }}</div>{% endif %}
                 {% if candidate.sub_caste %}<div style="font-size:12px;color:#555;margin-top:4px;white-space:nowrap;">உட்பிரிவு: {{ candidate.sub_caste }}</div>{% endif %}
+                    {% if candidate.status and candidate.status.code == 'remarriage' %}<div style="font-size:12px;font-weight:700;color:#0369a1;margin-top:3px;white-space:nowrap;">💑 மறுமணம்</div>{% endif %}
             </td>
         </tr>
         {% if admin_profile %}
