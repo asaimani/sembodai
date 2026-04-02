@@ -1156,16 +1156,35 @@ def bio_history(request):
     from django.utils import timezone
 
     # Delete log entry (superuser only)
-    if request.method == 'POST' and request.POST.get('action') == 'delete':
-        if request.user.is_superuser:
+    if request.method == 'POST' and request.user.is_superuser:
+        action = request.POST.get('action')
+        if action == 'delete':
             log_id = request.POST.get('log_id')
             try:
                 BioSendLog.objects.filter(pk=log_id).delete()
                 messages.success(request, 'பதிவு நீக்கப்பட்டது.')
             except Exception as e:
                 messages.error(request, f'பிழை: {str(e)}')
-        else:
+        elif action == 'bulk_delete':
+            ids = request.POST.getlist('selected_ids')
+            if ids:
+                deleted = BioSendLog.objects.filter(pk__in=ids).delete()[0]
+                messages.success(request, f'{deleted} பதிவுகள் நீக்கப்பட்டன.')
+        elif action == 'delete_all':
+            # Delete all matching current filter
+            gender_del = request.POST.get('gender_del', 'M')
+            month_del  = request.POST.get('month_del', '')
+            status_del = request.POST.get('status_del', '')
+            qs_del = BioSendLog.objects.filter(sender_gender=gender_del)
+            if month_del: qs_del = qs_del.filter(month_year=month_del)
+            if status_del: qs_del = qs_del.filter(status=status_del)
+            deleted = qs_del.delete()[0]
+            messages.success(request, f'{deleted} பதிவுகள் அனைத்தும் நீக்கப்பட்டன.')
+        elif request.POST.get('action') != 'delete':
             messages.error(request, 'அனுமதி இல்லை.')
+        return redirect(request.get_full_path())
+    elif request.method == 'POST':
+        messages.error(request, 'அனுமதி இல்லை.')
         return redirect(request.get_full_path())
 
     gender   = request.GET.get('gender', 'M')
@@ -1270,13 +1289,23 @@ def weekly_run_log(request):
     if not request.user.is_superuser:
         return HttpResponseForbidden("அனுமதி இல்லை")
     from .models import WeeklyBioRun
-    if request.method == 'POST' and request.POST.get('action') == 'delete':
-        run_id = request.POST.get('run_id')
-        try:
-            WeeklyBioRun.objects.filter(pk=run_id).delete()
-            messages.success(request, 'இயக்க பதிவு நீக்கப்பட்டது. இப்போது மீண்டும் இயக்கலாம்.')
-        except Exception as e:
-            messages.error(request, f'பிழை: {str(e)}')
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'delete':
+            run_id = request.POST.get('run_id')
+            try:
+                WeeklyBioRun.objects.filter(pk=run_id).delete()
+                messages.success(request, 'இயக்க பதிவு நீக்கப்பட்டது. இப்போது மீண்டும் இயக்கலாம்.')
+            except Exception as e:
+                messages.error(request, f'பிழை: {str(e)}')
+        elif action == 'bulk_delete':
+            ids = request.POST.getlist('selected_ids')
+            if ids:
+                deleted = WeeklyBioRun.objects.filter(pk__in=ids).delete()[0]
+                messages.success(request, f'{deleted} இயக்க பதிவுகள் நீக்கப்பட்டன.')
+        elif action == 'delete_all':
+            deleted = WeeklyBioRun.objects.all().delete()[0]
+            messages.success(request, f'{deleted} இயக்க பதிவுகள் அனைத்தும் நீக்கப்பட்டன.')
         return redirect('weekly_run_log')
     runs = WeeklyBioRun.objects.select_related('run_by').all()
     return render(request, 'matrimony/weekly_run_log.html', {'runs': runs})

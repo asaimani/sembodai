@@ -3,59 +3,36 @@
 {% block page_title %}பயோ அனுப்பல் வரலாறு{% endblock %}
 
 {% block content %}
-
-<!-- Filter Card -->
+<!-- Filter -->
 <div class="card mb-3">
     <div class="card-body py-2">
         <form method="get" class="row g-2 align-items-end">
-            <!-- Gender Tabs -->
             <div class="col-auto">
                 <div class="btn-group btn-group-sm">
-                    <a href="?gender=M{% if search %}&search={{ search }}{% endif %}{% if month %}&month={{ month }}{% endif %}{% if status %}&status={{ status }}{% endif %}"
-                       class="btn {% if gender == 'M' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                        <i class="fas fa-male me-1"></i>ஆண்
-                    </a>
-                    <a href="?gender=F{% if search %}&search={{ search }}{% endif %}{% if month %}&month={{ month }}{% endif %}{% if status %}&status={{ status }}{% endif %}"
-                       class="btn {% if gender == 'F' %}btn-danger{% else %}btn-outline-danger{% endif %}">
-                        <i class="fas fa-female me-1"></i>பெண்
-                    </a>
+                    <a href="?gender=M&month={{ month }}&status={{ status }}&search={{ search }}" class="btn {% if gender == 'M' %}btn-primary{% else %}btn-outline-primary{% endif %}"><i class="fas fa-male"></i> ஆண்</a>
+                    <a href="?gender=F&month={{ month }}&status={{ status }}&search={{ search }}" class="btn {% if gender == 'F' %}btn-danger{% else %}btn-outline-danger{% endif %}"><i class="fas fa-female"></i> பெண்</a>
                 </div>
                 <input type="hidden" name="gender" value="{{ gender }}">
             </div>
-
-            <!-- UID Search -->
-            <div class="col-md-2">
-                <input type="text" name="search" value="{{ search }}"
-                       class="form-control form-control-sm"
-                       placeholder="UID தேடல்...">
-            </div>
-
-            <!-- Month Filter -->
-            <div class="col-md-2">
+            <div class="col-auto">
                 <select name="month" class="form-select form-select-sm">
-                    <option value="">எல்லா மாதங்கள்</option>
-                    {% for m in months %}
-                    <option value="{{ m }}" {% if month == m %}selected{% endif %}>{{ m }}</option>
-                    {% endfor %}
+                    <option value="">— மாதம் —</option>
+                    {% for m in months %}<option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>{% endfor %}
                 </select>
             </div>
-
-            <!-- Status Filter -->
-            <div class="col-md-2">
+            <div class="col-auto">
                 <select name="status" class="form-select form-select-sm">
-                    <option value="">எல்லா நிலைகள்</option>
+                    <option value="">— நிலை —</option>
                     <option value="pending" {% if status == 'pending' %}selected{% endif %}>நிலுவை</option>
                     <option value="sent" {% if status == 'sent' %}selected{% endif %}>அனுப்பியது</option>
                 </select>
             </div>
-
+            <div class="col-md-2">
+                <input type="text" name="search" value="{{ search }}" class="form-control form-control-sm" placeholder="UID தேடல்">
+            </div>
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary btn-sm">
-                    <i class="fas fa-search"></i> தேடு
-                </button>
-                <a href="?gender={{ gender }}" class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-times"></i> நீக்கு
-                </a>
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i></button>
+                <a href="?gender={{ gender }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a>
             </div>
         </form>
     </div>
@@ -63,18 +40,38 @@
 
 <!-- Results -->
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <span>
             {% if gender == 'M' %}<i class="fas fa-male me-1"></i>ஆண்{% else %}<i class="fas fa-female me-1"></i>பெண்{% endif %}
-            பயோ வரலாறு — மொத்தம் {{ total }} பதிவுகள்
+            பயோ வரலாறு — மொத்தம் <strong>{{ total }}</strong> பதிவுகள்
         </span>
+        {% if request.user.is_superuser and rows %}
+        <div class="d-flex gap-2">
+            <button onclick="selectAll()" class="btn btn-sm btn-outline-secondary">அனைத்தும் தேர்வு</button>
+            <button onclick="bulkDelete()" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash me-1"></i>தேர்வானவை நீக்கு</button>
+            <form method="post" onsubmit="return confirm('இந்த வடிகட்டலின் அனைத்து {{ total }} பதிவுகளையும் நீக்கவா?')" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete_all">
+                <input type="hidden" name="gender_del" value="{{ gender }}">
+                <input type="hidden" name="month_del" value="{{ month }}">
+                <input type="hidden" name="status_del" value="{{ status }}">
+                <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash me-1"></i>அனைத்தும் நீக்கு</button>
+            </form>
+        </div>
+        {% endif %}
     </div>
     <div class="card-body p-0">
         {% if rows %}
+        <form method="post" id="bulk-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="bulk_delete">
         <div class="table-responsive">
             <table class="table table-hover table-sm mb-0" style="font-size:13px;">
                 <thead>
                     <tr>
+                        {% if request.user.is_superuser %}
+                        <th style="width:36px;"><input type="checkbox" id="check-all" onclick="toggleAll(this)"></th>
+                        {% endif %}
                         <th>அனுப்புபவர் UID</th>
                         <th>அனுப்புபவர் பெயர்</th>
                         <th>பெறுபவர் UID</th>
@@ -90,6 +87,9 @@
                 <tbody>
                 {% for row in rows %}
                 <tr>
+                    {% if request.user.is_superuser %}
+                    <td><input type="checkbox" name="selected_ids" value="{{ row.log.pk }}" class="row-check"></td>
+                    {% endif %}
                     <td><span class="fw-bold text-danger">{{ row.sender_uid }}</span></td>
                     <td>{{ row.sender_name }}</td>
                     <td><span class="fw-bold text-primary">{{ row.receiver_uid }}</span></td>
@@ -113,12 +113,10 @@
                             <span class="text-muted small">-</span>
                         {% endif %}
                     </td>
-                    <td class="small text-muted">
-                        {% if row.log.sent_at %}{{ row.log.sent_at|date:"d/m/Y H:i" }}{% else %}-{% endif %}
-                    </td>
+                    <td class="small text-muted">{% if row.log.sent_at %}{{ row.log.sent_at|date:"d/m/Y H:i" }}{% else %}-{% endif %}</td>
                     <td>
                         {% if row.bio_url %}
-                            <a href="{{ row.bio_url }}" target="_blank" class="btn btn-xs btn-outline-primary" style="font-size:11px;padding:2px 8px;">
+                            <a href="{{ row.bio_url }}" target="_blank" class="btn btn-outline-primary" style="font-size:11px;padding:2px 8px;">
                                 <i class="fas fa-external-link-alt"></i> திற
                             </a>
                         {% else %}
@@ -131,7 +129,7 @@
                             {% csrf_token %}
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="log_id" value="{{ row.log.pk }}">
-                            <button type="submit" class="btn btn-sm btn-outline-danger" style="padding:2px 8px;font-size:11px;">
+                            <button type="submit" class="btn btn-outline-danger" style="padding:2px 8px;font-size:11px;">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
@@ -142,10 +140,11 @@
                 </tbody>
             </table>
         </div>
+        </form>
         {% else %}
         <div class="text-center p-5 text-muted">
             <i class="fas fa-history fa-3x mb-3"></i>
-            <p>பதிவுகள் எதுவும் கிடைக்கவில்லை</p>
+            <p>பதிவுகள் இல்லை</p>
         </div>
         {% endif %}
     </div>
@@ -156,21 +155,13 @@
         <nav>
             <ul class="pagination pagination-sm mb-0">
                 {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?gender={{ gender }}&search={{ search }}&month={{ month }}&status={{ status }}&page={{ page_obj.previous_page_number }}">
-                        <i class="fas fa-chevron-left"></i>
-                    </a>
-                </li>
+                <li class="page-item"><a class="page-link" href="?gender={{ gender }}&month={{ month }}&status={{ status }}&search={{ search }}&page={{ page_obj.previous_page_number }}"><i class="fas fa-chevron-left"></i></a></li>
                 {% else %}
                 <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-left"></i></span></li>
                 {% endif %}
                 <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
                 {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?gender={{ gender }}&search={{ search }}&month={{ month }}&status={{ status }}&page={{ page_obj.next_page_number }}">
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                </li>
+                <li class="page-item"><a class="page-link" href="?gender={{ gender }}&month={{ month }}&status={{ status }}&search={{ search }}&page={{ page_obj.next_page_number }}"><i class="fas fa-chevron-right"></i></a></li>
                 {% else %}
                 <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-right"></i></span></li>
                 {% endif %}
@@ -179,4 +170,20 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+function toggleAll(cb) {
+    document.querySelectorAll('.row-check').forEach(c => c.checked = cb.checked);
+}
+function selectAll() {
+    document.querySelectorAll('.row-check').forEach(c => c.checked = true);
+    document.getElementById('check-all').checked = true;
+}
+function bulkDelete() {
+    var checked = document.querySelectorAll('.row-check:checked');
+    if (!checked.length) { alert('ஒன்றையாவது தேர்வு செய்யவும்.'); return; }
+    if (!confirm(checked.length + ' பதிவுகளை நீக்கவா?')) return;
+    document.getElementById('bulk-form').submit();
+}
+</script>
 {% endblock %}

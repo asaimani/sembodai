@@ -4,31 +4,50 @@
 
 {% block content %}
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="fas fa-history me-2"></i>வார இயக்க பதிவு</span>
-        <span class="badge bg-secondary">{{ runs|length }} பதிவுகள்</span>
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span><i class="fas fa-history me-2"></i>வார இயக்க பதிவு — <strong>{{ runs|length }}</strong> பதிவுகள்</span>
+        {% if request.user.is_superuser and runs %}
+        <div class="d-flex gap-2">
+            <button onclick="selectAll()" class="btn btn-sm btn-outline-secondary">அனைத்தும் தேர்வு</button>
+            <button onclick="bulkDelete()" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash me-1"></i>தேர்வானவை நீக்கு</button>
+            <form method="post" onsubmit="return confirm('அனைத்து இயக்க பதிவுகளையும் நீக்கவா? இது அனைத்து வாரங்களையும் மீண்டும் இயக்க அனுமதிக்கும்.')" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete_all">
+                <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash me-1"></i>அனைத்தும் நீக்கு</button>
+            </form>
+        </div>
+        {% endif %}
     </div>
     <div class="card-body p-0">
         {% if runs %}
+        <form method="post" id="bulk-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="bulk_delete">
         <div class="table-responsive">
             <table class="table table-hover mb-0" style="font-size:13px;">
                 <thead>
                     <tr>
+                        {% if request.user.is_superuser %}
+                        <th style="width:36px;"><input type="checkbox" id="check-all" onclick="toggleAll(this)"></th>
+                        {% endif %}
                         <th>#</th>
                         <th>வார தொடக்கம்</th>
                         <th>வார முடிவு</th>
                         <th>இயக்கிய நேரம்</th>
                         <th>இயக்கியவர்</th>
-                        <th>ஆண் விண்ணப்பதாரர்கள்</th>
-                        <th>பெண் விண்ணப்பதாரர்கள்</th>
+                        <th>ஆண்</th>
+                        <th>பெண்</th>
                         <th>பொருத்தங்கள்</th>
                         <th>குறிப்புகள்</th>
-                        <th>நீக்கு</th>
+                        {% if request.user.is_superuser %}<th>நீக்கு</th>{% endif %}
                     </tr>
                 </thead>
                 <tbody>
                 {% for run in runs %}
                 <tr>
+                    {% if request.user.is_superuser %}
+                    <td><input type="checkbox" name="selected_ids" value="{{ run.pk }}" class="row-check"></td>
+                    {% endif %}
                     <td class="text-muted">{{ forloop.counter }}</td>
                     <td><span class="badge bg-primary">{{ run.week_start|date:"d/m/Y" }}</span></td>
                     <td><span class="badge bg-secondary">{{ run.week_end|date:"d/m/Y" }}</span></td>
@@ -38,6 +57,7 @@
                     <td><i class="fas fa-female text-danger me-1"></i>{{ run.female_processed }}</td>
                     <td><span class="badge bg-success">{{ run.matches_created }}</span></td>
                     <td class="small text-muted">{{ run.notes|truncatechars:60 }}</td>
+                    {% if request.user.is_superuser %}
                     <td>
                         <form method="post" onsubmit="return confirm('இந்த பதிவை நீக்கினால் இந்த வாரம் மீண்டும் இயக்கலாம். நீக்கவா?')">
                             {% csrf_token %}
@@ -48,11 +68,13 @@
                             </button>
                         </form>
                     </td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
+        </form>
         {% else %}
         <div class="text-center p-5 text-muted">
             <i class="fas fa-history fa-3x mb-3"></i>
@@ -61,4 +83,20 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+function toggleAll(cb) {
+    document.querySelectorAll('.row-check').forEach(c => c.checked = cb.checked);
+}
+function selectAll() {
+    document.querySelectorAll('.row-check').forEach(c => c.checked = true);
+    document.getElementById('check-all').checked = true;
+}
+function bulkDelete() {
+    var checked = document.querySelectorAll('.row-check:checked');
+    if (!checked.length) { alert('ஒன்றையாவது தேர்வு செய்யவும்.'); return; }
+    if (!confirm(checked.length + ' இயக்க பதிவுகளை நீக்கவா?')) return;
+    document.getElementById('bulk-form').submit();
+}
+</script>
 {% endblock %}
