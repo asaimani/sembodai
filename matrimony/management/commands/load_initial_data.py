@@ -230,6 +230,13 @@ class Command(BaseCommand):
             (10, 'pannai',      'பண்ணை வீடு'),
             (11, 'varisai',     'வரிசை வீடு'),
             (12, 'aranmanai',   'அரண்மனை'),
+            (13,  'maadi2',       'மாடி வீடு-1'),
+            (14,  'maadi3',       'மாடி வீடு-2'),
+            (15,  'maadi4',       'மாடி வீடு-3'),
+            (16,  'adma',       'அடுக்கு மாடி வீடு'),
+            (17,  'adma',       '2-அடுக்கு மாடி வீடு'),
+            (18,  'adma',       '3-அடுக்கு மாடி வீடு'),
+            
         ]:
             obj, created = OwnHouse.objects.get_or_create(code=code, defaults={'name': name, 'order': order})
             if not created:
