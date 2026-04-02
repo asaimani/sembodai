@@ -234,8 +234,8 @@ class Command(BaseCommand):
             (14,  'maadi3',       'மாடி வீடு-2'),
             (15,  'maadi4',       'மாடி வீடு-3'),
             (16,  'adma',       'அடுக்கு மாடி வீடு'),
-            (17,  'adma',       '2-அடுக்கு மாடி வீடு'),
-            (18,  'adma',       '3-அடுக்கு மாடி வீடு'),
+            (17,  'adma2',       '2-அடுக்கு மாடி வீடு'),
+            (18,  'adma3',       '3-அடுக்கு மாடி வீடு'),
             
         ]:
             obj, created = OwnHouse.objects.get_or_create(code=code, defaults={'name': name, 'order': order})
