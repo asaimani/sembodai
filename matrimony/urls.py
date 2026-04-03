@@ -28,5 +28,5 @@ urlpatterns = [
     path('married/', views.married_list, name='married_list'),
     path('remarriage/', views.remarriage_list, name='remarriage_list'),
     path('remarriage-print/<str:gender>/', views.remarriage_print, name='remarriage_print'),
-    path('admin/weekly-config/', views.weekly_bio_config, name='weekly_bio_config'),
+    path('settings/weekly-config/', views.weekly_bio_config, name='weekly_bio_config'),
 ]
