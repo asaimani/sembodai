@@ -239,6 +239,9 @@
 
         {% if request.user.is_superuser %}
         <div class="nav-section">நிர்வாகம்</div>
+        <a href="{% url 'weekly_bio_config' %}" class="{% if request.resolver_match.url_name == 'weekly_bio_config' %}active{% endif %}">
+            <i class="fas fa-cog"></i> வார அனுப்பல் அமைப்பு
+        </a>
         <a href="{% url 'weekly_run_log' %}" class="{% if request.resolver_match.url_name == 'weekly_run_log' %}active{% endif %}">
             <i class="fas fa-clipboard-list"></i> இயக்க பதிவு
         </a>

@@ -651,14 +651,17 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
                           BioToken, BioSendLog, WeeklyBioRun)
     from datetime import date, timedelta
 
-    # Delete BioSendLog older than 12 months
-    cutoff = (date.today() - timedelta(days=365)).strftime('%Y-%m-%d')
+    # Load admin config
+    from .models import MarriedCandidate, WeeklyBioConfig
+    cfg = WeeklyBioConfig.get()
+
+    # Delete BioSendLog older than configured retention
+    cutoff = (date.today() - timedelta(days=cfg.bio_log_retention_days)).strftime('%Y-%m-%d')
     BioSendLog.objects.filter(month_year__lt=cutoff).delete()
 
-    # Delete MarriedCandidate entries older than 3 months + related records
-    from .models import MarriedCandidate
+    # Delete MarriedCandidate entries older than configured days + related records
     from django.utils import timezone as _tz
-    married_cutoff = _tz.now() - timedelta(days=90)
+    married_cutoff = _tz.now() - timedelta(days=cfg.married_cleanup_days)
     old_married = list(MarriedCandidate.objects.filter(married_at__lt=married_cutoff))
     for mc in old_married:
         BioSendLog.objects.filter(sender_gender=mc.gender, sender_id=mc.candidate_id).delete()
@@ -670,10 +673,22 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
     MarriedCandidate.objects.filter(married_at__lt=married_cutoff).delete()
 
     def get_weekly_limit(candidate):
-        if candidate.premium_type:
+        is_remarriage = (candidate.status and candidate.status.code == 'remarriage')
+        if is_remarriage:
+            # Use remarriage-specific limits from config
+            code = candidate.premium_type.code if candidate.premium_type else 'silver'
+            limit_map = {
+                'silver':   cfg.remarriage_silver_limit,
+                'gold':     cfg.remarriage_gold_limit,
+                'platinum': cfg.remarriage_platinum_limit,
+                'diamond':  cfg.remarriage_diamond_limit,
+            }
+            limit = limit_map.get(code, cfg.remarriage_silver_limit)
+        elif candidate.premium_type:
             limit = candidate.premium_type.weekly_limit
-            return None if limit == 0 else limit
-        return 5
+        else:
+            limit = cfg.default_weekly_limit
+        return None if limit == 0 else limit
 
     def prepare_gender(sender_model, receiver_model, sender_gender, receiver_gender):
         from datetime import date as _date
@@ -714,15 +729,19 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
             sender_dob = sender.date_of_birth
             # Match divorced with divorced, non-divorced with non-divorced
             sender_is_divorced = (sender.status and sender.status.code == 'remarriage')
-            if sender_is_divorced:
-                receiver_qs = receiver_model.objects.filter(status__code='remarriage')
+            if cfg.match_divorced_only:
+                if sender_is_divorced:
+                    receiver_qs = receiver_model.objects.filter(status__code='remarriage')
+                else:
+                    receiver_qs = receiver_model.objects.exclude(status__code='remarriage')
             else:
-                receiver_qs = receiver_model.objects.exclude(status__code='remarriage')
+                receiver_qs = receiver_model.objects.all()
 
-            if sender_gender == 'M' and sender_dob:
-                qs_age = receiver_qs.filter(date_of_birth__gt=sender_dob)
-            elif sender_gender == 'F' and sender_dob:
-                qs_age = receiver_qs.filter(date_of_birth__lt=sender_dob)
+            if cfg.match_age_strict and sender_dob:
+                if sender_gender == 'M':
+                    qs_age = receiver_qs.filter(date_of_birth__gt=sender_dob)
+                else:
+                    qs_age = receiver_qs.filter(date_of_birth__lt=sender_dob)
             else:
                 qs_age = receiver_qs.all()
 
@@ -790,7 +809,7 @@ def _find_matches_inline(exp, receiver_model, sent_ids, qs_age=None):
     comp_ids = list(exp.complexions.values_list('complexion_id', flat=True))
     if comp_ids:
         qs = qs.filter(complexion_id__in=comp_ids)
-    return list(qs.order_by('-premium_start_date')[:50])
+    return list(qs.order_by('-premium_start_date')[:cfg.max_receivers_per_run])
 
 
 # ─────────────────────────────────────────────
@@ -1720,4 +1739,59 @@ def remarriage_print(request, gender):
         'admin_profile': admin_profile,
         'total': len(candidate_data),
         'is_remarriage': True,
+    })
+
+
+# ─────────────────────────────────────────────
+#  WEEKLY BIO CONFIG ADMIN PAGE
+# ─────────────────────────────────────────────
+
+@login_required
+def weekly_bio_config(request):
+    from django.http import HttpResponseForbidden
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("அனுமதி இல்லை")
+
+    from .models import WeeklyBioConfig, PremiumType
+    cfg = WeeklyBioConfig.get()
+    premium_types = PremiumType.objects.all().order_by('order')
+
+    if request.method == 'POST':
+        try:
+            # Bio settings
+            cfg.bio_token_expiry_days    = int(request.POST.get('bio_token_expiry_days', 30))
+            cfg.married_cleanup_days     = int(request.POST.get('married_cleanup_days', 90))
+            cfg.bio_log_retention_days   = int(request.POST.get('bio_log_retention_days', 365))
+            cfg.default_weekly_limit     = int(request.POST.get('default_weekly_limit', 5))
+            cfg.max_receivers_per_run    = int(request.POST.get('max_receivers_per_run', 50))
+
+            # Remarriage limits
+            cfg.remarriage_silver_limit   = int(request.POST.get('remarriage_silver_limit', 5))
+            cfg.remarriage_gold_limit     = int(request.POST.get('remarriage_gold_limit', 10))
+            cfg.remarriage_platinum_limit = int(request.POST.get('remarriage_platinum_limit', 20))
+            cfg.remarriage_diamond_limit  = int(request.POST.get('remarriage_diamond_limit', 0))
+
+            # Matching rules
+            cfg.match_age_strict    = request.POST.get('match_age_strict') == 'on'
+            cfg.match_divorced_only = request.POST.get('match_divorced_only') == 'on'
+
+            cfg.updated_by = request.user
+            cfg.save()
+
+            # Also update PremiumType weekly limits for normal candidates
+            for pt in premium_types:
+                key = f'premium_{pt.code}_limit'
+                val = request.POST.get(key)
+                if val is not None:
+                    pt.weekly_limit = int(val)
+                    pt.save()
+
+            messages.success(request, 'அமைப்புகள் சேமிக்கப்பட்டன.')
+        except Exception as e:
+            messages.error(request, f'பிழை: {str(e)}')
+        return redirect('weekly_bio_config')
+
+    return render(request, 'matrimony/weekly_bio_config.html', {
+        'cfg': cfg,
+        'premium_types': premium_types,
     })

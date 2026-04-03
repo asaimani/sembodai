@@ -532,7 +532,7 @@ class BioToken(models.Model):
             token=secrets.token_urlsafe(32),
             candidate_gender=gender,
             candidate_id=candidate_id,
-            expires_at=timezone.now() + timedelta(days=30),
+            expires_at=timezone.now() + timedelta(days=WeeklyBioConfig.get().bio_token_expiry_days),
         )
 
 
@@ -708,3 +708,50 @@ def female_candidate_pre_save(sender, instance, **kwargs):
                 instance.uid = new_uid
     except Exception:
         pass
+
+
+# ─────────────────────────────────────────────
+#  WEEKLY BIO CONFIG (admin-editable settings)
+# ─────────────────────────────────────────────
+
+class WeeklyBioConfig(models.Model):
+    """Singleton config table — always only one row (pk=1)."""
+
+    # Bio token expiry
+    bio_token_expiry_days       = models.PositiveIntegerField(default=30, verbose_name="பயோ இணைப்பு காலம் (நாட்கள்)")
+
+    # Married candidate cleanup
+    married_cleanup_days        = models.PositiveIntegerField(default=90,  verbose_name="திருமணமான வரன் தக்க வைப்பு (நாட்கள்)")
+
+    # BioSendLog retention
+    bio_log_retention_days      = models.PositiveIntegerField(default=365, verbose_name="அனுப்பல் பதிவு தக்க வைப்பு (நாட்கள்)")
+
+    # Default weekly limit (when no premium type assigned)
+    default_weekly_limit        = models.PositiveIntegerField(default=5,   verbose_name="இயல்புநிலை வார வரம்பு")
+
+    # Remarriage weekly limits (separate from normal)
+    remarriage_silver_limit     = models.PositiveIntegerField(default=5,   verbose_name="மறுமணம் Silver வார வரம்பு")
+    remarriage_gold_limit       = models.PositiveIntegerField(default=10,  verbose_name="மறுமணம் Gold வார வரம்பு")
+    remarriage_platinum_limit   = models.PositiveIntegerField(default=20,  verbose_name="மறுமணம் Platinum வார வரம்பு")
+    remarriage_diamond_limit    = models.PositiveIntegerField(default=0,   verbose_name="மறுமணம் Diamond வார வரம்பு (0=வரம்பற்றது)")
+
+    # Matching rules
+    match_age_strict            = models.BooleanField(default=True,  verbose_name="வயது பொருத்தம் கட்டாயம்")
+    match_divorced_only         = models.BooleanField(default=True,  verbose_name="மறுமணம் ↔ மறுமணம் மட்டும்")
+    max_receivers_per_run       = models.PositiveIntegerField(default=50,  verbose_name="ஒரு இயக்கத்தில் அதிகபட்ச பெறுபவர்கள்")
+
+    # Last updated
+    updated_at  = models.DateTimeField(auto_now=True)
+    updated_by  = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL)
+
+    class Meta:
+        verbose_name = "வார அனுப்பல் அமைப்பு"
+
+    def __str__(self):
+        return "வார அனுப்பல் அமைப்பு"
+
+    @classmethod
+    def get(cls):
+        """Always returns the singleton config, creating it if missing."""
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj

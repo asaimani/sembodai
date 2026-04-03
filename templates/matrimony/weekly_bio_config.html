@@ -1,0 +1,161 @@
+{% extends 'matrimony/base.html' %}
+{% block title %}வார அனுப்பல் அமைப்பு{% endblock %}
+{% block page_title %}வார அனுப்பல் அமைப்பு{% endblock %}
+
+{% block content %}
+<form method="post">
+{% csrf_token %}
+
+<div class="row g-3">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-md-6">
+
+        <!-- Bio Link Settings -->
+        <div class="card mb-3">
+            <div class="card-header fw-bold"><i class="fas fa-link me-2 text-primary"></i>பயோ இணைப்பு அமைப்பு</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">பயோ இணைப்பு செல்லுபடியாகும் காலம் (நாட்கள்)</label>
+                    <input type="number" name="bio_token_expiry_days" value="{{ cfg.bio_token_expiry_days }}" min="1" max="365" class="form-control">
+                    <div class="form-text">இணைப்பை திறக்க கிடைக்கும் காலம். தற்போது: <strong>{{ cfg.bio_token_expiry_days }} நாட்கள்</strong></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">அனுப்பல் பதிவு தக்க வைப்பு (நாட்கள்)</label>
+                    <input type="number" name="bio_log_retention_days" value="{{ cfg.bio_log_retention_days }}" min="30" max="730" class="form-control">
+                    <div class="form-text">இதற்கு மேல் பழைய பயோ பதிவுகள் தானாக நீக்கப்படும்</div>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label">திருமணமான வரன் தக்க வைப்பு (நாட்கள்)</label>
+                    <input type="number" name="married_cleanup_days" value="{{ cfg.married_cleanup_days }}" min="30" max="365" class="form-control">
+                    <div class="form-text">திருமணமான வரன் பதிவுகள் நீக்கப்படும் காலம்</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matching Rules -->
+        <div class="card mb-3">
+            <div class="card-header fw-bold"><i class="fas fa-sliders-h me-2 text-warning"></i>பொருத்தம் விதிகள்</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">ஒரு இயக்கத்தில் அதிகபட்ச பெறுபவர்கள்</label>
+                    <input type="number" name="max_receivers_per_run" value="{{ cfg.max_receivers_per_run }}" min="5" max="200" class="form-control">
+                    <div class="form-text">ஒவ்வொரு அனுப்புபவருக்கும் அதிகபட்சம் இத்தனை பெறுபவர்கள் பரிந்துரைக்கப்படுவர்</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">இயல்புநிலை வார வரம்பு (பிரீமியம் வகை இல்லாதவர்)</label>
+                    <input type="number" name="default_weekly_limit" value="{{ cfg.default_weekly_limit }}" min="1" max="50" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="match_age_strict" id="match_age_strict" {% if cfg.match_age_strict %}checked{% endif %}>
+                        <label class="form-check-label" for="match_age_strict">
+                            வயது பொருத்தம் கட்டாயம் <small class="text-muted">(ஆண் வயதை விட பெண் சிறியவராக இருக்க வேண்டும்)</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="mb-0">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="match_divorced_only" id="match_divorced_only" {% if cfg.match_divorced_only %}checked{% endif %}>
+                        <label class="form-check-label" for="match_divorced_only">
+                            மறுமணம் ↔ மறுமணம் மட்டும் பொருத்துக <small class="text-muted">(OFF ஆக்கினால் கலந்து பொருத்தும்)</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-md-6">
+
+        <!-- Normal Premium Limits -->
+        <div class="card mb-3">
+            <div class="card-header fw-bold"><i class="fas fa-crown me-2 text-warning"></i>வழக்கமான வரன் — வார வரம்பு (Premium வகை வாரியாக)</div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">இந்த வரம்புகள் <strong>வழக்கமான (மறுமணம் அல்லாத)</strong> வரன்களுக்கு பொருந்தும். 0 = வரம்பற்றது.</p>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>பிரீமியம் வகை</th>
+                                <th style="width:130px;">வார வரம்பு</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for pt in premium_types %}
+                        <tr>
+                            <td class="fw-500">
+                                {% if pt.code == 'silver' %}<span class="badge bg-secondary">Silver</span>
+                                {% elif pt.code == 'gold' %}<span class="badge bg-warning text-dark">Gold</span>
+                                {% elif pt.code == 'platinum' %}<span class="badge" style="background:#e5e4e2;color:#333;">Platinum</span>
+                                {% elif pt.code == 'diamond' %}<span class="badge" style="background:#b9f2ff;color:#003a4d;">Diamond</span>
+                                {% else %}<span class="badge bg-secondary">{{ pt.name }}</span>{% endif %}
+                            </td>
+                            <td>
+                                <input type="number" name="premium_{{ pt.code }}_limit" value="{{ pt.weekly_limit }}" min="0" max="100" class="form-control form-control-sm">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Remarriage Premium Limits -->
+        <div class="card mb-3">
+            <div class="card-header fw-bold"><i class="fas fa-heart me-2" style="color:#0ea5e9;"></i>மறுமணம் வரன் — வார வரம்பு (Premium வகை வாரியாக)</div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">இந்த வரம்புகள் <strong>மறுமணம்</strong> நிலையிலுள்ள வரன்களுக்கு மட்டும் பொருந்தும். 0 = வரம்பற்றது.</p>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered mb-0">
+                        <thead style="background:#0369a1;color:#fff;">
+                            <tr>
+                                <th>பிரீமியம் வகை</th>
+                                <th style="width:130px;">வார வரம்பு</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><span class="badge bg-secondary">Silver</span></td>
+                            <td><input type="number" name="remarriage_silver_limit" value="{{ cfg.remarriage_silver_limit }}" min="0" max="100" class="form-control form-control-sm"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge bg-warning text-dark">Gold</span></td>
+                            <td><input type="number" name="remarriage_gold_limit" value="{{ cfg.remarriage_gold_limit }}" min="0" max="100" class="form-control form-control-sm"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge" style="background:#e5e4e2;color:#333;">Platinum</span></td>
+                            <td><input type="number" name="remarriage_platinum_limit" value="{{ cfg.remarriage_platinum_limit }}" min="0" max="100" class="form-control form-control-sm"></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge" style="background:#b9f2ff;color:#003a4d;">Diamond</span></td>
+                            <td><input type="number" name="remarriage_diamond_limit" value="{{ cfg.remarriage_diamond_limit }}" min="0" max="100" class="form-control form-control-sm"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Last updated info -->
+        {% if cfg.updated_at %}
+        <div class="alert alert-light border small py-2">
+            <i class="fas fa-clock me-1 text-muted"></i>
+            கடைசியாக புதுப்பித்தவர்: <strong>{{ cfg.updated_by|default:"—" }}</strong>
+            &nbsp;|&nbsp; {{ cfg.updated_at|date:"d/m/Y H:i" }}
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<div class="d-flex gap-2 mt-2">
+    <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-2"></i>சேமி</button>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">ரத்து</a>
+</div>
+
+</form>
+{% endblock %}
