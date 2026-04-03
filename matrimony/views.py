@@ -767,7 +767,7 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
                     'nachathirams__nachathiram', 'sub_castes__sub_caste',
                     'districts__district', 'professions__profession', 'complexions__complexion',
                 ).get(candidate_gender=sender_gender, candidate_id=sender.pk)
-                matches = _find_matches_inline(exp, receiver_model, sent_ids, qs_age)
+                matches = _find_matches_inline(exp, receiver_model, sent_ids, qs_age, max_receivers=cfg.max_receivers_per_run)
             except CandidateExpectation.DoesNotExist:
                 matches = list(
                     qs_age.exclude(pk__in=sent_ids).exclude(whatsapp_number='').order_by('-premium_start_date')[:remaining]
@@ -802,7 +802,7 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
     return total
 
 
-def _find_matches_inline(exp, receiver_model, sent_ids, qs_age=None):
+def _find_matches_inline(exp, receiver_model, sent_ids, qs_age=None, max_receivers=50):
     qs = (qs_age if qs_age is not None else receiver_model.objects).exclude(pk__in=sent_ids)
     if exp.salary_min:
         qs = qs.filter(monthly_salary__gte=exp.salary_min)
@@ -825,7 +825,7 @@ def _find_matches_inline(exp, receiver_model, sent_ids, qs_age=None):
     comp_ids = list(exp.complexions.values_list('complexion_id', flat=True))
     if comp_ids:
         qs = qs.filter(complexion_id__in=comp_ids)
-    return list(qs.order_by('-premium_start_date')[:cfg.max_receivers_per_run])
+    return list(qs.order_by('-premium_start_date')[:max_receivers])
 
 
 # ─────────────────────────────────────────────

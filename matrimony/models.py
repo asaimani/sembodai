@@ -224,7 +224,7 @@ class BaseCandidateModel(models.Model):
     address_line1   = models.CharField(max_length=200, blank=True, verbose_name="முகவரி வரி 1")
     address_line2   = models.CharField(max_length=200, blank=True, verbose_name="முகவரி வரி 2")
     address_line3   = models.CharField(max_length=200, blank=True, verbose_name="முகவரி வரி 3")
-    pincode         = models.CharField(max_length=6, blank=True, verbose_name="பின்கோட்")
+    pincode         = models.CharField(max_length=10, blank=True, verbose_name="பின்கோட்")
     mobile_number   = models.CharField(max_length=15, blank=True, verbose_name="கைபேசி எண்")
     whatsapp_number = models.CharField(max_length=15, blank=True, verbose_name="வாட்ஸ்அப் எண்")
 
