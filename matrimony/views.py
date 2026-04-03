@@ -269,18 +269,34 @@ def _save_jathagam(candidate, post_data):
 
 MAX_PHOTO_SIZE_MB = 5  # Maximum upload size in MB
 
+def _validate_image_bytes(file_obj):
+    """Check actual file bytes — not browser-sent content_type (easily spoofed)."""
+    file_obj.seek(0)
+    header = file_obj.read(12)
+    file_obj.seek(0)
+    # JPEG: FF D8 FF
+    if header[:3] == b'\xff\xd8\xff':
+        return True
+    # PNG: 89 50 4E 47 0D 0A 1A 0A
+    if header[:8] == b'\x89PNG\r\n\x1a\n':
+        return True
+    # WebP: RIFF....WEBP
+    if header[:4] == b'RIFF' and header[8:12] == b'WEBP':
+        return True
+    return False
+
+
 def _save_photos(candidate, files, is_male):
     if not files:
         return
     photo = files[0]
-    # Validate file type
-    allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-    if photo.content_type not in allowed_types:
-        raise ValueError("புகைப்படம் JPEG, PNG அல்லது WebP வடிவத்தில் இருக்க வேண்டும்.")
-    # Validate file size
+    # Validate file size first (cheap check)
     max_bytes = MAX_PHOTO_SIZE_MB * 1024 * 1024
     if photo.size > max_bytes:
         raise ValueError(f"புகைப்படம் அளவு {MAX_PHOTO_SIZE_MB}MB-ஐ தாண்டக்கூடாது. தற்போதைய அளவு: {photo.size // (1024*1024)}MB")
+    # Validate actual file bytes — prevents MIME type spoofing
+    if not _validate_image_bytes(photo):
+        raise ValueError("புகைப்படம் JPEG, PNG அல்லது WebP வடிவத்தில் இருக்க வேண்டும்.")
     # Only 1 photo allowed - delete existing first
     for existing in candidate.photos.all():
         import os
@@ -881,16 +897,22 @@ def _get_sender_summary(sender_gender, month_year, recent_week_keys=None):
     result_with_logs = []
     result_no_logs   = []
     result_expired   = []
-    
-   # Candidates with logs (last 12 months) — non-expired first
+
+    # Prefetch ALL senders in one query — eliminates N+1
+    all_sender_ids = list(sender_all_logs.keys())
+    sender_cache = {
+        s.pk: s for s in CandidateModel.objects.filter(pk__in=all_sender_ids)
+                                                .select_related('status', 'premium_type', 'district')
+    }
+
+    # Candidates with logs (last 12 months) — non-expired first
     processed_ids = set()
     for sender_id, send_logs in sender_all_logs.items():
         if sender_id in processed_ids:
             continue
         processed_ids.add(sender_id)
-        try:
-            sender = CandidateModel.objects.get(pk=sender_id)
-        except CandidateModel.DoesNotExist:
+        sender = sender_cache.get(sender_id)
+        if not sender:
             continue
 
         is_expired = bool(sender.premium_end_date and sender.premium_end_date < _today)
@@ -973,11 +995,16 @@ def _build_wa_message(sender, pending_logs, OppModel, opp_gender):
     if not pending_logs:
         return ''
 
+    # Prefetch all receivers in one query — eliminates N+1
+    receiver_ids = [log.receiver_id for log in pending_logs]
+    receiver_cache = {
+        r.pk: r for r in OppModel.objects.filter(pk__in=receiver_ids)
+    }
+
     lines = [f"வணக்கம் {sender.name},\n\nசெம்போடையார் வன்னியர் திருமண மையம்\nஇந்த வார பொருத்தமான வரன்கள்:\n"]
     for i, log in enumerate(pending_logs, 1):
-        try:
-            receiver = OppModel.objects.get(pk=log.receiver_id)
-        except OppModel.DoesNotExist:
+        receiver = receiver_cache.get(log.receiver_id)
+        if not receiver:
             continue
         # Create token only if missing — never replace existing valid token
         from .models import BioToken
