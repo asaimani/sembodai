@@ -22,6 +22,35 @@
     </div>
 </div>
 
+{% if run_summary %}
+<div class="card mb-3 border-success">
+    <div class="card-header bg-success bg-opacity-10 d-flex justify-content-between align-items-center py-2">
+        <span class="fw-bold text-success"><i class="fas fa-check-circle me-2"></i>இயக்க முடிவு</span>
+        <span class="badge bg-success">மொத்தம் {{ run_summary.total }} பொருத்தங்கள்</span>
+    </div>
+    <div class="card-body py-2">
+        <div class="row g-2 mb-2">
+            <div class="col-auto"><span class="badge bg-primary">ஆண் பொருத்தம்: {{ run_summary.male_prepared }}</span></div>
+            <div class="col-auto"><span class="badge bg-danger">பெண் பொருத்தம்: {{ run_summary.female_prepared }}</span></div>
+            <div class="col-auto"><span class="badge bg-warning text-dark">பொருத்தம் இல்லை (ஆண்): {{ run_summary.male_no_match|length }}</span></div>
+            <div class="col-auto"><span class="badge bg-warning text-dark">பொருத்தம் இல்லை (பெண்): {{ run_summary.female_no_match|length }}</span></div>
+            {% if run_summary.male_no_wa or run_summary.female_no_wa %}
+            <div class="col-auto"><span class="badge bg-secondary">WA இல்லை: {{ run_summary.male_no_wa|add:run_summary.female_no_wa }}</span></div>
+            {% endif %}
+        </div>
+        {% if no_match_males or no_match_females %}
+        <div class="border rounded p-2" style="background:var(--bs-warning-bg-subtle,#fff3cd);">
+            <small class="fw-bold text-warning-emphasis">பொருத்தம் கிடைக்காத வரன்கள் — எதிர்பார்ப்பு திருத்தவும் அல்லது கைமுறை பொருத்தவும்:</small>
+            <div class="mt-1" style="font-size:12px;">
+                {% for c in no_match_males %}<span class="badge bg-primary me-1 mb-1">{{ c.uid }} {{ c.name }}</span>{% endfor %}
+                {% for c in no_match_females %}<span class="badge bg-danger me-1 mb-1">{{ c.uid }} {{ c.name }}</span>{% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
 <ul class="nav nav-tabs mb-3" id="sendTabs">
     <li class="nav-item">
         <a class="nav-link active" data-bs-toggle="tab" href="#male-tab">
@@ -37,10 +66,174 @@
 
 <div class="tab-content">
     <div class="tab-pane fade show active" id="male-tab">
-        {% include 'matrimony/_weekly_send_table.html' with logs=male_logs %}
+<div class="card">
+    <div class="card-body p-0">
+        {% if male_logs %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>UID</th>
+                        <th>பெயர்</th>
+                        <th>WhatsApp</th>
+                        <th>மாதம்</th>
+                        <th>பொருத்தங்கள்</th>
+                        <th>நிலை</th>
+                        <th>அனுப்பு</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in male_logs %}
+                <tr {% if row.is_warning %}style="background:#fff3cd;opacity:0.8;"{% elif row.sender.status and row.sender.status.code == "remarriage" %}style="background:#e0f2fe;"{% endif %}>
+                    <td><span class="fw-bold text-danger">{{ row.sender.uid }}</span></td>
+                    <td>{{ row.sender.name }}{% if row.sender.status and row.sender.status.code == "remarriage" %} <span class="badge" style="background:#0ea5e9;font-size:9px;">மறுமணம்</span>{% endif %}</td>
+                    <td>
+                        {% if row.sender.whatsapp_number %}
+                            <span class="text-success">{{ row.sender.whatsapp_number }}</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">இல்லை</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">{{ row.sent_count }}/{{ row.total_count }}</span>
+                    </td>
+                    <td>
+                        {% if row.has_pending %}
+                            <span class="badge bg-info text-dark">{{ row.pending_logs|length }} நிலுவை</span>
+                        {% elif row.total_count > 0 %}
+                            <span class="badge bg-success">முடிந்தது</span>
+                        {% else %}
+                            <span class="text-muted small">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.is_warning %}
+                            <span class="badge bg-warning text-dark">⏰ காலாவதி</span>
+                        {% elif row.has_pending %}
+                            <span class="badge badge-active">நிலுவை</span>
+                        {% elif row.sent_count > 0 %}
+                            <span class="badge badge-active">✅ அனுப்பியது</span>
+                        {% else %}
+                            <span class="badge bg-secondary">தயாரில்லை</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.has_pending and row.sender.whatsapp_number %}
+                        <div class="d-flex gap-1">
+                            <a href="{{ row.wa_url }}"
+                               target="_blank"
+                               class="btn btn-sm btn-success"
+                               title="WhatsApp திற">
+                                <i class="fab fa-whatsapp"></i> அனுப்பு
+                            </a>
+                            <form method="post" action="/weekly-send/mark-sent/{{ row.pending_log_ids }}/" style="display:inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="அனுப்பியதாக குறி">
+                                    ✓
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center p-5 text-muted">
+            <i class="fas fa-paper-plane fa-3x mb-3"></i>
+            <p>இன்னும் பொருத்தங்கள் தயாரில்லை. "இப்போது தயார் செய்" அழுத்தவும்.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
     </div>
     <div class="tab-pane fade" id="female-tab">
-        {% include 'matrimony/_weekly_send_table.html' with logs=female_logs %}
+<div class="card">
+    <div class="card-body p-0">
+        {% if female_logs %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>UID</th>
+                        <th>பெயர்</th>
+                        <th>WhatsApp</th>
+                        <th>மாதம்</th>
+                        <th>பொருத்தங்கள்</th>
+                        <th>நிலை</th>
+                        <th>அனுப்பு</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in female_logs %}
+                <tr {% if row.is_warning %}style="background:#fff3cd;opacity:0.8;"{% elif row.sender.status and row.sender.status.code == "remarriage" %}style="background:#e0f2fe;"{% endif %}>
+                    <td><span class="fw-bold text-danger">{{ row.sender.uid }}</span></td>
+                    <td>{{ row.sender.name }}{% if row.sender.status and row.sender.status.code == "remarriage" %} <span class="badge" style="background:#0ea5e9;font-size:9px;">மறுமணம்</span>{% endif %}</td>
+                    <td>
+                        {% if row.sender.whatsapp_number %}
+                            <span class="text-success">{{ row.sender.whatsapp_number }}</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">இல்லை</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">{{ row.sent_count }}/{{ row.total_count }}</span>
+                    </td>
+                    <td>
+                        {% if row.has_pending %}
+                            <span class="badge bg-info text-dark">{{ row.pending_logs|length }} நிலுவை</span>
+                        {% elif row.total_count > 0 %}
+                            <span class="badge bg-success">முடிந்தது</span>
+                        {% else %}
+                            <span class="text-muted small">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.is_warning %}
+                            <span class="badge bg-warning text-dark">⏰ காலாவதி</span>
+                        {% elif row.has_pending %}
+                            <span class="badge badge-active">நிலுவை</span>
+                        {% elif row.sent_count > 0 %}
+                            <span class="badge badge-active">✅ அனுப்பியது</span>
+                        {% else %}
+                            <span class="badge bg-secondary">தயாரில்லை</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.has_pending and row.sender.whatsapp_number %}
+                        <div class="d-flex gap-1">
+                            <a href="{{ row.wa_url }}"
+                               target="_blank"
+                               class="btn btn-sm btn-success"
+                               title="WhatsApp திற">
+                                <i class="fab fa-whatsapp"></i> அனுப்பு
+                            </a>
+                            <form method="post" action="/weekly-send/mark-sent/{{ row.pending_log_ids }}/" style="display:inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="அனுப்பியதாக குறி">
+                                    ✓
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center p-5 text-muted">
+            <i class="fas fa-paper-plane fa-3x mb-3"></i>
+            <p>இன்னும் பொருத்தங்கள் தயாரில்லை. "இப்போது தயார் செய்" அழுத்தவும்.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
     </div>
 </div>
 {% endblock %}

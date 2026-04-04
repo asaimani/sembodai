@@ -1,11 +1,6 @@
-import os
-import sys
+import os 
 from pathlib import Path
 from dotenv import load_dotenv
-
-# Django 5.2 template engine uses more stack frames than 5.0
-# Increase limit to handle complex template inheritance + includes
-sys.setrecursionlimit(3000)
 
 load_dotenv()
 
