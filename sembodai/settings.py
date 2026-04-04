@@ -132,6 +132,9 @@ if not DEBUG:
 
 SITE_URL = os.environ.get('SITE_URL', 'https://sembodai-production.up.railway.app')
 
+# Cron secret — must match CRON_SECRET Railway variable
+CRON_SECRET = os.environ.get('CRON_SECRET', '')
+
 # Cache — used for rate limiting (login + bio endpoint)
 # LocMemCache works per-process. For multi-worker, switch to Redis.
 CACHES = {
