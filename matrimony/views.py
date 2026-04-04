@@ -1106,12 +1106,10 @@ def _build_wa_message(sender, pending_logs, OppModel, opp_gender):
         receiver = receiver_cache.get(log.receiver_id)
         if not receiver:
             continue
-        # Create token only if missing — never replace existing valid token
-        from .models import BioToken
+        # Skip logs without a token — tokens are created during prepare phase only
+        # Never create/save tokens during a GET request (causes recursion in signal chain)
         if not log.bio_token:
-            token_obj = BioToken.create_for_candidate(opp_gender, log.receiver_id)
-            log.bio_token = token_obj
-            log.save(update_fields=['bio_token'])
+            continue
         token = log.bio_token.token
         bio_url = f"{base_url}/bio/{token}/"
         age_str = f"{receiver.age} வயது" if receiver.age else ''
