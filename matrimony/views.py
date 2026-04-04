@@ -746,42 +746,67 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
 
     def prepare_gender(sender_model, receiver_model, sender_gender, receiver_gender):
         from datetime import date as _date
+        from collections import defaultdict
         today = _date.today()
         prepared = 0
+        no_match_ids = []
+        skipped_no_wa = 0
+
         # Only active (non-expired) candidates as senders
-        senders = sender_model.objects.select_related('premium_type').filter(
+        senders = list(sender_model.objects.select_related(
+            'premium_type', 'status'
+        ).filter(
             Q(premium_end_date__isnull=True) | Q(premium_end_date__gte=today)
-        ).exclude(status__code='married')
+        ).exclude(status__code='married'))
+
+        sender_ids = [s.pk for s in senders]
+
+        # ── BATCH QUERY 1: this week counts for all senders at once ──
+        from django.db.models import Count as _Count
+        week_counts = dict(
+            BioSendLog.objects.filter(
+                sender_gender=sender_gender,
+                sender_id__in=sender_ids,
+                month_year=week_key
+            ).values('sender_id').annotate(n=_Count('id')).values_list('sender_id', 'n')
+        )
+
+        # ── BATCH QUERY 2: all-time sent receiver_ids per sender ──
+        all_sent_raw = BioSendLog.objects.filter(
+            sender_gender=sender_gender,
+            sender_id__in=sender_ids,
+            receiver_gender=receiver_gender,
+        ).values_list('sender_id', 'receiver_id')
+        sent_map = defaultdict(set)
+        for sid, rid in all_sent_raw:
+            sent_map[sid].add(rid)
+
         for sender in senders:
             if not sender.whatsapp_number:
+                skipped_no_wa += 1
                 continue
+
             limit = get_weekly_limit(sender)
+            already_prepared = week_counts.get(sender.pk, 0)
+
             if limit is not None:
-                all_this_week = BioSendLog.objects.filter(
-                    sender_gender=sender_gender, sender_id=sender.pk, month_year=week_key
-                ).order_by('prepared_at')
-                total_this_week = all_this_week.count()
-                if total_this_week > limit:
-                    excess_ids = list(
-                        all_this_week.filter(status='pending')
-                        .order_by('-prepared_at')
-                        .values_list('pk', flat=True)[:total_this_week - limit]
-                    )
-                    BioSendLog.objects.filter(pk__in=excess_ids).delete()
+                if already_prepared > limit:
+                    # Trim excess pending logs
+                    excess_qs = BioSendLog.objects.filter(
+                        sender_gender=sender_gender, sender_id=sender.pk,
+                        month_year=week_key, status='pending'
+                    ).order_by('-prepared_at')
+                    excess_ids = list(excess_qs.values_list('pk', flat=True)[:already_prepared - limit])
+                    if excess_ids:
+                        BioSendLog.objects.filter(pk__in=excess_ids).delete()
+                        already_prepared = limit
+                if already_prepared >= limit:
+                    continue
 
-            already_prepared = BioSendLog.objects.filter(
-                sender_gender=sender_gender, sender_id=sender.pk, month_year=week_key
-            ).count()
-            if limit is not None and already_prepared >= limit:
-                continue
             remaining = (limit - already_prepared) if limit is not None else 999
-
-            sent_ids = set(BioSendLog.objects.filter(
-                sender_gender=sender_gender, sender_id=sender.pk, receiver_gender=receiver_gender
-            ).values_list('receiver_id', flat=True))
+            sent_ids = sent_map[sender.pk]
 
             sender_dob = sender.date_of_birth
-            # Match divorced with divorced, non-divorced with non-divorced
             sender_is_divorced = (sender.status and sender.status.code == 'remarriage')
             if cfg.match_divorced_only:
                 if sender_is_divorced:
@@ -812,7 +837,9 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
                 )
 
             if not matches:
+                no_match_ids.append(sender.pk)
                 continue
+
             matches = matches[:remaining]
             for receiver in matches:
                 token = BioToken.create_for_candidate(receiver_gender, receiver.pk)
@@ -822,11 +849,19 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
                     bio_token=token, month_year=week_key, status='pending',
                 )
                 prepared += 1
-        return prepared
 
-    male_prepared   = prepare_gender(MaleCandidate, FemaleCandidate, 'M', 'F')
-    female_prepared = prepare_gender(FemaleCandidate, MaleCandidate, 'F', 'M')
+        return prepared, no_match_ids, skipped_no_wa
+
+    male_prepared,   male_no_match,   male_no_wa   = prepare_gender(MaleCandidate,   FemaleCandidate, 'M', 'F')
+    female_prepared, female_no_match, female_no_wa = prepare_gender(FemaleCandidate, MaleCandidate,   'F', 'M')
     total = male_prepared + female_prepared
+
+    notes = (
+        f"வார இயக்கம் {week_start} முதல் {week_end} வரை. "
+        f"மொத்தம் {total} பொருத்தங்கள். "
+        f"ஆண்: {male_prepared} பொருத்தம், {len(male_no_match)} பொருத்தம் இல்லை, {male_no_wa} WA இல்லை. "
+        f"பெண்: {female_prepared} பொருத்தம், {len(female_no_match)} பொருத்தம் இல்லை, {female_no_wa} WA இல்லை."
+    )
 
     WeeklyBioRun.objects.create(
         run_by=user,
@@ -835,9 +870,17 @@ def _run_weekly_bios(user, week_start, week_end, week_key):
         male_processed=MaleCandidate.objects.count(),
         female_processed=FemaleCandidate.objects.count(),
         matches_created=total,
-        notes=f"வார இயக்கம் {week_start} முதல் {week_end} வரை. மொத்தம் {total} பொருத்தங்கள்.",
+        notes=notes,
     )
-    return total
+    return {
+        'total': total,
+        'male_prepared': male_prepared,
+        'female_prepared': female_prepared,
+        'male_no_match': male_no_match,
+        'female_no_match': female_no_match,
+        'male_no_wa': male_no_wa,
+        'female_no_wa': female_no_wa,
+    }
 
 
 def _find_matches_inline(exp, receiver_model, sent_ids, qs_age=None, max_receivers=50):
@@ -889,8 +932,16 @@ def weekly_send(request):
             try:
                 from datetime import timedelta as _td
                 week_end_dt = week_start + _td(days=6)
-                total = _run_weekly_bios(request.user, week_start, week_end=week_end_dt, week_key=week_key)
-                messages.success(request, f'பொருத்தங்கள் தயாரிக்கப்பட்டன. மொத்தம் {total} பொருத்தங்கள்.')
+                summary = _run_weekly_bios(request.user, week_start, week_end=week_end_dt, week_key=week_key)
+                # Store summary in session to display after redirect
+                request.session['run_summary'] = summary
+                request.session['run_summary']['male_no_match'] = list(summary['male_no_match'])
+                request.session['run_summary']['female_no_match'] = list(summary['female_no_match'])
+                messages.success(request,
+                    f"பொருத்தங்கள் தயாரிக்கப்பட்டன. மொத்தம் {summary['total']} | "
+                    f"ஆண்: {summary['male_prepared']} | பெண்: {summary['female_prepared']} | "
+                    f"பொருத்தம் இல்லை: {len(summary['male_no_match']) + len(summary['female_no_match'])}"
+                )
             except Exception as e:
                 import traceback
                 messages.error(request, f'பிழை: {str(e)} — {traceback.format_exc()[-200:]}')
@@ -902,12 +953,23 @@ def weekly_send(request):
 
     already_run_this_week = WeeklyBioRun.objects.filter(week_start=week_start).exists()
 
+    # Retrieve run summary from session if just ran
+    run_summary = request.session.pop('run_summary', None)
+    no_match_male_ids   = run_summary['male_no_match']   if run_summary else []
+    no_match_female_ids = run_summary['female_no_match'] if run_summary else []
+    from .models import MaleCandidate, FemaleCandidate
+    no_match_males   = MaleCandidate.objects.filter(pk__in=no_match_male_ids).values('uid','name') if no_match_male_ids else []
+    no_match_females = FemaleCandidate.objects.filter(pk__in=no_match_female_ids).values('uid','name') if no_match_female_ids else []
+
     return render(request, 'matrimony/weekly_send.html', {
         'male_logs': male_logs,
         'female_logs': female_logs,
         'month_year': week_key,
         'already_run_this_week': already_run_this_week,
         'week_start': week_start,
+        'run_summary': run_summary,
+        'no_match_males': no_match_males,
+        'no_match_females': no_match_females,
     })
 
 
