@@ -30,4 +30,5 @@ urlpatterns = [
     path('remarriage-print/<str:gender>/', views.remarriage_print, name='remarriage_print'),
     path('settings/weekly-config/', views.weekly_bio_config, name='weekly_bio_config'),
     path('audit-log/', views.audit_log, name='audit_log'),
+    path('cron/prepare/', views.cron_prepare_bios, name='cron_prepare_bios'),
 ]
