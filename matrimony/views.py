@@ -930,21 +930,32 @@ def weekly_send(request):
             messages.error(request, f'இந்த வாரம் ({week_start}) ஏற்கனவே இயக்கப்பட்டது. மீண்டும் இயக்க முடியாது.')
         else:
             try:
-                from datetime import timedelta as _td
-                week_end_dt = week_start + _td(days=6)
-                summary = _run_weekly_bios(request.user, week_start, week_end=week_end_dt, week_key=week_key)
-                # Store summary in session to display after redirect
-                request.session['run_summary'] = summary
-                request.session['run_summary']['male_no_match'] = list(summary['male_no_match'])
-                request.session['run_summary']['female_no_match'] = list(summary['female_no_match'])
-                messages.success(request,
-                    f"பொருத்தங்கள் தயாரிக்கப்பட்டன. மொத்தம் {summary['total']} | "
-                    f"ஆண்: {summary['male_prepared']} | பெண்: {summary['female_prepared']} | "
-                    f"பொருத்தம் இல்லை: {len(summary['male_no_match']) + len(summary['female_no_match'])}"
+                # Run management command — no HTTP timeout risk
+                import subprocess, sys, os
+                env = os.environ.copy()
+                user_id = str(request.user.pk)
+                result = subprocess.run(
+                    [sys.executable, 'manage.py', 'prepare_weekly_bios', '--user-id', user_id],
+                    capture_output=True, text=True, timeout=600,  # 10 min max
+                    cwd='/app',
                 )
+                if result.returncode == 0:
+                    # Refresh run log to get summary
+                    run = WeeklyBioRun.objects.filter(week_start=week_start).first()
+                    if run:
+                        messages.success(request,
+                            f'பொருத்தங்கள் தயாரிக்கப்பட்டன. மொத்தம் {run.matches_created} | '
+                            f'ஆண்: {run.male_processed} | பெண்: {run.female_processed}'
+                        )
+                    else:
+                        messages.success(request, 'பொருத்தங்கள் தயாரிக்கப்பட்டன.')
+                else:
+                    err = result.stderr[-300:] if result.stderr else result.stdout[-300:]
+                    messages.error(request, f'பிழை: {err}')
+            except subprocess.TimeoutExpired:
+                messages.warning(request, 'இயக்கம் தொடரும் — கொஞ்சம் காத்திருந்து பக்கத்தை புதுப்பிக்கவும்.')
             except Exception as e:
-                import traceback
-                messages.error(request, f'பிழை: {str(e)} — {traceback.format_exc()[-200:]}')
+                messages.error(request, f'பிழை: {str(e)}')
         return redirect('weekly_send')
 
     # Get all pending logs grouped by sender using week_key
