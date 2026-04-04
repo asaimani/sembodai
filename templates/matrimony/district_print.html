@@ -43,7 +43,7 @@
 </div>
 
 {% for item in candidate_data %}
-{% with candidate=item.candidate family_members=item.family_members jathagam_map=item.jathagam_map photo_base64=item.photo_base64 %}
+{% with candidate=item.candidate family_members=item.family_members jathagam_map=item.jathagam_map photo_base64=item.photo_base64 photo_url=item.photo_url %}
 <div class="candidate-page">
 
     <!-- Header — exact same as normal print -->
@@ -222,7 +222,9 @@
             </div>
         </div>
         <div style="text-align:right;">
-            {% if photo_base64 %}
+            {% if photo_url %}
+                <img src="{{ photo_url }}" style="width:130px;height:155px;object-fit:cover;border:2px solid #b91c1c;display:block;">
+            {% elif photo_base64 %}
                 <img src="{{ photo_base64 }}" style="width:130px;height:155px;object-fit:cover;border:2px solid #b91c1c;display:block;">
             {% else %}
                 <div style="width:130px;height:155px;display:flex;align-items:center;justify-content:center;border:2px dashed #b91c1c;font-size:40px;color:#ccc;">👤</div>

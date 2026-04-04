@@ -10,14 +10,35 @@ from .models import *
 from .forms import *
 
 
+def _get_client_ip(request):
+    xff = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    return xff.split(',')[0].strip() if xff else request.META.get('REMOTE_ADDR', '')
+
+
+def _rate_limit(key, limit, timeout):
+    from django.core.cache import cache
+    count = cache.get(key, 0)
+    if count >= limit:
+        return True
+    cache.set(key, count + 1, timeout=timeout)
+    return False
+
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
     if request.method == 'POST':
+        ip = _get_client_ip(request)
+        rl_key = f'login_fail_{ip}'
+        if _rate_limit(rl_key, limit=5, timeout=60):
+            messages.error(request, 'அதிக முயற்சிகள். 1 நிமிடம் கழித்து மீண்டும் முயற்சிக்கவும்.')
+            return render(request, 'matrimony/login.html')
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user:
+            from django.core.cache import cache
+            cache.delete(rl_key)
             login(request, user)
             return redirect('dashboard')
         else:
@@ -1061,6 +1082,11 @@ def mark_sent(request, log_ids):
 def public_bio_view(request, token):
     from .models import BioToken, FamilyMember
     from django.utils import timezone
+    from django.http import HttpResponse
+
+    ip = _get_client_ip(request)
+    if _rate_limit(f'bio_rate_{ip}', limit=20, timeout=60):
+        return HttpResponse('Too many requests. Please wait a minute.', status=429)
 
     try:
         bio_token = BioToken.objects.get(token=token)
@@ -1539,32 +1565,35 @@ def district_print(request, district_id, gender):
     else:
         candidates = FemaleCandidate.objects.filter(district=district).exclude(status__code__in=['married','remarriage']).order_by('name')
 
-    # Build candidate data with photo and jathagam
-    candidate_data = []
-    for candidate in candidates:
-        photo_base64 = None
-        first_photo = candidate.photos.first()
-        if first_photo:
+    # Prefetch photos in one query — use URL not base64 to avoid RAM spike
+    from collections import defaultdict
+    photos_qs = candidates.prefetch_related('photos')
+    photo_url_map = {}
+    for cand in photos_qs:
+        first = cand.photos.first()
+        if first and first.photo:
             try:
-                photo_path = first_photo.photo.path
-                if os.path.exists(photo_path):
-                    with open(photo_path, 'rb') as img_file:
-                        ext = os.path.splitext(photo_path)[1].lower().replace('.', '')
-                        if ext == 'jpg': ext = 'jpeg'
-                        photo_base64 = f"data:image/{ext};base64,{base64.b64encode(img_file.read()).decode()}"
+                photo_url_map[cand.pk] = first.photo.url
             except Exception:
                 pass
 
-        family_members = FamilyMember.objects.filter(
-            candidate_gender=gender, candidate_id=candidate.pk
-        )
-        jathagam_map = candidate.get_jathagam_map()
+    # Prefetch all family members in one query
+    candidate_pks = [c.pk for c in candidates]
+    all_family = FamilyMember.objects.filter(
+        candidate_gender=gender, candidate_id__in=candidate_pks
+    ).order_by('order')
+    family_map = defaultdict(list)
+    for fm in all_family:
+        family_map[fm.candidate_id].append(fm)
 
+    candidate_data = []
+    for candidate in candidates:
         candidate_data.append({
             'candidate': candidate,
-            'photo_base64': photo_base64,
-            'family_members': family_members,
-            'jathagam_map': jathagam_map,
+            'photo_url': photo_url_map.get(candidate.pk),
+            'photo_base64': None,
+            'family_members': family_map.get(candidate.pk, []),
+            'jathagam_map': candidate.get_jathagam_map(),
         })
 
     return render(request, 'matrimony/district_print.html', {

@@ -66,7 +66,17 @@ WSGI_APPLICATION = 'sembodai.wsgi.application'
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     import dj_database_url
-    DATABASES = {'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)}
+    DATABASES = {'default': dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,        # reuse connections for 10 mins
+        conn_health_checks=True, # verify connection still alive before reuse
+    )}
+    # Limit max DB connections per Gunicorn worker
+    DATABASES['default']['OPTIONS'] = DATABASES['default'].get('OPTIONS', {})
+    DATABASES['default']['OPTIONS']['pool'] = {
+        'min_size': 1,
+        'max_size': 5,  # max 5 connections per worker
+    }
 else:
     DATABASES = {
         'default': {
@@ -126,3 +136,12 @@ if not DEBUG:
     X_FRAME_OPTIONS                = 'DENY'
 
 SITE_URL = os.environ.get('SITE_URL', 'https://sembodai-production.up.railway.app')
+
+# Cache — used for rate limiting (login + bio endpoint)
+# LocMemCache works per-process. For multi-worker, switch to Redis.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'sembodai-cache',
+    }
+}
