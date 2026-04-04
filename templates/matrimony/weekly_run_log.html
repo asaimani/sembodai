@@ -56,7 +56,7 @@
                     <td><i class="fas fa-male text-primary me-1"></i>{{ run.male_processed }}</td>
                     <td><i class="fas fa-female text-danger me-1"></i>{{ run.female_processed }}</td>
                     <td><span class="badge bg-success">{{ run.matches_created }}</span></td>
-                    <td class="small text-muted">{{ run.notes|truncatechars:60 }}</td>
+                    <td class="small text-muted" title="{{ run.notes }}">{{ run.notes|truncatechars:120 }}</td>
                     {% if request.user.is_superuser %}
                     <td>
                         <form method="post" onsubmit="return confirm('இந்த பதிவை நீக்கினால் இந்த வாரம் மீண்டும் இயக்கலாம். நீக்கவா?')">
