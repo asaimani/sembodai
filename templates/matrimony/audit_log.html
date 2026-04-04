@@ -1,0 +1,104 @@
+{% extends 'matrimony/base.html' %}
+{% block title %}தணிக்கை பதிவு{% endblock %}
+{% block page_title %}தணிக்கை பதிவு{% endblock %}
+
+{% block content %}
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-auto">
+                <div class="btn-group btn-group-sm">
+                    <a href="?gender=M{% if action %}&action={{ action }}{% endif %}{% if search %}&search={{ search }}{% endif %}" class="btn {% if gender == 'M' %}btn-primary{% else %}btn-outline-primary{% endif %}"><i class="fas fa-male"></i> ஆண்</a>
+                    <a href="?gender=F{% if action %}&action={{ action }}{% endif %}{% if search %}&search={{ search }}{% endif %}" class="btn {% if gender == 'F' %}btn-danger{% else %}btn-outline-danger{% endif %}"><i class="fas fa-female"></i> பெண்</a>
+                    <a href="?{% if action %}action={{ action }}{% endif %}{% if search %}&search={{ search }}{% endif %}" class="btn {% if not gender %}btn-secondary{% else %}btn-outline-secondary{% endif %}">அனைத்தும்</a>
+                </div>
+                {% if gender %}<input type="hidden" name="gender" value="{{ gender }}">{% endif %}
+            </div>
+            <div class="col-auto">
+                <select name="action" class="form-select form-select-sm">
+                    <option value="">— செயல் —</option>
+                    {% for code, label in action_choices %}
+                    <option value="{{ code }}" {% if code == action %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="search" value="{{ search }}" class="form-control form-control-sm" placeholder="UID / பெயர் தேடல்">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i></button>
+                <a href="{% url 'audit_log' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-shield-alt me-2"></i>தணிக்கை பதிவு — <strong>{{ total }}</strong> பதிவுகள்</span>
+    </div>
+    <div class="card-body p-0">
+        {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-hover table-sm mb-0" style="font-size:13px;">
+                <thead>
+                    <tr>
+                        <th>நேரம்</th>
+                        <th>செயல்</th>
+                        <th>பாலினம்</th>
+                        <th>UID</th>
+                        <th>பெயர்</th>
+                        <th>விவரம்</th>
+                        <th>செய்தவர்</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for log in page_obj %}
+                <tr>
+                    <td class="small text-muted">{{ log.performed_at|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if log.action == 'create' %}<span class="badge bg-success">சேர்க்கப்பட்டது</span>
+                        {% elif log.action == 'update' %}<span class="badge bg-primary">திருத்தம்</span>
+                        {% elif log.action == 'delete' %}<span class="badge bg-danger">நீக்கம்</span>
+                        {% elif log.action == 'status' %}<span class="badge bg-warning text-dark">நிலை மாற்றம்</span>
+                        {% elif log.action == 'premium' %}<span class="badge bg-info text-dark">பிரீமியம்</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if log.gender == 'M' %}<span class="badge badge-male">ஆண்</span>
+                        {% else %}<span class="badge badge-female">பெண்</span>{% endif %}
+                    </td>
+                    <td class="fw-bold text-danger">{{ log.candidate_uid }}</td>
+                    <td>{{ log.candidate_name }}</td>
+                    <td class="small text-muted">{{ log.details|truncatechars:60 }}</td>
+                    <td class="small">{{ log.performed_by|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center p-5 text-muted">
+            <i class="fas fa-shield-alt fa-3x mb-3"></i>
+            <p>தணிக்கை பதிவுகள் இல்லை</p>
+        </div>
+        {% endif %}
+    </div>
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="card-footer d-flex justify-content-between align-items-center py-2">
+        <small class="text-muted">பக்கம் {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</small>
+        <nav>
+            <ul class="pagination pagination-sm mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?gender={{ gender }}&action={{ action }}&search={{ search }}&page={{ page_obj.previous_page_number }}"><i class="fas fa-chevron-left"></i></a></li>
+                {% else %}<li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-left"></i></span></li>{% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?gender={{ gender }}&action={{ action }}&search={{ search }}&page={{ page_obj.next_page_number }}"><i class="fas fa-chevron-right"></i></a></li>
+                {% else %}<li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-right"></i></span></li>{% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

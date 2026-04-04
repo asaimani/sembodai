@@ -116,6 +116,11 @@ DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'noreply@sembodai.com')
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
 
 # Security settings — enabled automatically when not in DEBUG mode
+# Session expires after 8 hours (office working day)
+SESSION_COOKIE_AGE      = 28800          # 8 hours in seconds
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True   # also expire when browser closes
+SESSION_SAVE_EVERY_REQUEST = True        # refresh expiry on each request
+
 if not DEBUG:
     SESSION_COOKIE_SECURE   = True   # send session cookie over HTTPS only
     CSRF_COOKIE_SECURE      = True   # send CSRF cookie over HTTPS only

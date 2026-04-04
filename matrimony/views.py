@@ -47,8 +47,11 @@ def login_view(request):
 
 
 def logout_view(request):
-    logout(request)
-    return redirect('login')
+    if request.method == 'POST':
+        logout(request)
+        return redirect('login')
+    # GET request — redirect to login without logging out
+    return redirect('dashboard')
 
 
 @login_required
@@ -440,6 +443,8 @@ def candidate_add(request):
                 _save_photos(candidate, photos, is_male)
             except ValueError as e:
                 messages.error(request, str(e))
+            from .models import _audit
+            _audit('create', candidate, gender, user=request.user)
             messages.success(request, f'விண்ணப்பம் வெற்றிகரமாக சேர்க்கப்பட்டது. UID: {candidate.uid}')
             return redirect('candidate_detail', gender=gender, pk=candidate.pk)
     else:
@@ -525,6 +530,16 @@ def candidate_edit(request, gender, pk):
                 messages.error(request, str(e))
             _save_jathagam(saved, request.POST)
             _save_family_members(saved, request.POST)
+            from .models import _audit
+            # Detect what changed
+            changes = []
+            if saved.status_id != candidate.status_id:
+                changes.append(f"நிலை: {candidate.status} → {saved.status}")
+                _audit('status', saved, gender, user=request.user, details=f"நிலை: {saved.status}")
+            if saved.premium_end_date != candidate.premium_end_date:
+                changes.append(f"பிரீமியம்: {saved.premium_end_date}")
+                _audit('premium', saved, gender, user=request.user, details=f"பிரீமியம் வரை: {saved.premium_end_date}")
+            _audit('update', saved, gender, user=request.user, details=', '.join(changes) if changes else 'பொது திருத்தம்')
             messages.success(request, 'விண்ணப்பம் புதுப்பிக்கப்பட்டது.')
             return redirect('candidate_detail', gender=gender, pk=candidate.pk)
     else:
@@ -635,6 +650,8 @@ def candidate_delete(request, gender, pk):
         for photo in candidate.photos.all():
             if photo.photo and os.path.isfile(photo.photo.path):
                 os.remove(photo.photo.path)
+        from .models import _audit
+        _audit('delete', candidate, gender, user=request.user, details=f"நீக்கப்பட்டது: {candidate.uid} — {candidate.name}")
         candidate.delete()
         return redirect('candidate_list')
     return render(request, 'matrimony/candidate_confirm_delete.html', {
@@ -1850,4 +1867,38 @@ def weekly_bio_config(request):
     return render(request, 'matrimony/weekly_bio_config.html', {
         'cfg': cfg,
         'premium_types': premium_types,
+    })
+
+
+# ─────────────────────────────────────────────
+#  AUDIT LOG PAGE
+# ─────────────────────────────────────────────
+
+@login_required
+def audit_log(request):
+    from django.http import HttpResponseForbidden
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("அனுமதி இல்லை")
+    from .models import AuditLog
+    action   = request.GET.get('action', '')
+    gender   = request.GET.get('gender', '')
+    search   = request.GET.get('search', '').strip()
+    page_num = request.GET.get('page', 1)
+
+    qs = AuditLog.objects.select_related('performed_by').order_by('-performed_at')
+    if action: qs = qs.filter(action=action)
+    if gender: qs = qs.filter(gender=gender)
+    if search: qs = qs.filter(Q(candidate_uid__icontains=search) | Q(candidate_name__icontains=search))
+
+    from django.core.paginator import Paginator
+    paginator = Paginator(qs, 50)
+    page_obj  = paginator.get_page(page_num)
+
+    return render(request, 'matrimony/audit_log.html', {
+        'page_obj': page_obj,
+        'total': paginator.count,
+        'action': action,
+        'gender': gender,
+        'search': search,
+        'action_choices': AuditLog.ACTION_CHOICES,
     })

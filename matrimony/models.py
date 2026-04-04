@@ -755,3 +755,52 @@ class WeeklyBioConfig(models.Model):
         """Always returns the singleton config, creating it if missing."""
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
+
+
+# ─────────────────────────────────────────────
+#  AUDIT LOG
+# ─────────────────────────────────────────────
+
+class AuditLog(models.Model):
+    ACTION_CHOICES = [
+        ('create', 'சேர்க்கப்பட்டது'),
+        ('update', 'திருத்தப்பட்டது'),
+        ('delete', 'நீக்கப்பட்டது'),
+        ('status', 'நிலை மாற்றம்'),
+        ('premium', 'பிரீமியம் மாற்றம்'),
+    ]
+    action       = models.CharField(max_length=10, choices=ACTION_CHOICES)
+    gender       = models.CharField(max_length=1)
+    candidate_id = models.PositiveIntegerField()
+    candidate_uid= models.CharField(max_length=20, blank=True)
+    candidate_name=models.CharField(max_length=200, blank=True)
+    details      = models.TextField(blank=True)
+    performed_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    performed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "தணிக்கை பதிவு"
+        ordering = ['-performed_at']
+        indexes = [
+            models.Index(fields=['gender', 'candidate_id'], name='audit_candidate_idx'),
+            models.Index(fields=['performed_at'], name='audit_time_idx'),
+        ]
+
+    def __str__(self):
+        return f"{self.get_action_display()} — {self.candidate_uid} ({self.performed_at:%d/%m/%Y %H:%M})"
+
+
+def _audit(action, candidate, gender, user=None, details=''):
+    """Helper to create audit log entry."""
+    try:
+        AuditLog.objects.create(
+            action=action,
+            gender=gender,
+            candidate_id=candidate.pk,
+            candidate_uid=getattr(candidate, 'uid', ''),
+            candidate_name=getattr(candidate, 'name', ''),
+            details=details,
+            performed_by=user,
+        )
+    except Exception:
+        pass  # Never let audit failure break the main operation

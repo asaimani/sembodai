@@ -242,6 +242,9 @@
         <a href="{% url 'weekly_bio_config' %}" class="{% if request.resolver_match.url_name == 'weekly_bio_config' %}active{% endif %}">
             <i class="fas fa-cog"></i> வார அனுப்பல் அமைப்பு
         </a>
+        <a href="{% url 'audit_log' %}" class="{% if request.resolver_match.url_name == 'audit_log' %}active{% endif %}">
+            <i class="fas fa-shield-alt"></i> தணிக்கை பதிவு
+        </a>
         <a href="{% url 'weekly_run_log' %}" class="{% if request.resolver_match.url_name == 'weekly_run_log' %}active{% endif %}">
             <i class="fas fa-clipboard-list"></i> இயக்க பதிவு
         </a>
@@ -254,9 +257,12 @@
         {% endif %}
         
         <div class="nav-section">கணக்கு</div>
-        <a href="{% url 'logout' %}">
-            <i class="fas fa-sign-out-alt"></i> வெளியேறு
-        </a>
+        <form method="post" action="{% url 'logout' %}" style="margin:0;padding:0;">
+            {% csrf_token %}
+            <button type="submit" style="background:none;border:none;width:100%;text-align:left;padding:0;cursor:pointer;font-family:inherit;font-size:inherit;color:inherit;">
+                <i class="fas fa-sign-out-alt"></i> வெளியேறு
+            </button>
+        </form>
     </nav>
 </div>
 
