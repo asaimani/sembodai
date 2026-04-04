@@ -66,17 +66,7 @@ WSGI_APPLICATION = 'sembodai.wsgi.application'
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     import dj_database_url
-    DATABASES = {'default': dj_database_url.config(
-        default=DATABASE_URL,
-        conn_max_age=600,        # reuse connections for 10 mins
-        conn_health_checks=True, # verify connection still alive before reuse
-    )}
-    # Limit max DB connections per Gunicorn worker
-    DATABASES['default']['OPTIONS'] = DATABASES['default'].get('OPTIONS', {})
-    DATABASES['default']['OPTIONS']['pool'] = {
-        'min_size': 1,
-        'max_size': 5,  # max 5 connections per worker
-    }
+    DATABASES = {'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)}
 else:
     DATABASES = {
         'default': {
