@@ -1060,11 +1060,12 @@ def _get_sender_summary(sender_gender, month_year, recent_week_keys=None):
     result_with_logs.sort(key=lambda x: x['latest_prepared_at'] or _date.min, reverse=True)
 
     # Candidates with NO logs — non-expired only
+    # select_related prevents lazy FK loading in template — avoids extra stack frames
     all_senders = CandidateModel.objects.filter(
         whatsapp_number__isnull=False
     ).exclude(whatsapp_number='').filter(
         Q(premium_end_date__isnull=True) | Q(premium_end_date__gte=_today)
-    )
+    ).select_related('status', 'premium_type', 'district').order_by('-created_at')[:200]
     for sender in all_senders:
         if sender.pk not in processed_ids:
             result_no_logs.append({
