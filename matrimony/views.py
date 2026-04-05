@@ -78,12 +78,18 @@ def dashboard(request):
 
     # Expiring in next 7 days
     week_later = today + timedelta(days=7)
-    expiring_soon_m = MaleCandidate.objects.filter(
+    expiring_soon_male_qs   = MaleCandidate.objects.filter(
         premium_end_date__gte=today, premium_end_date__lte=week_later
-    ).count()
-    expiring_soon_f = FemaleCandidate.objects.filter(
+    ).order_by('premium_end_date')
+    expiring_soon_female_qs = FemaleCandidate.objects.filter(
         premium_end_date__gte=today, premium_end_date__lte=week_later
-    ).count()
+    ).order_by('premium_end_date')
+    expiring_soon_m = expiring_soon_male_qs.count()
+    expiring_soon_f = expiring_soon_female_qs.count()
+    expiring_soon_entries = (
+        list(expiring_soon_male_qs[:10]) +
+        list(expiring_soon_female_qs[:10])
+    )
 
     # Active premium count
     active_premium_m = MaleCandidate.objects.filter(premium_end_date__gte=today).count()
@@ -145,6 +151,7 @@ def dashboard(request):
         'expired_male_count': expired_male_count,
         'expired_female_count': expired_female_count,
         'expiring_soon': expiring_soon_m + expiring_soon_f,
+        'expiring_soon_entries': expiring_soon_entries,
         'active_premium': active_premium_m + active_premium_f,
         'bios_this_week': bios_this_week,
         'last_run': last_run,

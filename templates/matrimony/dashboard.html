@@ -183,6 +183,38 @@
     </div>
 </div>
 
+<!-- Expiring Soon in 7 Days -->
+{% if expiring_soon_entries %}
+<div class="card mb-4">
+    <div class="card-header py-2 d-flex justify-content-between align-items-center" style="background:#fefce8;border-color:#fde047;">
+        <span class="fw-bold small" style="color:#854d0e;"><i class="fas fa-clock me-2"></i>7 நாளில் காலாவதி — உடனே தொடர்பு கொள்ளவும்</span>
+        <span class="badge" style="background:#d97706;">{{ expiring_soon }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-sm mb-0" style="font-size:13px;">
+                <thead style="background:#fef9c3;"><tr><th>UID</th><th>பெயர்</th><th>காலாவதி தேதி</th><th>நாட்கள்</th><th></th></tr></thead>
+                <tbody>
+                {% for c in expiring_soon_entries %}
+                <tr style="background:#fffbeb;">
+                    <td><a href="{% url 'candidate_detail' c.gender c.pk %}" class="fw-bold text-decoration-none" style="color:#b45309;">{{ c.uid }}</a></td>
+                    <td>{{ c.name }}</td>
+                    <td class="small fw-bold" style="color:#d97706;">{{ c.premium_end_date|date:"d/m/Y" }}</td>
+                    <td>
+                        {% with days=c.premium_end_date|timeuntil %}
+                        <span class="badge" style="background:#f59e0b;color:#fff;">{{ days }}</span>
+                        {% endwith %}
+                    </td>
+                    <td><a href="{% url 'candidate_edit' c.gender c.pk %}" class="btn btn-warning btn-sm" style="font-size:11px;padding:1px 8px;">புதுப்பி</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Quick Actions -->
 <div class="card">
     <div class="card-body">
