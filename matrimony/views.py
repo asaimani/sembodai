@@ -1369,15 +1369,27 @@ def save_expectation(request, gender, pk):
 
 @login_required  
 def cron_prepare_bios(request):
-    """Internal endpoint — triggered by Railway cron via curl"""
+    """Internal endpoint — triggered by Railway cron via curl.
+    Accepts both GET (token in URL) and POST (token in header X-Cron-Token).
+    POST is preferred — token not exposed in server logs.
+    """
     from django.core.management import call_command
     from django.http import HttpResponse
-    # Verify secret token to prevent unauthorized access
     from django.conf import settings
-    token = request.GET.get('token', '')
+    from django.views.decorators.csrf import csrf_exempt
+
     cron_secret = getattr(settings, 'CRON_SECRET', '')
-    if not cron_secret or token != cron_secret:
+    if not cron_secret:
         return HttpResponse('Unauthorized', status=401)
+
+    # Check token in header (POST, preferred) or URL (GET, legacy)
+    token = (
+        request.META.get('HTTP_X_CRON_TOKEN', '') or
+        request.GET.get('token', '')
+    )
+    if token != cron_secret:
+        return HttpResponse('Unauthorized', status=401)
+
     call_command('prepare_weekly_bios')
     return HttpResponse('OK', status=200)
 
@@ -1456,27 +1468,29 @@ def bio_history(request):
     CandidateF = FemaleCandidate
     now = timezone.now()
 
-    rows = []
-    for log in page_obj:
-        # Sender
-        try:
-            SenderModel = CandidateM if log.sender_gender == 'M' else CandidateF
-            sender = SenderModel.objects.get(pk=log.sender_id)
-            sender_uid  = sender.uid
-            sender_name = sender.name
-        except Exception:
-            sender_uid  = f"{log.sender_gender}{log.sender_id}"
-            sender_name = '-'
+    # ── Bulk fetch all senders and receivers — eliminates N+1 ──
+    page_logs = list(page_obj)
 
-        # Receiver
-        try:
-            ReceiverModel = CandidateM if log.receiver_gender == 'M' else CandidateF
-            receiver = ReceiverModel.objects.get(pk=log.receiver_id)
-            receiver_uid  = receiver.uid
-            receiver_name = receiver.name
-        except Exception:
-            receiver_uid  = f"{log.receiver_gender}{log.receiver_id}"
-            receiver_name = '-'
+    male_sender_ids   = [l.sender_id   for l in page_logs if l.sender_gender   == 'M']
+    female_sender_ids = [l.sender_id   for l in page_logs if l.sender_gender   == 'F']
+    male_recv_ids     = [l.receiver_id for l in page_logs if l.receiver_gender == 'M']
+    female_recv_ids   = [l.receiver_id for l in page_logs if l.receiver_gender == 'F']
+
+    male_map   = {c.pk: c for c in CandidateM.objects.filter(pk__in=male_sender_ids   + male_recv_ids)}
+    female_map = {c.pk: c for c in CandidateF.objects.filter(pk__in=female_sender_ids + female_recv_ids)}
+
+    def _get(gender, pk):
+        return (male_map if gender == 'M' else female_map).get(pk)
+
+    rows = []
+    for log in page_logs:
+        sender   = _get(log.sender_gender,   log.sender_id)
+        receiver = _get(log.receiver_gender, log.receiver_id)
+
+        sender_uid   = sender.uid    if sender   else f"{log.sender_gender}{log.sender_id}"
+        sender_name  = sender.name   if sender   else '-'
+        receiver_uid  = receiver.uid  if receiver else f"{log.receiver_gender}{log.receiver_id}"
+        receiver_name = receiver.name if receiver else '-'
 
         # Token info
         token_str    = log.bio_token.token[:16] + '...' if log.bio_token else '-'

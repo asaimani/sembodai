@@ -292,8 +292,11 @@ class MaleCandidate(BaseCandidateModel):
         if not self.uid:
             status_code = self.status.code if self.status else ''
             prefix = 'MM' if status_code == 'remarriage' else 'M'
-            count = MaleCandidate.objects.count() + 1
-            uid = f"{prefix}{count:07d}"
+            # Use MAX(pk)+1 — safe even when records are deleted
+            from django.db.models import Max
+            max_pk = MaleCandidate.objects.aggregate(m=Max('pk'))['m'] or 0
+            count  = max_pk + 1
+            uid    = f"{prefix}{count:07d}"
             while MaleCandidate.objects.filter(uid=uid).exists():
                 count += 1
                 uid = f"{prefix}{count:07d}"
@@ -303,6 +306,14 @@ class MaleCandidate(BaseCandidateModel):
     class Meta:
         verbose_name = "ஆண் விண்ணப்பதாரர்"
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status'],           name='male_status_idx'),
+            models.Index(fields=['district'],         name='male_district_idx'),
+            models.Index(fields=['premium_end_date'], name='male_premium_end_idx'),
+            models.Index(fields=['nachathiram'],      name='male_nachathiram_idx'),
+            models.Index(fields=['date_of_birth'],    name='male_dob_idx'),
+            models.Index(fields=['created_at'],       name='male_created_idx'),
+        ]
 
 
 class FemaleCandidate(BaseCandidateModel):
@@ -313,8 +324,11 @@ class FemaleCandidate(BaseCandidateModel):
         if not self.uid:
             status_code = self.status.code if self.status else ''
             prefix = 'MF' if status_code == 'remarriage' else 'F'
-            count = FemaleCandidate.objects.count() + 1
-            uid = f"{prefix}{count:07d}"
+            # Use MAX(pk)+1 — safe even when records are deleted
+            from django.db.models import Max
+            max_pk = FemaleCandidate.objects.aggregate(m=Max('pk'))['m'] or 0
+            count  = max_pk + 1
+            uid    = f"{prefix}{count:07d}"
             while FemaleCandidate.objects.filter(uid=uid).exists():
                 count += 1
                 uid = f"{prefix}{count:07d}"
@@ -324,6 +338,14 @@ class FemaleCandidate(BaseCandidateModel):
     class Meta:
         verbose_name = "பெண் விண்ணப்பதாரர்"
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status'],           name='female_status_idx'),
+            models.Index(fields=['district'],         name='female_district_idx'),
+            models.Index(fields=['premium_end_date'], name='female_premium_end_idx'),
+            models.Index(fields=['nachathiram'],      name='female_nachathiram_idx'),
+            models.Index(fields=['date_of_birth'],    name='female_dob_idx'),
+            models.Index(fields=['created_at'],       name='female_created_idx'),
+        ]
 
 
 # ─────────────────────────────────────────────
