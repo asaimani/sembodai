@@ -1,70 +1,142 @@
 {% extends 'matrimony/base.html' %}
+{% load humanize %}
 {% block title %}டாஷ்போர்டு{% endblock %}
 {% block page_title %}டாஷ்போர்டு{% endblock %}
 
 {% block content %}
-<div class="row g-3 mb-4">
+
+<div class="row g-3 mb-3">
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background: linear-gradient(135deg,#1d4ed8,#3b82f6)">
+        <div class="stat-card" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">
             <div class="stat-icon"><i class="fas fa-users"></i></div>
-            <div class="stat-num">{{ total }}</div>
+            <div class="stat-num">{{ total|intcomma }}</div>
             <div class="stat-label">மொத்த விண்ணப்பங்கள்</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background: linear-gradient(135deg,#1d4ed8,#2563eb)">
+        <div class="stat-card" style="background:linear-gradient(135deg,#1d4ed8,#2563eb)">
             <div class="stat-icon"><i class="fas fa-male"></i></div>
-            <div class="stat-num">{{ male_count }}</div>
-            <div class="stat-label">ஆண் விண்ணப்பங்கள்</div>
+            <div class="stat-num">{{ male_count|intcomma }}</div>
+            <div class="stat-label">ஆண்</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background: linear-gradient(135deg,#be185d,#ec4899)">
+        <div class="stat-card" style="background:linear-gradient(135deg,#be185d,#ec4899)">
             <div class="stat-icon"><i class="fas fa-female"></i></div>
-            <div class="stat-num">{{ female_count }}</div>
-            <div class="stat-label">பெண் விண்ணப்பங்கள்</div>
+            <div class="stat-num">{{ female_count|intcomma }}</div>
+            <div class="stat-label">பெண்</div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background: linear-gradient(135deg,#dc2626,#ef4444)">
+        <div class="stat-card" style="background:linear-gradient(135deg,#0369a1,#0ea5e9)">
+            <div class="stat-icon"><i class="fas fa-paper-plane"></i></div>
+            <div class="stat-num">{{ bios_this_week|intcomma }}</div>
+            <div class="stat-label">இந்த வார பயோ</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="background:linear-gradient(135deg,#b45309,#f59e0b)">
+            <div class="stat-icon"><i class="fas fa-crown"></i></div>
+            <div class="stat-num">{{ active_premium|intcomma }}</div>
+            <div class="stat-label">செயலில் பிரீமியம்</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="background:linear-gradient(135deg,#dc2626,#ef4444)">
             <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
             <div class="stat-num">{{ expired_count }}</div>
-            <div class="stat-label">காலாவதியான பிரீமியம்</div>
-            <div style="font-size:11px;margin-top:4px;opacity:0.9;">
-                <i class="fas fa-male me-1"></i>{{ expired_male_count }}
-                &nbsp;|&nbsp;
-                <i class="fas fa-female ms-1 me-1"></i>{{ expired_female_count }}
+            <div class="stat-label">காலாவதி பிரீமியம்</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="background:linear-gradient(135deg,#d97706,#fbbf24)">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-num">{{ expiring_soon }}</div>
+            <div class="stat-label">7 நாளில் காலாவதி</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" style="background:linear-gradient(135deg,#065f46,#10b981)">
+            <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-num">{{ new_entries|length }}</div>
+            <div class="stat-label">இன்று சேர்ந்தவர்கள்</div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart + Last Run -->
+<div class="row g-3 mb-4">
+    <div class="col-md-8">
+        <div class="card h-100">
+            <div class="card-header py-2">
+                <span class="fw-bold small"><i class="fas fa-chart-bar me-2 text-primary"></i>கடந்த 8 வாரங்கள் — புதிய விண்ணப்பங்கள்</span>
+            </div>
+            <div class="card-body">
+                <div style="position:relative;height:220px;">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+                <div style="display:flex;gap:16px;justify-content:center;margin-top:8px;font-size:12px;color:#6b7280;">
+                    <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:2px;background:#3b82f6;display:inline-block;"></span>ஆண்</span>
+                    <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;border-radius:2px;background:#ec4899;display:inline-block;"></span>பெண்</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header py-2">
+                <span class="fw-bold small"><i class="fas fa-history me-2 text-success"></i>கடைசி இயக்கம்</span>
+            </div>
+            <div class="card-body">
+                {% if last_run %}
+                <div class="mb-2">
+                    <div class="text-muted small">தேதி</div>
+                    <div class="fw-bold">{{ last_run.run_at|date:"d/m/Y H:i" }}</div>
+                </div>
+                <div class="mb-2">
+                    <div class="text-muted small">பொருத்தங்கள்</div>
+                    <div class="fw-bold text-success fs-4">{{ last_run.matches_created|intcomma }}</div>
+                </div>
+                <div class="mb-2">
+                    <div class="text-muted small">வார தொடக்கம்</div>
+                    <div class="fw-bold">{{ last_run.week_start|date:"d/m/Y" }}</div>
+                </div>
+                <div>
+                    <div class="text-muted small">குறிப்பு</div>
+                    <div class="small text-muted" style="font-size:11px;">{{ last_run.notes|truncatechars:100 }}</div>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-history fa-2x mb-2"></i><br>இன்னும் இயக்கவில்லை
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-<div class="row g-3">
-    <!-- New Entries -->
-    <div class="col-12 col-lg-6">
+<!-- Today's new + Expired -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-star me-2"></i>இன்றைய புதிய விண்ணப்பங்கள்</span>
-                <span class="badge bg-warning text-dark">{{ new_entries.count }}</span>
+            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                <span class="fw-bold small"><i class="fas fa-plus-circle me-2 text-success"></i>இன்று சேர்ந்தவர்கள்</span>
+                <span class="badge bg-success">{{ new_entries|length }}</span>
             </div>
             <div class="card-body p-0">
                 {% if new_entries %}
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead><tr><th>UID</th><th>பெயர்</th><th>பாலினம்</th><th>ராசி</th></tr></thead>
+                    <table class="table table-hover table-sm mb-0" style="font-size:13px;">
+                        <thead><tr><th>UID</th><th>பெயர்</th><th>மாவட்டம்</th></tr></thead>
                         <tbody>
-                        {% for c in new_entries %}
+                        {% for c in new_entries|slice:":10" %}
                         <tr>
-                            <td><a href="{% url 'candidate_detail' c.gender c.pk %}" class="text-decoration-none fw-bold text-danger">{{ c.uid }}</a></td>
+                            <td><a href="{% url 'candidate_detail' c.gender c.pk %}" class="fw-bold text-danger text-decoration-none">{{ c.uid }}</a></td>
                             <td>{{ c.name }}</td>
-                            <td>
-                                {% if c.gender == 'M' %}
-                                    <span class="badge badge-male px-2">ஆண்</span>
-                                {% else %}
-                                    <span class="badge badge-female px-2">பெண்</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ c.rasi }}</td>
+                            <td class="text-muted small">{{ c.district|default:"-" }}</td>
                         </tr>
                         {% endfor %}
                         </tbody>
@@ -72,32 +144,30 @@
                 </div>
                 {% else %}
                 <div class="text-center p-4 text-muted">
-                    <i class="fas fa-inbox fa-2x mb-2"></i><br>இன்று புதிய விண்ணப்பங்கள் இல்லை
+                    <i class="fas fa-user-plus fa-2x mb-2"></i><br>இன்று யாரும் சேரவில்லை
                 </div>
                 {% endif %}
             </div>
         </div>
     </div>
-
-    <!-- Expired Entries -->
-    <div class="col-12 col-lg-6">
+    <div class="col-md-6">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg,#dc2626,#b91c1c)">
-                <span><i class="fas fa-exclamation-circle me-2"></i>காலாவதியான பிரீமியம்</span>
-                <span class="badge bg-warning text-dark">{{ expired_count }}</span>
+            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                <span class="fw-bold small"><i class="fas fa-exclamation-triangle me-2 text-danger"></i>காலாவதியான பிரீமியம்</span>
+                <span class="badge bg-danger">{{ expired_count }}</span>
             </div>
             <div class="card-body p-0">
                 {% if expired_entries %}
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead><tr><th>UID</th><th>பெயர்</th><th>முடிவு தேதி</th><th></th></tr></thead>
+                    <table class="table table-hover table-sm mb-0" style="font-size:13px;">
+                        <thead><tr><th>UID</th><th>பெயர்</th><th>முடிந்தது</th><th></th></tr></thead>
                         <tbody>
-                        {% for c in expired_entries %}
+                        {% for c in expired_entries|slice:":10" %}
                         <tr class="table-danger">
-                            <td><a href="{% url 'candidate_detail' c.gender c.pk %}" class="text-decoration-none fw-bold text-danger">{{ c.uid }}</a></td>
+                            <td><a href="{% url 'candidate_detail' c.gender c.pk %}" class="fw-bold text-danger text-decoration-none">{{ c.uid }}</a></td>
                             <td>{{ c.name }}</td>
-                            <td>{{ c.premium_end_date|date:"d/m/Y" }}</td>
-                            <td><a href="{% url 'candidate_edit' c.gender c.pk %}" class="btn btn-sm btn-outline-danger">புதுப்பி</a></td>
+                            <td class="small">{{ c.premium_end_date|date:"d/m/Y" }}</td>
+                            <td><a href="{% url 'candidate_edit' c.gender c.pk %}" class="btn btn-outline-danger" style="font-size:11px;padding:1px 6px;">புதுப்பி</a></td>
                         </tr>
                         {% endfor %}
                         </tbody>
@@ -114,25 +184,38 @@
 </div>
 
 <!-- Quick Actions -->
-<div class="row g-3 mt-1">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <h6 class="fw-bold mb-3 text-danger"><i class="fas fa-bolt me-2"></i>விரைவு செயல்கள்</h6>
-                <div class="d-flex gap-2 flex-wrap">
-                    <a href="{% url 'candidate_add' %}?gender=M" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i>ஆண் விண்ணப்பம்
-                    </a>
-                    <a href="{% url 'candidate_add' %}?gender=F" class="btn btn-outline-primary" style="color:#be185d;border-color:#be185d">
-                        <i class="fas fa-plus me-1"></i>பெண் விண்ணப்பம்
-                    </a>
-                    <a href="{% url 'candidate_list' %}" class="btn btn-outline-secondary">
-                        <i class="fas fa-search me-1"></i>தேடல்
-                    </a>
-
-                </div>
-            </div>
+<div class="card">
+    <div class="card-body">
+        <h6 class="fw-bold mb-3 text-danger"><i class="fas fa-bolt me-2"></i>விரைவு செயல்கள்</h6>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'candidate_add' %}?gender=M" class="btn btn-primary"><i class="fas fa-plus me-1"></i>ஆண் விண்ணப்பம்</a>
+            <a href="{% url 'candidate_add' %}?gender=F" class="btn btn-outline-primary" style="color:#be185d;border-color:#be185d"><i class="fas fa-plus me-1"></i>பெண் விண்ணப்பம்</a>
+            <a href="{% url 'candidate_list' %}" class="btn btn-outline-secondary"><i class="fas fa-search me-1"></i>தேடல்</a>
+            <a href="{% url 'weekly_send' %}" class="btn btn-outline-success"><i class="fas fa-paper-plane me-1"></i>வார அனுப்பல்</a>
         </div>
     </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+new Chart(document.getElementById('weeklyChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [
+            { label: 'ஆண்',  data: {{ chart_male|safe }},   backgroundColor: '#3b82f6', borderRadius: 4 },
+            { label: 'பெண்', data: {{ chart_female|safe }}, backgroundColor: '#ec4899', borderRadius: 4 }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: 'rgba(0,0,0,0.06)' } }
+        }
+    }
+});
+</script>
 {% endblock %}

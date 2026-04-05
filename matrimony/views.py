@@ -56,17 +56,85 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
+    from django.db.models import Count
+    import json as _json
+
     today = date.today()
-    male_count = MaleCandidate.objects.count()
+    male_count   = MaleCandidate.objects.count()
     female_count = FemaleCandidate.objects.count()
-    total = male_count + female_count
-    new_male = MaleCandidate.objects.filter(created_at__date=today).order_by('-created_at')[:20]
+    total        = male_count + female_count
+
+    new_male   = MaleCandidate.objects.filter(created_at__date=today).order_by('-created_at')[:20]
     new_female = FemaleCandidate.objects.filter(created_at__date=today).order_by('-created_at')[:20]
-    expired_male_qs = MaleCandidate.objects.filter(premium_end_date__lt=today)
+
+    expired_male_qs   = MaleCandidate.objects.filter(premium_end_date__lt=today)
     expired_female_qs = FemaleCandidate.objects.filter(premium_end_date__lt=today)
-    expired_male_count = expired_male_qs.count()
+    expired_male_count   = expired_male_qs.count()
     expired_female_count = expired_female_qs.count()
-    expired_entries = list(expired_male_qs.order_by('-premium_end_date')[:20]) + list(expired_female_qs.order_by('-premium_end_date')[:20])
+    expired_entries = (
+        list(expired_male_qs.order_by('-premium_end_date')[:20]) +
+        list(expired_female_qs.order_by('-premium_end_date')[:20])
+    )
+
+    # Expiring in next 7 days
+    week_later = today + timedelta(days=7)
+    expiring_soon_m = MaleCandidate.objects.filter(
+        premium_end_date__gte=today, premium_end_date__lte=week_later
+    ).count()
+    expiring_soon_f = FemaleCandidate.objects.filter(
+        premium_end_date__gte=today, premium_end_date__lte=week_later
+    ).count()
+
+    # Active premium count
+    active_premium_m = MaleCandidate.objects.filter(premium_end_date__gte=today).count()
+    active_premium_f = FemaleCandidate.objects.filter(premium_end_date__gte=today).count()
+
+    # Weekly chart — last 8 weeks: new candidates added per week
+    from django.db.models.functions import TruncWeek
+    eight_weeks_ago = today - timedelta(weeks=8)
+
+    male_weekly = (
+        MaleCandidate.objects
+        .filter(created_at__date__gte=eight_weeks_ago)
+        .annotate(week=TruncWeek('created_at'))
+        .values('week').annotate(n=Count('id')).order_by('week')
+    )
+    female_weekly = (
+        FemaleCandidate.objects
+        .filter(created_at__date__gte=eight_weeks_ago)
+        .annotate(week=TruncWeek('created_at'))
+        .values('week').annotate(n=Count('id')).order_by('week')
+    )
+
+    # Build week labels and data arrays
+    from collections import OrderedDict
+    weeks = OrderedDict()
+    for i in range(7, -1, -1):
+        days_back = (today.weekday() + 1) % 7 + i * 7
+        wstart = today - timedelta(days=days_back)
+        label = wstart.strftime('%d/%m')
+        weeks[wstart.strftime('%Y-%m-%d')] = {'label': label, 'male': 0, 'female': 0}
+
+    for row in male_weekly:
+        key = row['week'].strftime('%Y-%m-%d') if row['week'] else None
+        if key in weeks:
+            weeks[key]['male'] = row['n']
+    for row in female_weekly:
+        key = row['week'].strftime('%Y-%m-%d') if row['week'] else None
+        if key in weeks:
+            weeks[key]['female'] = row['n']
+
+    chart_labels = _json.dumps([v['label'] for v in weeks.values()])
+    chart_male   = _json.dumps([v['male']  for v in weeks.values()])
+    chart_female = _json.dumps([v['female'] for v in weeks.values()])
+
+    # Bio stats — this week
+    days_since_sunday = (today.weekday() + 1) % 7
+    week_start = today - timedelta(days=days_since_sunday)
+    from .models import BioSendLog, WeeklyBioRun
+    bios_this_week = BioSendLog.objects.filter(month_year=str(week_start)).count()
+    last_run = WeeklyBioRun.objects.order_by('-run_at').first()
+
     context = {
         'male_count': male_count,
         'female_count': female_count,
@@ -76,6 +144,13 @@ def dashboard(request):
         'expired_count': expired_male_count + expired_female_count,
         'expired_male_count': expired_male_count,
         'expired_female_count': expired_female_count,
+        'expiring_soon': expiring_soon_m + expiring_soon_f,
+        'active_premium': active_premium_m + active_premium_f,
+        'bios_this_week': bios_this_week,
+        'last_run': last_run,
+        'chart_labels': chart_labels,
+        'chart_male': chart_male,
+        'chart_female': chart_female,
         'today': today,
     }
     return render(request, 'matrimony/dashboard.html', context)
