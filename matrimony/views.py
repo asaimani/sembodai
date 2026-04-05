@@ -1821,12 +1821,16 @@ def married_list(request):
     paginator = Paginator(qs, 50)
     page_obj = paginator.get_page(request.GET.get('page', 1))
 
+    # Bulk fetch candidates — eliminates N+1
+    page_mcs = list(page_obj)
+    male_ids   = [mc.candidate_id for mc in page_mcs if mc.gender == 'M']
+    female_ids = [mc.candidate_id for mc in page_mcs if mc.gender == 'F']
+    male_map   = {c.pk: c for c in MaleCandidate.objects.filter(pk__in=male_ids)}
+    female_map = {c.pk: c for c in FemaleCandidate.objects.filter(pk__in=female_ids)}
+
     rows = []
-    for mc in page_obj:
-        try:
-            candidate = MaleCandidate.objects.get(pk=mc.candidate_id) if mc.gender == 'M' else FemaleCandidate.objects.get(pk=mc.candidate_id)
-        except Exception:
-            candidate = None
+    for mc in page_mcs:
+        candidate = (male_map if mc.gender == 'M' else female_map).get(mc.candidate_id)
         rows.append({'mc': mc, 'candidate': candidate})
 
     return render(request, 'matrimony/married_list.html', {
@@ -1929,8 +1933,8 @@ def remarriage_list(request):
 @login_required
 def remarriage_print(request, gender):
     """Print all மறுமணம் candidates for a gender."""
-    import base64, os
     from .models import MaleCandidate, FemaleCandidate, FamilyMember
+    from collections import defaultdict
 
     admin_profile = None
     try:
@@ -1943,27 +1947,34 @@ def remarriage_print(request, gender):
     else:
         candidates = FemaleCandidate.objects.filter(status__code='remarriage').order_by('name')
 
-    candidate_data = []
-    for candidate in candidates:
-        photo_base64 = None
-        first_photo = candidate.photos.first()
-        if first_photo:
+    # Use photo URL — no RAM spike from base64
+    photos_qs = candidates.prefetch_related('photos')
+    photo_url_map = {}
+    for cand in photos_qs:
+        first = cand.photos.first()
+        if first and first.photo:
             try:
-                photo_path = first_photo.photo.path
-                if os.path.exists(photo_path):
-                    with open(photo_path, 'rb') as img_file:
-                        ext = os.path.splitext(photo_path)[1].lower().replace('.', '')
-                        if ext == 'jpg': ext = 'jpeg'
-                        photo_base64 = f"data:image/{ext};base64,{base64.b64encode(img_file.read()).decode()}"
+                photo_url_map[cand.pk] = first.photo.url
             except Exception:
                 pass
-        family_members = FamilyMember.objects.filter(candidate_gender=gender, candidate_id=candidate.pk)
-        jathagam_map = candidate.get_jathagam_map()
+
+    # Prefetch all family members in one query
+    candidate_pks = [c.pk for c in candidates]
+    all_family = FamilyMember.objects.filter(
+        candidate_gender=gender, candidate_id__in=candidate_pks
+    ).order_by('order')
+    family_map = defaultdict(list)
+    for fm in all_family:
+        family_map[fm.candidate_id].append(fm)
+
+    candidate_data = []
+    for candidate in candidates:
         candidate_data.append({
             'candidate': candidate,
-            'photo_base64': photo_base64,
-            'family_members': family_members,
-            'jathagam_map': jathagam_map,
+            'photo_url': photo_url_map.get(candidate.pk),
+            'photo_base64': None,
+            'family_members': family_map.get(candidate.pk, []),
+            'jathagam_map': candidate.get_jathagam_map(),
         })
 
     return render(request, 'matrimony/district_print.html', {
