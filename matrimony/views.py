@@ -1395,10 +1395,14 @@ def cron_prepare_bios(request):
         return HttpResponse('Unauthorized', status=401)
 
     try:
-        call_command('prepare_weekly_bios')
-        return HttpResponse('OK', status=200)
+        import io
+        from django.core.management import call_command
+        stdout_capture = io.StringIO()
+        call_command('prepare_weekly_bios', stdout=stdout_capture)
+        output = stdout_capture.getvalue()
+        return HttpResponse(f'OK\n\n{output}', status=200, content_type='text/plain')
     except Exception as e:
-        return HttpResponse(f'ERROR: {str(e)}\n{traceback.format_exc()[-500:]}', status=500)
+        return HttpResponse(f'ERROR: {str(e)}\n{traceback.format_exc()}', status=500, content_type='text/plain')
 
 
 # ─────────────────────────────────────────────
