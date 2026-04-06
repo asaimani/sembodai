@@ -1374,22 +1374,19 @@ def save_expectation(request, gender, pk):
     return redirect('candidate_detail', gender=gender, pk=pk)
 
 
-@login_required  
 def cron_prepare_bios(request):
-    """Internal endpoint — triggered by Railway cron via curl.
-    Accepts both GET (token in URL) and POST (token in header X-Cron-Token).
-    POST is preferred — token not exposed in server logs.
+    """Internal endpoint — triggered by Railway cron via curl. No login required.
+    Protected by CRON_SECRET token only.
     """
     from django.core.management import call_command
     from django.http import HttpResponse
     from django.conf import settings
-    from django.views.decorators.csrf import csrf_exempt
+    import traceback
 
     cron_secret = getattr(settings, 'CRON_SECRET', '')
     if not cron_secret:
-        return HttpResponse('Unauthorized', status=401)
+        return HttpResponse('Unauthorized — CRON_SECRET not set', status=401)
 
-    # Check token in header (POST, preferred) or URL (GET, legacy)
     token = (
         request.META.get('HTTP_X_CRON_TOKEN', '') or
         request.GET.get('token', '')
@@ -1397,8 +1394,11 @@ def cron_prepare_bios(request):
     if token != cron_secret:
         return HttpResponse('Unauthorized', status=401)
 
-    call_command('prepare_weekly_bios')
-    return HttpResponse('OK', status=200)
+    try:
+        call_command('prepare_weekly_bios')
+        return HttpResponse('OK', status=200)
+    except Exception as e:
+        return HttpResponse(f'ERROR: {str(e)}\n{traceback.format_exc()[-500:]}', status=500)
 
 
 # ─────────────────────────────────────────────
