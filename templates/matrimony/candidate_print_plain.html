@@ -86,6 +86,7 @@
         ⚠️ அச்சிடுவதற்கு முன்: Print dialog → <strong>More settings</strong> → <strong>Headers and footers</strong> → <strong>uncheck</strong> செய்யவும்
     </div><br>
     <button onclick="window.print()" style="background:var(--navy,#1a3a5c);color:#e8c96a;border:2px solid #c9a84c;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:600;">🖨️ அச்சிடு</button>
+    <button id="btn-download" onclick="downloadAsImage()" style="background:#16a34a;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px;font-weight:600;">📥 படம் பதிவிறக்கு</button>
     <button id="btn-toggle-address" onclick="toggleAddress()" style="background:#1d4ed8;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px;">முகவரி மறை</button>
     <button onclick="window.close()" style="background:#666;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px;">✖ மூடு</button>
 </div>
@@ -300,5 +301,40 @@ function toggleAddress() {
     btn.style.background = hidden ? '#1d4ed8' : '#16a34a';
 }
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function downloadAsImage() {
+    var btn = document.getElementById('btn-download');
+    btn.textContent = '⏳ தயாரிக்கிறது...';
+    btn.disabled = true;
+
+    var page = document.querySelector('.page');
+
+    html2canvas(page, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        onclone: function(doc) {
+            var noPrint = doc.querySelector('.no-print');
+            if (noPrint) noPrint.style.display = 'none';
+        }
+    }).then(function(canvas) {
+        var link = document.createElement('a');
+        link.download = '{{ candidate.uid }}_{{ candidate.name|slugify }}.jpg';
+        link.href = canvas.toDataURL('image/jpeg', 0.92);
+        link.click();
+        btn.textContent = '📥 படம் பதிவிறக்கு';
+        btn.disabled = false;
+    }).catch(function(err) {
+        alert('பதிவிறக்கம் தோல்வி. மீண்டும் முயற்சிக்கவும்.');
+        btn.textContent = '📥 படம் பதிவிறக்கு';
+        btn.disabled = false;
+    });
+}
+</script>
+
 </body>
 </html>

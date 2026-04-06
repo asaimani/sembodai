@@ -46,9 +46,8 @@
         ⚠️ அச்சிடுவதற்கு முன்: Print dialog → <strong>More settings</strong> → <strong>Headers and footers</strong> → <strong>uncheck</strong> செய்யவும்
     </div><br>
     <button onclick="window.print()" style="background:#b91c1c;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit">🖨️ அச்சிடு</button>
-    {% if is_public %}
     <button id="btn-download" onclick="downloadAsImage()" style="background:#16a34a;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px">📥 படம் பதிவிறக்கு</button>
-    {% else %}
+    {% if not is_public %}
     <button id="btn-toggle-address" onclick="toggleAddress()" style="background:#1d4ed8;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px">முகவரி மறை</button>
     {% endif %}
     <button onclick="window.close()" style="background:#666;color:#fff;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px">✖ மூடு</button>
@@ -291,7 +290,6 @@ function toggleAddress() {
 }
 </script>
 
-{% if is_public %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 function downloadAsImage() {
@@ -326,7 +324,6 @@ function downloadAsImage() {
     });
 }
 </script>
-{% endif %}
 
 </body>
 </html>
