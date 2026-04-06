@@ -174,3 +174,67 @@ def amount_in_tamil_words(value):
 
     return result.strip() + ' ரூபாய்'
 
+
+@register.filter
+def smart_salary(value):
+    """
+    Format salary smartly:
+    - None/0        → empty string
+    - < 1,00,000    → ₹XX,XXX (comma separated)
+    - >= 1,00,000   → ₹X lakh / ₹X.XX lakh
+    """
+    if not value:
+        return ''
+    try:
+        amount = float(value)
+    except (TypeError, ValueError):
+        return ''
+    if amount <= 0:
+        return ''
+    if amount < 100000:
+        # Format with Indian comma style
+        val = int(amount)
+        s = str(val)
+        if len(s) > 3:
+            last3 = s[-3:]
+            rest = s[:-3]
+            parts = []
+            while len(rest) > 2:
+                parts.append(rest[-2:])
+                rest = rest[:-2]
+            if rest:
+                parts.append(rest)
+            parts.reverse()
+            s = ','.join(parts) + ',' + last3
+        return f'₹{s}'
+    else:
+        lakhs = amount / 100000
+        if lakhs == int(lakhs):
+            return f'₹{int(lakhs)} lakh'
+        else:
+            # Round to 2 decimal places, strip trailing zeros
+            formatted = f'{lakhs:.2f}'.rstrip('0').rstrip('.')
+            return f'₹{formatted} lakh'
+
+
+@register.simple_tag
+def display_salary(candidate):
+    """
+    Show monthly salary if present, else annual income.
+    Uses smart_salary format.
+    Label changes accordingly.
+    Returns tuple (label, value) — use as {% display_salary candidate as label value %}
+    Actually returns formatted HTML string.
+    """
+    from django.utils.safestring import mark_safe
+    monthly = candidate.monthly_salary
+    annual  = candidate.annual_income
+    if monthly:
+        label = 'மாத வருமானம்'
+        val   = smart_salary(monthly)
+    elif annual:
+        label = 'வருட வருமானம்'
+        val   = smart_salary(annual)
+    else:
+        return mark_safe('')
+    return mark_safe(f'<tr><td>{label}</td><td>{val}</td></tr>')
