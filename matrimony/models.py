@@ -292,16 +292,32 @@ class MaleCandidate(BaseCandidateModel):
         if not self.uid:
             status_code = self.status.code if self.status else ''
             prefix = 'MM' if status_code == 'remarriage' else 'M'
-            # Use MAX(pk)+1 — safe even when records are deleted
-            from django.db.models import Max
-            max_pk = MaleCandidate.objects.aggregate(m=Max('pk'))['m'] or 0
-            count  = max_pk + 1
-            uid    = f"{prefix}{count:07d}"
-            while MaleCandidate.objects.filter(uid=uid).exists():
-                count += 1
-                uid = f"{prefix}{count:07d}"
-            self.uid = uid
-        super().save(*args, **kwargs)
+            self.uid = self._generate_uid(prefix, MaleCandidate)
+        from django.db import IntegrityError
+        max_retries = 5
+        for attempt in range(max_retries):
+            try:
+                super().save(*args, **kwargs)
+                return
+            except IntegrityError as e:
+                if 'uid' in str(e).lower() and attempt < max_retries - 1:
+                    # UID collision — regenerate and retry
+                    status_code = self.status.code if self.status else ''
+                    prefix = 'MM' if status_code == 'remarriage' else 'M'
+                    self.uid = self._generate_uid(prefix, MaleCandidate)
+                else:
+                    raise
+
+    @staticmethod
+    def _generate_uid(prefix, model_class):
+        from django.db.models import Max
+        max_pk = model_class.objects.aggregate(m=Max('pk'))['m'] or 0
+        count  = max_pk + 1
+        uid    = f"{prefix}{count:07d}"
+        while model_class.objects.filter(uid=uid).exists():
+            count += 1
+            uid = f"{prefix}{count:07d}"
+        return uid
 
     class Meta:
         verbose_name = "ஆண் விண்ணப்பதாரர்"
@@ -324,16 +340,20 @@ class FemaleCandidate(BaseCandidateModel):
         if not self.uid:
             status_code = self.status.code if self.status else ''
             prefix = 'MF' if status_code == 'remarriage' else 'F'
-            # Use MAX(pk)+1 — safe even when records are deleted
-            from django.db.models import Max
-            max_pk = FemaleCandidate.objects.aggregate(m=Max('pk'))['m'] or 0
-            count  = max_pk + 1
-            uid    = f"{prefix}{count:07d}"
-            while FemaleCandidate.objects.filter(uid=uid).exists():
-                count += 1
-                uid = f"{prefix}{count:07d}"
-            self.uid = uid
-        super().save(*args, **kwargs)
+            self.uid = MaleCandidate._generate_uid(prefix, FemaleCandidate)
+        from django.db import IntegrityError
+        max_retries = 5
+        for attempt in range(max_retries):
+            try:
+                super().save(*args, **kwargs)
+                return
+            except IntegrityError as e:
+                if 'uid' in str(e).lower() and attempt < max_retries - 1:
+                    status_code = self.status.code if self.status else ''
+                    prefix = 'MF' if status_code == 'remarriage' else 'F'
+                    self.uid = MaleCandidate._generate_uid(prefix, FemaleCandidate)
+                else:
+                    raise
 
     class Meta:
         verbose_name = "பெண் விண்ணப்பதாரர்"
