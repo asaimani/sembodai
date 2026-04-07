@@ -17,11 +17,20 @@ def _get_client_ip(request):
 
 def _rate_limit(key, limit, timeout):
     from django.core.cache import cache
-    count = cache.get(key, 0)
-    if count >= limit:
-        return True
-    cache.set(key, count + 1, timeout=timeout)
-    return False
+    # Atomic rate limiting — avoids get/set race condition
+    # cache.add only sets if key doesn't exist (atomic)
+    # cache.incr atomically increments and returns new value
+    try:
+        cache.add(key, 0, timeout=timeout)  # initialize if not exists (atomic)
+        count = cache.incr(key)             # atomic increment, returns new value
+        return count > limit
+    except Exception:
+        # Fallback if cache backend doesn't support incr
+        count = cache.get(key, 0)
+        if count >= limit:
+            return True
+        cache.set(key, count + 1, timeout=timeout)
+        return False
 
 
 def login_view(request):
