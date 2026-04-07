@@ -230,11 +230,11 @@ def display_salary(candidate):
     monthly = candidate.monthly_salary
     annual  = candidate.annual_income
     if monthly:
-        label = 'மாத வருமானம்'
-        val   = smart_salary(monthly)
+        label = 'வருமானம்'
+        val   = smart_salary(monthly) + ' per month'
     elif annual:
-        label = 'வருட வருமானம்'
-        val   = smart_salary(annual)
+        label = 'வருமானம்'
+        val   = smart_salary(annual) + ' per annum'
     else:
         return mark_safe('')
     return mark_safe(f'<tr><td>{label}</td><td>{val}</td></tr>')
