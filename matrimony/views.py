@@ -1357,20 +1357,16 @@ def save_expectation(request, gender, pk):
         candidate_id=pk,
     )
 
-    exp.age_min           = request.POST.get('exp_age_min') or None
-    exp.age_max           = request.POST.get('exp_age_max') or None
     exp.salary_min        = request.POST.get('exp_salary_min') or None
     exp.education_min     = request.POST.get('exp_education_min', '').strip()
     exp.job_type          = request.POST.get('exp_job_type', 'any')
     exp.notes             = request.POST.get('exp_notes', '').strip()
 
-    hmin = request.POST.get('exp_height_min')
-    hmax = request.POST.get('exp_height_max')
     sev  = request.POST.get('exp_sevadosham_ok')
     own  = request.POST.get('exp_own_house_pref')
     mar  = request.POST.get('exp_marital_status_ok')
 
-    from .models import Height, Sevadosham, OwnHouse, MaritalStatus
+    from .models import Sevadosham, OwnHouse, MaritalStatus
     exp.sevadosham_ok     = Sevadosham.objects.filter(pk=sev).first() if sev else None
     exp.own_house_pref    = OwnHouse.objects.filter(pk=own).first() if own else None
     exp.marital_status_ok = MaritalStatus.objects.filter(pk=mar).first() if mar else None
