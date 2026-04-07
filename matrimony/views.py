@@ -768,11 +768,13 @@ def candidate_delete(request, gender, pk):
 
 @login_required
 def delete_photo(request, photo_id):
-    # Accept both GET and POST
+    # POST only — prevents accidental deletion by crawlers/prefetch
     photo = get_object_or_404(CandidatePhoto, pk=photo_id)
     candidate = photo.candidate
     candidate_pk = candidate.pk
     gender = 'M' if isinstance(candidate, MaleCandidate) else 'F'
+    if request.method != 'POST':
+        return redirect('candidate_edit', gender=gender, pk=candidate_pk)
     import os
     try:
         path = photo.photo.path

@@ -405,9 +405,11 @@ document.addEventListener('DOMContentLoaded', updateRowNumbers);
 {% for photo in candidate.photos.all %}
 <div style="position:relative;display:inline-block;margin:4px">
 <img src="{{ photo.photo.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0">
-<a href="{% url 'delete_photo' photo.id %}"
-onclick="return confirm('இந்த புகைப்படத்தை நீக்கவா?')"
-style="position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1;text-decoration:none;display:flex;align-items:center;justify-content:center;">✕</a>
+<form method="post" action="{% url 'delete_photo' photo.id %}" style="position:absolute;top:-6px;right:-6px;margin:0;">
+{% csrf_token %}
+<button type="submit" onclick="return confirm('இந்த புகைப்படத்தை நீக்கவா?')"
+style="background:#dc2626;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;">✕</button>
+</form>
 </div>
 {% endfor %}
 </div>
