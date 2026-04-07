@@ -27,7 +27,12 @@
                 </div>
                 <div class="mb-0">
                     <label class="form-label">திருமணமான வரன் தக்க வைப்பு (நாட்கள்)</label>
-                    <input type="number" name="married_cleanup_days" value="{{ cfg.married_cleanup_days }}" min="30" max="365" class="form-control">
+                    <input type="number" name="married_cleanup_days" value="{{ cfg.married_cleanup_days }}" min="7" max="365" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">தணிக்கை பதிவு தக்க வைப்பு (நாட்கள்) <small class="text-muted">— AuditLog cleanup</small></label>
+                    <input type="number" name="audit_log_retention_days" value="{{ cfg.audit_log_retention_days }}" min="30" max="730" class="form-control">
+                    <small class="text-muted">240 நாட்கள் = 8 மாதங்கள் (default)</small>
                     <div class="form-text">திருமணமான வரன் பதிவுகள் நீக்கப்படும் காலம்</div>
                 </div>
             </div>

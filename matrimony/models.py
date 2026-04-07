@@ -743,7 +743,8 @@ class WeeklyBioConfig(models.Model):
     bio_token_expiry_days       = models.PositiveIntegerField(default=30, verbose_name="பயோ இணைப்பு காலம் (நாட்கள்)")
 
     # Married candidate cleanup
-    married_cleanup_days        = models.PositiveIntegerField(default=90,  verbose_name="திருமணமான வரன் தக்க வைப்பு (நாட்கள்)")
+    married_cleanup_days        = models.PositiveIntegerField(default=30,  verbose_name="திருமணமான வரன் தக்க வைப்பு (நாட்கள்)")
+    audit_log_retention_days    = models.PositiveIntegerField(default=240, verbose_name="தணிக்கை பதிவு தக்க வைப்பு (நாட்கள்)")
 
     # BioSendLog retention
     bio_log_retention_days      = models.PositiveIntegerField(default=365, verbose_name="அனுப்பல் பதிவு தக்க வைப்பு (நாட்கள்)")

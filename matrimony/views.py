@@ -2042,7 +2042,8 @@ def weekly_bio_config(request):
         try:
             # Bio settings
             cfg.bio_token_expiry_days    = int(request.POST.get('bio_token_expiry_days', 30))
-            cfg.married_cleanup_days     = int(request.POST.get('married_cleanup_days', 90))
+            cfg.married_cleanup_days     = int(request.POST.get('married_cleanup_days', 30))
+            cfg.audit_log_retention_days = int(request.POST.get('audit_log_retention_days', 240))
             cfg.bio_log_retention_days   = int(request.POST.get('bio_log_retention_days', 365))
             cfg.default_weekly_limit     = int(request.POST.get('default_weekly_limit', 5))
             cfg.max_receivers_per_run    = int(request.POST.get('max_receivers_per_run', 50))

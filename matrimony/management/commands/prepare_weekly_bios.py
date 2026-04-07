@@ -79,18 +79,59 @@ class Command(BaseCommand):
                 if deleted_tokens:
                     self.stdout.write(f"  {deleted_tokens} காலாவதி tokens நீக்கப்பட்டன.")
 
+            # 3. Married candidate full cleanup (after married_cleanup_days)
+            from matrimony.models import (
+                JathagamEntry, CandidateExpectation,
+                CandidatePhoto, FamilyMember, AuditLog
+            )
+            import os
+            from django.conf import settings
+
             married_cutoff = timezone.now() - timedelta(days=cfg.married_cleanup_days)
             old_married = list(MarriedCandidate.objects.filter(married_at__lt=married_cutoff))
             for mc in old_married:
-                BioSendLog.objects.filter(sender_gender=mc.gender, sender_id=mc.candidate_id).delete()
-                BioSendLog.objects.filter(receiver_gender=mc.gender, receiver_id=mc.candidate_id).delete()
-                if mc.gender == 'M':
-                    MaleCandidate.objects.filter(pk=mc.candidate_id).delete()
-                else:
-                    FemaleCandidate.objects.filter(pk=mc.candidate_id).delete()
+                g, cid = mc.gender, mc.candidate_id
+
+                # BioSendLog + BioToken
+                token_ids = list(
+                    BioSendLog.objects.filter(
+                        receiver_gender=g, receiver_id=cid
+                    ).values_list('bio_token_id', flat=True)
+                )
+                BioSendLog.objects.filter(receiver_gender=g, receiver_id=cid).delete()
+                BioSendLog.objects.filter(sender_gender=g, sender_id=cid).delete()
+                _BioToken.objects.filter(pk__in=token_ids).delete()
+
+                # Expectation (cascades sub-tables)
+                CandidateExpectation.objects.filter(candidate_gender=g, candidate_id=cid).delete()
+
+                # Family members
+                FamilyMember.objects.filter(candidate_gender=g, candidate_id=cid).delete()
+
+                # Jathagam entries
+                JathagamEntry.objects.filter(candidate_gender=g, candidate_id=cid).delete()
+
+                # Photos — delete files from disk too
+                CandModel = MaleCandidate if g == 'M' else FemaleCandidate
+                candidate_obj = CandModel.objects.filter(pk=cid).first()
+                if candidate_obj:
+                    for photo in candidate_obj.photos.all():
+                        try:
+                            if photo.photo and os.path.isfile(photo.photo.path):
+                                os.remove(photo.photo.path)
+                        except Exception:
+                            pass
+                    candidate_obj.delete()
+
             if old_married:
                 MarriedCandidate.objects.filter(married_at__lt=married_cutoff).delete()
-                self.stdout.write(f"  {len(old_married)} திருமணமான வரன்கள் நீக்கப்பட்டன.")
+                self.stdout.write(f"  {len(old_married)} திருமணமான வரன்கள் அனைத்து தரவுகளுடன் நீக்கப்பட்டன.")
+
+            # 4. AuditLog cleanup (after audit_log_retention_days)
+            audit_cutoff = timezone.now() - timedelta(days=cfg.audit_log_retention_days)
+            deleted_audit = AuditLog.objects.filter(performed_at__lt=audit_cutoff).delete()[0]
+            if deleted_audit:
+                self.stdout.write(f"  {deleted_audit} பழைய தணிக்கை பதிவுகள் நீக்கப்பட்டன.")
 
         t0 = time.time()
 
