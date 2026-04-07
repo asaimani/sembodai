@@ -723,15 +723,36 @@ def candidate_delete(request, gender, pk):
         candidate = get_object_or_404(FemaleCandidate, pk=pk)
     if request.method == 'POST':
         import os
-        # Delete family members
+        from .models import JathagamEntry, BioSendLog, BioToken, CandidateExpectation
+
+        # 1. Delete BioTokens for bios sent TO this candidate
+        token_ids = list(BioSendLog.objects.filter(
+            receiver_gender=gender, receiver_id=pk
+        ).values_list('bio_token_id', flat=True))
+        BioSendLog.objects.filter(receiver_gender=gender, receiver_id=pk).delete()
+        BioToken.objects.filter(pk__in=token_ids).delete()
+
+        # 2. Delete BioSendLogs sent BY this candidate (tokens stay — receivers may still open)
+        sender_token_ids = list(BioSendLog.objects.filter(
+            sender_gender=gender, sender_id=pk
+        ).values_list('bio_token_id', flat=True))
+        BioSendLog.objects.filter(sender_gender=gender, sender_id=pk).delete()
+        BioToken.objects.filter(pk__in=sender_token_ids).delete()
+
+        # 3. Delete expectation
+        CandidateExpectation.objects.filter(candidate_gender=gender, candidate_id=pk).delete()
+
+        # 4. Delete family members
         FamilyMember.objects.filter(candidate_gender=gender, candidate_id=pk).delete()
-        # Delete jathagam entries
-        from .models import JathagamEntry
+
+        # 5. Delete jathagam entries
         JathagamEntry.objects.filter(candidate_gender=gender, candidate_id=pk).delete()
-        # Delete photo files from disk
+
+        # 6. Delete photo files from disk
         for photo in candidate.photos.all():
             if photo.photo and os.path.isfile(photo.photo.path):
                 os.remove(photo.photo.path)
+
         from .models import _audit
         _audit('delete', candidate, gender, user=request.user, details=f"நீக்கப்பட்டது: {candidate.uid} — {candidate.name}")
         candidate.delete()
@@ -1417,27 +1438,32 @@ def bio_history(request):
     # Delete log entry (superuser only)
     if request.method == 'POST' and request.user.is_superuser:
         action = request.POST.get('action')
+        def _delete_logs_and_tokens(qs):
+            token_ids = list(qs.values_list('bio_token_id', flat=True))
+            count = qs.delete()[0]
+            BioToken.objects.filter(pk__in=token_ids).delete()
+            return count
+
         if action == 'delete':
             log_id = request.POST.get('log_id')
             try:
-                BioSendLog.objects.filter(pk=log_id).delete()
+                _delete_logs_and_tokens(BioSendLog.objects.filter(pk=log_id))
                 messages.success(request, 'பதிவு நீக்கப்பட்டது.')
             except Exception as e:
                 messages.error(request, f'பிழை: {str(e)}')
         elif action == 'bulk_delete':
             ids = request.POST.getlist('selected_ids')
             if ids:
-                deleted = BioSendLog.objects.filter(pk__in=ids).delete()[0]
+                deleted = _delete_logs_and_tokens(BioSendLog.objects.filter(pk__in=ids))
                 messages.success(request, f'{deleted} பதிவுகள் நீக்கப்பட்டன.')
         elif action == 'delete_all':
-            # Delete all matching current filter
             gender_del = request.POST.get('gender_del', 'M')
             month_del  = request.POST.get('month_del', '')
             status_del = request.POST.get('status_del', '')
             qs_del = BioSendLog.objects.filter(sender_gender=gender_del)
             if month_del: qs_del = qs_del.filter(month_year=month_del)
             if status_del: qs_del = qs_del.filter(status=status_del)
-            deleted = qs_del.delete()[0]
+            deleted = _delete_logs_and_tokens(qs_del)
             messages.success(request, f'{deleted} பதிவுகள் அனைத்தும் நீக்கப்பட்டன.')
         elif request.POST.get('action') != 'delete':
             messages.error(request, 'அனுமதி இல்லை.')

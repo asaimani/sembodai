@@ -57,10 +57,27 @@ class Command(BaseCommand):
 
         # Cleanup
         if not dry_run:
+            from django.utils import timezone as _tz
+
+            # 1. Delete old BioSendLog entries
             cutoff = (today - timedelta(days=cfg.bio_log_retention_days)).strftime('%Y-%m-%d')
-            deleted, _ = BioSendLog.objects.filter(month_year__lt=cutoff).delete()
-            if deleted:
-                self.stdout.write(f"  {deleted} பழைய பதிவுகள் நீக்கப்பட்டன.")
+            old_logs_qs = BioSendLog.objects.filter(month_year__lt=cutoff)
+            deleted_logs, _ = old_logs_qs.delete()
+            if deleted_logs:
+                self.stdout.write(f"  {deleted_logs} பழைய bio பதிவுகள் நீக்கப்பட்டன.")
+
+            # 2. Safe BioToken cleanup — only sent + expired tokens
+            from matrimony.models import BioToken as _BioToken
+            sent_token_ids = list(
+                BioSendLog.objects.filter(
+                    status='sent',
+                    bio_token__expires_at__lt=_tz.now()
+                ).values_list('bio_token_id', flat=True)
+            )
+            if sent_token_ids:
+                deleted_tokens = _BioToken.objects.filter(pk__in=sent_token_ids).delete()[0]
+                if deleted_tokens:
+                    self.stdout.write(f"  {deleted_tokens} காலாவதி tokens நீக்கப்பட்டன.")
 
             married_cutoff = timezone.now() - timedelta(days=cfg.married_cleanup_days)
             old_married = list(MarriedCandidate.objects.filter(married_at__lt=married_cutoff))
