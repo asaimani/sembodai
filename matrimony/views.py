@@ -589,6 +589,11 @@ def candidate_edit(request, gender, pk):
     if request.method == 'POST':
         form = FormClass(request.POST, instance=candidate)
         if form.is_valid():
+            # ── Capture old values BEFORE form.save() overwrites them ──
+            old_status_id       = candidate.status_id
+            old_status          = str(candidate.status) if candidate.status else '-'
+            old_premium_end     = candidate.premium_end_date
+
             saved = form.save(commit=False)
             # Explicitly save status from POST
             from .models import CandidateStatus
@@ -613,13 +618,13 @@ def candidate_edit(request, gender, pk):
             _save_jathagam(saved, request.POST)
             _save_family_members(saved, request.POST)
             from .models import _audit
-            # Detect what changed
+            # Detect what changed — use pre-saved old values
             changes = []
-            if saved.status_id != candidate.status_id:
-                changes.append(f"நிலை: {candidate.status} → {saved.status}")
-                _audit('status', saved, gender, user=request.user, details=f"நிலை: {saved.status}")
-            if saved.premium_end_date != candidate.premium_end_date:
-                changes.append(f"பிரீமியம்: {saved.premium_end_date}")
+            if saved.status_id != old_status_id:
+                changes.append(f"நிலை: {old_status} → {saved.status}")
+                _audit('status', saved, gender, user=request.user, details=f"நிலை: {old_status} → {saved.status}")
+            if saved.premium_end_date != old_premium_end:
+                changes.append(f"பிரீமியம்: {old_premium_end} → {saved.premium_end_date}")
                 _audit('premium', saved, gender, user=request.user, details=f"பிரீமியம் வரை: {saved.premium_end_date}")
             _audit('update', saved, gender, user=request.user, details=', '.join(changes) if changes else 'பொது திருத்தம்')
             messages.success(request, 'விண்ணப்பம் புதுப்பிக்கப்பட்டது.')
