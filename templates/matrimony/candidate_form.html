@@ -405,11 +405,9 @@ document.addEventListener('DOMContentLoaded', updateRowNumbers);
 {% for photo in candidate.photos.all %}
 <div style="position:relative;display:inline-block;margin:4px">
 <img src="{{ photo.photo.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0">
-<form method="post" action="{% url 'delete_photo' photo.id %}" style="position:absolute;top:-6px;right:-6px;margin:0;">
-{% csrf_token %}
-<button type="submit" onclick="return confirm('இந்த புகைப்படத்தை நீக்கவா?')"
-style="background:#dc2626;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;">✕</button>
-</form>
+<button type="button"
+    onclick="if(confirm('இந்த புகைப்படத்தை நீக்கவா?')) document.getElementById('del_photo_{{ photo.id }}').submit();"
+    style="position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;">✕</button>
 </div>
 {% endfor %}
 </div>
@@ -737,6 +735,15 @@ document.addEventListener('keydown', function(e) {
 .btn-tamil { font-size:11px; padding:1px 8px; border:1px solid #b91c1c; background:#b91c1c; color:#fff; border-radius:3px; cursor:pointer; margin-left:4px; vertical-align:middle; }
 </style>
 </form>
+
+{% if candidate %}
+{% for photo in candidate.photos.all %}
+<form id="del_photo_{{ photo.id }}" method="post" action="{% url 'delete_photo' photo.id %}" style="display:none;">
+{% csrf_token %}
+</form>
+{% endfor %}
+{% endif %}
+
 {% endblock %}
 
 {% block extra_js %}
