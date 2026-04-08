@@ -71,25 +71,21 @@
                 <td style="width:25%;text-align:right;vertical-align:top;border:none;padding:0 0 0 8px;">
                     <table style="border-collapse:collapse;margin-left:auto;font-size:12px;font-weight:700;">
                         <tr>
-                            <td style="color:#b91c1c;white-space:nowrap;padding:1px 4px 1px 0;text-align:left;">பதிவு எண்:</td>
-                            <td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;text-align:left;">{{ candidate.uid }}</td>
+                            <td style="color:#b91c1c;white-space:nowrap;padding:1px 2px 1px 0;text-align:left;">பதிவு எண்</td><td style="color:#b91c1c;padding:1px 2px;text-align:center;">:</td><td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;text-align:left;">{{ candidate.uid }}</td>
                         </tr>
                         {% if candidate.old_reg_no %}
                         <tr>
-                            <td style="color:#b91c1c;white-space:nowrap;padding:1px 4px 1px 0;text-align:left;">ப.பதிவு எண்:</td>
-                            <td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;text-align:left;">{{ candidate.old_reg_no }}</td>
+                            <td style="color:#b91c1c;white-space:nowrap;padding:1px 2px 1px 0;text-align:left;">ப.பதிவு எண்</td><td style="color:#b91c1c;padding:1px 2px;text-align:center;">:</td><td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;text-align:left;">{{ candidate.old_reg_no }}</td>
                         </tr>
                         {% endif %}
                         {% if candidate.sub_caste %}
                         <tr>
-                            <td style="color:#b91c1c;white-space:nowrap;padding:1px 4px 1px 0;text-align:left;">உட்பிரிவு:</td>
-                            <td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;text-align:left;">{{ candidate.sub_caste }}</td>
+                            <td style="color:#b91c1c;white-space:nowrap;padding:1px 2px 1px 0;text-align:left;">உட்பிரிவு</td><td style="color:#b91c1c;padding:1px 2px;text-align:center;">:</td><td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;text-align:left;">{{ candidate.sub_caste }}</td>
                         </tr>
                         {% endif %}
                         {% if candidate.premium_start_date %}
                         <tr>
-                            <td style="color:#b91c1c;white-space:nowrap;padding:1px 4px 1px 0;text-align:left;">பதிவு தேதி:</td>
-                            <td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;text-align:left;">{{ candidate.premium_start_date|date:"d/m/Y" }}</td>
+                            <td style="color:#b91c1c;white-space:nowrap;padding:1px 2px 1px 0;text-align:left;">பதிவு தேதி</td><td style="color:#b91c1c;padding:1px 2px;text-align:center;">:</td><td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;text-align:left;">{{ candidate.premium_start_date|date:"d/m/Y" }}</td>
                         </tr>
                         {% endif %}
                         {% if candidate.status and candidate.status.code == 'remarriage' %}
