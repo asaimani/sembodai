@@ -175,7 +175,7 @@
             </thead>
             <tbody>
                 {% for fm in family_members %}
-                <tr style="background:{% if forloop.counter|divisibleby:2 %}#fef9ee{% else %}white{% endif %}">
+                <tr style="background:#fff">
                     <td style="padding:4px;border:1px solid #e0c0c0">{{ forloop.counter }}</td>
                     <td style="padding:4px;border:1px solid #e0c0c0">{{ fm.name }}</td>
                     <td style="padding:4px;border:1px solid #e0c0c0">{{ fm.education|default:"-" }}</td>
@@ -195,7 +195,7 @@
         <div style="display:flex;gap:2%;justify-content:space-between">
             <!-- Rasi -->
             <div style="width:48%">
-                <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fffdf5">
+                <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fff">
                     <tr>
                         <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 12 %}</td>
                         <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 1 %}</td>
@@ -204,7 +204,7 @@
                     </tr>
                     <tr>
                         <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 11 %}</td>
-                        <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fef9ee;font-weight:700;color:#7f1d1d;font-size:11px">ராசி</td>
+                        <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fff;font-weight:700;color:#7f1d1d;font-size:11px">ராசி</td>
                         <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'R' 4 %}</td>
                     </tr>
                     <tr>
@@ -221,7 +221,7 @@
             </div>
             <!-- Navamsam -->
             <div style="width:48%">
-                <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fffdf5">
+                <table style="width:100%;border-collapse:collapse;border:2px solid #b91c1c;background:#fff">
                     <tr>
                         <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 12 %}</td>
                         <td style="width:25%;height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 1 %}</td>
@@ -230,7 +230,7 @@
                     </tr>
                     <tr>
                         <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 11 %}</td>
-                        <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fef9ee;font-weight:700;color:#7f1d1d;font-size:11px">நவாம்சம்</td>
+                        <td colspan="2" rowspan="2" style="text-align:center;vertical-align:middle;border:1px solid #d4a0a0;background:#fff;font-weight:700;color:#7f1d1d;font-size:11px">நவாம்சம்</td>
                         <td style="height:45px;border:1px solid #d4a0a0;padding:3px;font-size:10px;font-weight:600;vertical-align:middle;text-align:center;">{% house_display jathagam_map 'N' 4 %}</td>
                     </tr>
                     <tr>
