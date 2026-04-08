@@ -290,23 +290,24 @@ class MaleCandidate(BaseCandidateModel):
 
     def save(self, *args, **kwargs):
         if not self.uid:
+            # New candidate — generate UID with retry on collision
             status_code = self.status.code if self.status else ''
             prefix = 'MM' if status_code == 'remarriage' else 'M'
             self.uid = self._generate_uid(prefix, MaleCandidate)
-        from django.db import IntegrityError
-        max_retries = 5
-        for attempt in range(max_retries):
-            try:
-                super().save(*args, **kwargs)
-                return
-            except IntegrityError as e:
-                if 'uid' in str(e).lower() and attempt < max_retries - 1:
-                    # UID collision — regenerate and retry
-                    status_code = self.status.code if self.status else ''
-                    prefix = 'MM' if status_code == 'remarriage' else 'M'
-                    self.uid = self._generate_uid(prefix, MaleCandidate)
-                else:
-                    raise
+            from django.db import IntegrityError
+            max_retries = 5
+            for attempt in range(max_retries):
+                try:
+                    super().save(*args, **kwargs)
+                    return
+                except IntegrityError as e:
+                    if 'uid' in str(e).lower() and attempt < max_retries - 1:
+                        self.uid = self._generate_uid(prefix, MaleCandidate)
+                    else:
+                        raise
+            return
+        # Existing candidate — normal save, no retry needed
+        super().save(*args, **kwargs)
 
     @staticmethod
     def _generate_uid(prefix, model_class):
@@ -338,22 +339,24 @@ class FemaleCandidate(BaseCandidateModel):
 
     def save(self, *args, **kwargs):
         if not self.uid:
+            # New candidate — generate UID with retry on collision
             status_code = self.status.code if self.status else ''
             prefix = 'MF' if status_code == 'remarriage' else 'F'
             self.uid = MaleCandidate._generate_uid(prefix, FemaleCandidate)
-        from django.db import IntegrityError
-        max_retries = 5
-        for attempt in range(max_retries):
-            try:
-                super().save(*args, **kwargs)
-                return
-            except IntegrityError as e:
-                if 'uid' in str(e).lower() and attempt < max_retries - 1:
-                    status_code = self.status.code if self.status else ''
-                    prefix = 'MF' if status_code == 'remarriage' else 'F'
-                    self.uid = MaleCandidate._generate_uid(prefix, FemaleCandidate)
-                else:
-                    raise
+            from django.db import IntegrityError
+            max_retries = 5
+            for attempt in range(max_retries):
+                try:
+                    super().save(*args, **kwargs)
+                    return
+                except IntegrityError as e:
+                    if 'uid' in str(e).lower() and attempt < max_retries - 1:
+                        self.uid = MaleCandidate._generate_uid(prefix, FemaleCandidate)
+                    else:
+                        raise
+            return
+        # Existing candidate — normal save, no retry needed
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "பெண் விண்ணப்பதாரர்"
