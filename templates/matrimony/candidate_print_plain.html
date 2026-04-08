@@ -19,13 +19,13 @@
         }
         * { font-family: 'Noto Sans Tamil', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #fff; color: #1a1a1a; }
-        .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 12mm; background: #fff; }
+        .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 6mm; background: #fff; }
 
         /* Header */
         .header {
             border: 3px double var(--gold);
-            padding: 12px;
-            margin-bottom: 12px;
+            padding: 8px;
+            margin-bottom: 8px;
             background: linear-gradient(135deg, #fff 0%, var(--cream) 100%);
         }
         .header-title-main { font-size: 18px; font-weight: 700; color: var(--navy); }
@@ -39,7 +39,7 @@
             background: linear-gradient(90deg, var(--navy) 0%, var(--navy2) 100%);
             color: var(--gold2);
             padding: 4px 10px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             margin-bottom: 6px;
             text-align: center;
@@ -49,32 +49,32 @@
 
         /* Info tables */
         table.info-table { width: 100%; border-collapse: collapse; }
-        table.info-table td { padding: 2px 5px; font-size: 11px; border-bottom: none; vertical-align: top; }
+        table.info-table td { padding: 2px 5px; font-size: 13px; border-bottom: none; vertical-align: top; }
         table.info-table td:first-child { color: var(--navy); white-space: nowrap; width: 1%; font-weight: 600; padding-right: 8px; }
         table.info-table td:last-child  { color: #1a1a1a; font-weight: 500; word-break: break-word; }
 
-        .section { margin-bottom: 10px; }
+        .section { margin-bottom: 6px; }
 
         /* Family table */
-        table.family-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+        table.family-table { width: 100%; border-collapse: collapse; font-size: 11px; }
         table.family-table th { background: var(--navy); color: var(--gold2); padding: 4px 5px; text-align: left; border: 1px solid var(--gold); }
         table.family-table td { padding: 3px 5px; border: 1px solid #d4c08a; }
         table.family-table tr:nth-child(even) td { background: var(--cream); }
 
         /* Jathagam */
         .jathagam-outer { width: 100%; border-collapse: collapse; border: 2px solid var(--gold); background: var(--cream); }
-        .jathagam-outer td { border: 1px solid var(--gold2); padding: 3px; font-size: 10px; font-weight: 600; height: 45px; vertical-align: middle; text-align: center; width: 25%; }
+        .jathagam-outer td { border: 1px solid var(--gold2); padding: 3px; font-size: 11px; font-weight: 600; height: 45px; vertical-align: middle; text-align: center; width: 25%; }
         .jathagam-center { background: #fff; color: #1a1a1a; font-weight: 700; font-size: 11px; border: 1px solid var(--gold2); }
 
         /* Photo */
         .photo-img { width: 130px; height: 155px; object-fit: cover; border: 2px solid var(--gold); display: block; }
         .photo-placeholder { width: 130px; height: 155px; display: flex; align-items: center; justify-content: center; border: 2px dashed var(--gold); font-size: 40px; color: #ccc; }
 
-        @page { margin: 10mm; size: A4; }
+        @page { margin: 5mm; size: A4; }
         @media print {
             .no-print { display: none !important; }
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .page { margin: 0; padding: 8mm; }
+            .page { margin: 0; padding: 4mm; }
         }
     </style>
 </head>
