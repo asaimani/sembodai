@@ -69,17 +69,35 @@
                     <div style="color:#666;font-size:11px;margin-top:3px;">வாழ்க்கை துணை தேடல் - சேவை</div>
                 </td>
                 <td style="width:25%;text-align:right;vertical-align:top;border:none;padding:0 0 0 8px;">
-                    <div style="font-size:13px;font-weight:700;color:#8b1a1a;white-space:nowrap;">பதிவு எண்: {{ candidate.uid }}</div>
-                    {% if candidate.old_reg_no %}<div style="font-size:12px;font-weight:700;margin-top:3px;white-space:nowrap;"><span style="color:#b91c1c;">ப.பதிவு எண்:</span> {{ candidate.old_reg_no }}</div>{% endif %}
-                    {% if candidate.sub_caste %}
-                    <div style="font-size:12px;font-weight:700;margin-top:4px;white-space:nowrap;"><span style="color:#b91c1c;">உட்பிரிவு:</span> {{ candidate.sub_caste }}</div>
-                    {% endif %}
-                    {% if candidate.premium_start_date %}
-                    <div style="font-size:12px;font-weight:700;margin-top:4px;white-space:nowrap;"><span style="color:#b91c1c;">பதிவு தேதி:</span> {{ candidate.premium_start_date|date:"d/m/Y" }}</div>
-                    {% endif %}
-                    {% if candidate.status and candidate.status.code == 'remarriage' %}
-                    <div style="font-size:12px;font-weight:700;color:#0369a1;margin-top:3px;white-space:nowrap;">💑 மறுமணம்</div>
-                    {% endif %}
+                    <table style="border-collapse:collapse;margin-left:auto;font-size:12px;font-weight:700;">
+                        <tr>
+                            <td style="color:#b91c1c;white-space:nowrap;padding:1px 4px 1px 0;text-align:left;">பதிவு எண்:</td>
+                            <td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;text-align:left;">{{ candidate.uid }}</td>
+                        </tr>
+                        {% if candidate.old_reg_no %}
+                        <tr>
+                            <td style="color:#b91c1c;white-space:nowrap;padding:1px 4px 1px 0;text-align:left;">ப.பதிவு எண்:</td>
+                            <td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;text-align:left;">{{ candidate.old_reg_no }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if candidate.sub_caste %}
+                        <tr>
+                            <td style="color:#b91c1c;white-space:nowrap;padding:1px 4px 1px 0;text-align:left;">உட்பிரிவு:</td>
+                            <td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;text-align:left;">{{ candidate.sub_caste }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if candidate.premium_start_date %}
+                        <tr>
+                            <td style="color:#b91c1c;white-space:nowrap;padding:1px 4px 1px 0;text-align:left;">பதிவு தேதி:</td>
+                            <td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;text-align:left;">{{ candidate.premium_start_date|date:"d/m/Y" }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if candidate.status and candidate.status.code == 'remarriage' %}
+                        <tr>
+                            <td colspan="2" style="color:#0369a1;white-space:nowrap;padding:1px 0;">💑 மறுமணம்</td>
+                        </tr>
+                        {% endif %}
+                    </table>
                 </td>
             </tr>
             <!-- ROW 2: Address spans full width (excluding logo) -->
