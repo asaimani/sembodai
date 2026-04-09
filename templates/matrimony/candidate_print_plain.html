@@ -74,12 +74,15 @@
         @page { margin: 5mm; size: A4; }
 
         .admin-address-text { font-size:13px; color:#333; font-weight:700; line-height:1.8; }
-        /* Mobile view — phone screen */
-        @media screen and (max-width: 768px) {
-            .page { padding: 3mm; }
-            .admin-address-text { font-size: 10px; }
-            table.info-table td { font-size: 11px; padding: 2px 3px; }
-            .two-col { grid-template-columns: 1fr; gap: 4px; }
+        /* Mobile view — scale to fit screen */
+        @media screen and (max-width: 900px) {
+            html, body { overflow-x: hidden; margin: 0; padding: 0; }
+            .page {
+                width: 210mm;
+                transform-origin: top left;
+                transform: scale(var(--mobile-scale, 1));
+                margin-bottom: calc((var(--mobile-scale, 1) - 1) * 297mm);
+            }
         }
     
         @media print {
@@ -366,5 +369,27 @@ function downloadAsImage() {
 }
 </script>
 
+
+<script>
+(function() {
+    function scalePage() {
+        if (window.innerWidth < 900) {
+            var scale = window.innerWidth / 794; // 210mm ≈ 794px at 96dpi
+            document.documentElement.style.setProperty('--mobile-scale', scale);
+            // Also set body height to match scaled content
+            var page = document.querySelector('.page');
+            if (page) {
+                var h = page.offsetHeight * scale;
+                document.body.style.height = h + 'px';
+            }
+        } else {
+            document.documentElement.style.setProperty('--mobile-scale', '1');
+            document.body.style.height = '';
+        }
+    }
+    window.addEventListener('load', scalePage);
+    window.addEventListener('resize', scalePage);
+})();
+</script>
 </body>
 </html>
