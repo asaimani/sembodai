@@ -20,7 +20,7 @@
         }
         * { font-family: 'Noto Sans Tamil', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #fff; color: #1a1a1a; }
-        .page { width: 210mm; min-height: 297mm; margin: 0 auto; padding: 6mm; background: #fff; }
+        .page { width: 100%; max-width: 210mm; min-height: auto; margin: 0 auto; padding: 4mm; background: #fff; box-sizing: border-box; }
 
         /* Header */
         .header {
@@ -76,14 +76,16 @@
         .admin-address-text { font-size:13px; color:#333; font-weight:700; line-height:1.8; }
         /* Mobile view — phone screen */
         @media screen and (max-width: 768px) {
-            .page { width: 100%; padding: 4mm; }
-            .admin-address-text { font-size: 11px; }
+            .page { padding: 3mm; }
+            .admin-address-text { font-size: 10px; }
+            table.info-table td { font-size: 11px; padding: 2px 3px; }
+            .two-col { grid-template-columns: 1fr; gap: 4px; }
         }
     
         @media print {
             .no-print { display: none !important; }
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .page { margin: 0; padding: 4mm; }
+            .page { width: 210mm; min-height: 297mm; margin: 0; padding: 4mm; }
         }
     </style>
 </head>
