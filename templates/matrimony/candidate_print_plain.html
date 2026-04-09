@@ -59,7 +59,7 @@
         /* Family table */
         table.family-table { width: 100%; border-collapse: collapse; font-size: 11px; }
         table.family-table th { background: var(--navy); color: var(--gold2); padding: 4px 5px; text-align: left; border: 1px solid var(--gold); }
-        table.family-table td { padding: 3px 5px; border: 1px solid #d4c08a; }
+        table.family-table td { padding: 3px 5px; border: 1px solid #d4c08a; word-break: break-word; max-width: 80px; }
         table.family-table tr:nth-child(even) td { background: #fff; }
 
         /* Jathagam */
@@ -137,7 +137,7 @@
         {% if admin_profile %}
         <tr>
             <td colspan="2" style="border:none;border-top:1px solid var(--gold2);padding:5px 8px 0 8px;text-align:center;">
-                <div style="font-size:11px;color:#333;font-weight:700;line-height:1.8;">
+                <div style="font-size:10px;color:#333;line-height:1.8;">
                     📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}<br>
                         {% if admin_profile.address_line2 %} {{ admin_profile.address_line2 }}{% endif %}
                         {% if admin_profile.address_line3 %} {{ admin_profile.address_line3 }}{% endif %}<br>

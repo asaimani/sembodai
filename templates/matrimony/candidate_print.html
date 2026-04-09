@@ -22,7 +22,7 @@
         table.info-table { width: 100%; border-collapse: collapse; table-layout: auto; }
         table.info-table td { padding: 3px 5px; font-size: 13px; border-bottom: none; vertical-align: top; }
         table.info-table td:first-child { color: #666; white-space: nowrap; width: 1%; font-weight: 500; padding-right: 8px; }
-        table.info-table td:last-child { color: #1a1a1a; font-weight: 600; word-break: break-word; }
+        table.info-table td:last-child { color: #1a1a1a; font-weight: 600; word-break: break-word; max-width: 180px; overflow: hidden; }
         .section { margin-bottom: 6px; }
         .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
         .footer { border-top: 2px solid #b91c1c; margin-top: 15px; padding-top: 6px; text-align: center; font-size: 10px; color: #999; }
@@ -104,7 +104,7 @@
             {% if admin_profile %}
             <tr>
                 <td colspan="2" style="border:none;border-top:1px solid #f0c0c0;padding:5px 8px 0 8px;">
-                    <div style="font-size:11px;color:#333;font-weight:700;line-height:1.8;">
+                    <div style="font-size:10px;color:#333;line-height:1.8;">
                         📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}<br>
                             {% if admin_profile.address_line2 %} {{ admin_profile.address_line2 }}{% endif %}
                             {% if admin_profile.address_line3 %} {{ admin_profile.address_line3 }}{% endif %}<br>
@@ -185,7 +185,7 @@
                     <td style="padding:4px;border:1px solid #e0c0c0">{{ fm.education|default:"-" }}</td>
                     <td style="padding:4px;border:1px solid #e0c0c0">{{ fm.relation|default:"-" }}</td>
                     <td style="padding:4px;border:1px solid #e0c0c0">{{ fm.marital_status|default:"-" }}</td>
-                    <td style="padding:4px;border:1px solid #e0c0c0">{{ fm.job_info|default:"-" }}</td>
+                    <td style="padding:4px;border:1px solid #e0c0c0;word-break:break-word;max-width:80px;">{{ fm.job_info|default:"-" }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
