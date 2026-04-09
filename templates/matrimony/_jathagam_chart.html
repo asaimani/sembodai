@@ -196,7 +196,7 @@
         PLANETS.forEach(function(p) {
             var chip = document.createElement('span');
             chip.className = 'planet-chip' + (selected.indexOf(p.id) >= 0 ? ' selected' : '');
-            chip.innerHTML = p.code.replace('லக்', '<u>ல</u>க்');
+            chip.innerHTML = p.code.replace('லக்', '<strong style="color:#8b1a1a;">ல</strong>க்');
             chip.dataset.pid = p.id;
             chip.addEventListener('click', function() { toggleChip(this, p.id); });
             chipsEl.appendChild(chip);
@@ -263,10 +263,10 @@
     function updateDisplay(prefix, house, pks) {
         var codes = pks.map(function(pid) {
             var p = PLANETS.find(function(x) { return x.id === pid; });
-            return p ? p.code.replace('லக்', '<u>ல</u>க்') : '';
+            return p ? p.code.replace('லக்', '<strong style="color:#8b1a1a;">ல</strong>க்') : '';
         }).filter(Boolean);
         var el = document.getElementById('disp_' + prefix + '_' + house);
-        if (el) el.innerHTML = codes.join(', ').replace(/லக்/g, '<u>ல</u>க்');
+        if (el) el.innerHTML = codes.join(', ').replace(/லக்/g, '<strong style="color:#8b1a1a;">ல</strong>க்');
     }
 
     window.clearPopupHouse = function() {
