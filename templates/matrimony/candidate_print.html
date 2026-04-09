@@ -31,7 +31,15 @@
         .photo-placeholder { width: 110px; height: 130px; border: 2px dashed #b91c1c; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #ccc; }
         @page { margin: 5mm; size: A4; }
 
-        .admin-address-text { font-size:13px; color:#333; font-weight:700; line-height:1.8; }
+        .admin-address-text {
+        font-size:13px;
+        color:#333;
+        font-weight:700;
+        line-height:1.8;
+
+        word-break: break-word;
+        overflow-wrap: anywhere;
+                            }
 
     
         @media print {
