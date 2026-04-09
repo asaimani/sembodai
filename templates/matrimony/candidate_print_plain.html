@@ -5,7 +5,7 @@
 <html lang="ta">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=794">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ candidate.name }} - வாழ்க்கை துணை தேடல்</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -75,6 +75,15 @@
 
 
     
+
+        /* Screen: scale page to fit device width */
+        @media screen {
+            body { background: #f0f0f0; }
+            .page {
+                transform-origin: top center;
+            }
+        }
+
         @media print {
             .no-print { display: none !important; }
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -334,6 +343,12 @@ function downloadAsImage() {
 
     var page = document.querySelector('.page');
 
+    // Remove scale transform before capture so image is full size
+    var savedTransform = page.style.transform;
+    var savedMargin = page.style.marginBottom;
+    page.style.transform = '';
+    page.style.marginBottom = '';
+
     html2canvas(page, {
         scale: 2,
         useCORS: true,
@@ -343,15 +358,22 @@ function downloadAsImage() {
         onclone: function(doc) {
             var noPrint = doc.querySelector('.no-print');
             if (noPrint) noPrint.style.display = 'none';
+            // Remove scale in cloned doc too
+            var clonedPage = doc.querySelector('.page');
+            if (clonedPage) { clonedPage.style.transform = ''; }
         }
     }).then(function(canvas) {
         var link = document.createElement('a');
         link.download = '{{ candidate.uid }}_{{ candidate.name|slugify }}.jpg';
         link.href = canvas.toDataURL('image/jpeg', 0.92);
         link.click();
+        page.style.transform = savedTransform;
+        page.style.marginBottom = savedMargin;
         btn.textContent = '📥 படம் பதிவிறக்கு';
         btn.disabled = false;
     }).catch(function(err) {
+        page.style.transform = savedTransform;
+        page.style.marginBottom = savedMargin;
         alert('பதிவிறக்கம் தோல்வி. மீண்டும் முயற்சிக்கவும்.');
         btn.textContent = '📥 படம் பதிவிறக்கு';
         btn.disabled = false;
@@ -359,5 +381,32 @@ function downloadAsImage() {
 }
 </script>
 
+
+<script>
+(function() {
+    function scaleForScreen() {
+        if (typeof window === 'undefined') return;
+        var page = document.querySelector('.page');
+        if (!page) return;
+        var pageWidth = 794; // 210mm in px
+        var screenW = window.innerWidth || document.documentElement.clientWidth;
+        if (screenW < pageWidth) {
+            var scale = screenW / pageWidth;
+            page.style.transform = 'scale(' + scale + ')';
+            page.style.marginTop = '0';
+            page.style.marginBottom = ((scale - 1) * page.offsetHeight) + 'px';
+            document.body.style.height = (page.offsetHeight * scale) + 'px';
+        } else {
+            page.style.transform = '';
+            document.body.style.height = '';
+        }
+    }
+    // Only run on screen, not during html2canvas capture or print
+    if (window.matchMedia && !window.matchMedia('print').matches) {
+        window.addEventListener('load', scaleForScreen);
+        window.addEventListener('resize', scaleForScreen);
+    }
+})();
+</script>
 </body>
 </html>
