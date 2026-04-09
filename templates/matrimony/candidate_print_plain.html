@@ -73,7 +73,6 @@
 
         @page { margin: 5mm; size: A4; }
 
-        .admin-address-text { font-size:11px; color:#333; font-weight:700; line-height:1.6; }
 
     
         @media print {
@@ -138,7 +137,7 @@
         {% if admin_profile %}
         <tr>
             <td colspan="2" style="border:none;border-top:1px solid var(--gold2);padding:5px 8px 0 8px;text-align:center;">
-                <div class="admin-address-text">
+                <div style="font-size:11px;color:#333;font-weight:700;line-height:1.8;">
                     📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}<br>
                         {% if admin_profile.address_line2 %} {{ admin_profile.address_line2 }}{% endif %}
                         {% if admin_profile.address_line3 %} {{ admin_profile.address_line3 }}{% endif %}<br>
