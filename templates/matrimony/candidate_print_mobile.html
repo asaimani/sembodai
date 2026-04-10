@@ -343,20 +343,21 @@ function downloadAsImage() {
 
     var page = document.querySelector('.page');
 
-    var captureScale = window.devicePixelRatio || 1;
+    // Calculate how much the browser scaled the 794px page to fit screen
+    var pageNativeWidth = 794;
+    var screenWidth = window.innerWidth;
+    var browserScale = screenWidth < pageNativeWidth ? screenWidth / pageNativeWidth : 1;
+    var dpr = window.devicePixelRatio || 1;
+
     html2canvas(page, {
-        scale: captureScale,
+        scale: dpr * browserScale,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        width: page.offsetWidth,
-        height: page.offsetHeight,
         onclone: function(doc) {
             var noPrint = doc.querySelector('.no-print');
             if (noPrint) noPrint.style.display = 'none';
-            var clonedPage = doc.querySelector('.page');
-            if (clonedPage) { clonedPage.style.transform = ''; }
         }
     }).then(function(canvas) {
         var link = document.createElement('a');
