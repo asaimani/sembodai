@@ -34,13 +34,17 @@
 
     
 
+       /* Mobile screen only — reduce oversized elements */
+        @media screen and (max-width: 900px) {
+            .section-title { font-size: 10px !important; padding: 3px 6px; }
+            div[style*="font-size:12px;color:#333"] { font-size: 7px !important; }
+            div[style*="font-size:13px;line-height:1.8"] { font-size: 8px !important; }
+            div[style*="font-size:13px;font-weight:700;color:var(--navy)"] { font-size: 13px !important; }
+        }
+
         @media print {
-            @top-left { content: none; }
-            @top-right { content: none; }
-            @bottom-left { content: none; }
-            @bottom-right { content: none; }
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .no-print { display: none !important; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .page { width: 210mm; min-height: 297mm; margin: 0; padding: 4mm; }
         }
     </style>
