@@ -374,7 +374,10 @@ function downloadAsImage() {
                 // Direct target by ID
                 var hAddr = doc.getElementById('header-office-addr');
                 if (hAddr) {
-                    hAddr.style.cssText = 'font-size:7px !important;color:#333;font-weight:700;line-height:1.6;';
+                    hAddr.style.cssText = 'font-size:7px !important;color:#333;font-weight:700;line-height:1.7;';
+                    // Reduce padding on the parent td that wraps address row
+                    var addrTd = hAddr.closest('td');
+                    if (addrTd) addrTd.style.paddingTop = '2px';
                 }
                 // Candidate address
                 doc.querySelectorAll('div').forEach(function(el) {
