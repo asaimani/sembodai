@@ -44,7 +44,7 @@ def planet_multiselect(prefix, house_number, jathagam_map, planets):
 
 def _format_planet_code(code):
     """Replace லக் with HTML underlined version."""
-    return code.replace('லக்', '<strong style="color:#8b1a1a;font-weight:700;">ல</strong>க்')
+    return code.replace('லக்', '<strong style="color:#8b1a1a;font-weight:700;text-decoration:underline;">ல</strong>க்')
 
 def _format_planet_codes(codes_str):
     """Apply formatting to comma-separated planet codes string."""
