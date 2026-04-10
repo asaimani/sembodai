@@ -343,16 +343,18 @@ function downloadAsImage() {
 
     var page = document.querySelector('.page');
 
+    var captureScale = window.devicePixelRatio || 1;
     html2canvas(page, {
-        scale: 2,
+        scale: captureScale,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
+        width: page.offsetWidth,
+        height: page.offsetHeight,
         onclone: function(doc) {
             var noPrint = doc.querySelector('.no-print');
             if (noPrint) noPrint.style.display = 'none';
-            // Remove scale in cloned doc too
             var clonedPage = doc.querySelector('.page');
             if (clonedPage) { clonedPage.style.transform = ''; }
         }
