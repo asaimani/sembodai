@@ -335,8 +335,13 @@ function downloadAsImage() {
 
     var page = document.querySelector('.page');
 
+    var pageNativeWidth = 794;
+    var screenWidth = window.innerWidth;
+    var browserScale = screenWidth < pageNativeWidth ? screenWidth / pageNativeWidth : 1;
+    var dpr = window.devicePixelRatio || 1;
+
     html2canvas(page, {
-        scale: 2,
+        scale: dpr * browserScale,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
