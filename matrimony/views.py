@@ -710,8 +710,14 @@ def candidate_print(request, gender, pk):
     gender_code = 'M' if gender == 'M' else 'F'
     family_members = FamilyMember.objects.filter(candidate_gender=gender_code, candidate_id=candidate.pk)
     jathagam_map = candidate.get_jathagam_map()
-    is_plain = request.GET.get('plain') == '1'
-    template = 'matrimony/candidate_print_plain.html' if is_plain else 'matrimony/candidate_print.html'
+    is_plain  = request.GET.get('plain')  == '1'
+    is_mobile = request.GET.get('mobile') == '1'
+    if is_mobile:
+        template = 'matrimony/candidate_print_mobile.html'
+    elif is_plain:
+        template = 'matrimony/candidate_print_plain.html'
+    else:
+        template = 'matrimony/candidate_print.html'
     return render(request, template, {
         'candidate': candidate,
         'admin_profile': admin_profile,
