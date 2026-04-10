@@ -358,6 +358,27 @@ function downloadAsImage() {
         onclone: function(doc) {
             var noPrint = doc.querySelector('.no-print');
             if (noPrint) noPrint.style.display = 'none';
+
+            // Only apply mobile overrides if on small screen
+            if (window.innerWidth < 900) {
+                // Section titles
+                doc.querySelectorAll('.section-title').forEach(function(el) {
+                    el.style.fontSize = '10px';
+                    el.style.padding = '3px 6px';
+                });
+                // Header office address
+                doc.querySelectorAll('div[style*="font-size:12px;color:#333"]').forEach(function(el) {
+                    el.style.fontSize = '7px';
+                });
+                // Candidate address content
+                doc.querySelectorAll('div[style*="font-size:13px;line-height:1.8"]').forEach(function(el) {
+                    el.style.fontSize = '8px';
+                });
+                // முகவரி header label
+                doc.querySelectorAll('div[style*="font-size:13px;font-weight:700;color:var(--navy)"]').forEach(function(el) {
+                    el.style.fontSize = '13px';
+                });
+            }
         }
     }).then(function(canvas) {
         var link = document.createElement('a');
