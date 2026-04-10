@@ -237,4 +237,4 @@ def display_salary(candidate):
         val   = smart_salary(annual) + ' per annum'
     else:
         return mark_safe('')
-    return mark_safe(f'<tr><td>{label}</td><td>{val}</td></tr>')
+    return mark_safe(f'<tr><td>{label}</td><td class="colon">:</td><td style="white-space:nowrap;">{val}</td></tr>')
