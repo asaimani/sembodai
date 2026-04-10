@@ -372,13 +372,13 @@ function downloadAsImage() {
                 doc.head.appendChild(style);
 
                 // Direct DOM override for header address div
-                doc.querySelectorAll('.page div').forEach(function(el) {
+                doc.querySelectorAll('div').forEach(function(el) {
                     var s = el.getAttribute('style') || '';
-                    if (s.indexOf('color:#333') > -1 && s.indexOf('font-weight:700') > -1) {
-                        el.style.fontSize = '7px';
+                    if (s.indexOf('color:#333') > -1 && s.indexOf('line-height:1.7') > -1) {
+                        el.style.setProperty('font-size', '7px', 'important');
                     }
-                    if (s.indexOf('line-height:1.8') > -1 && s.indexOf('13px') > -1) {
-                        el.style.fontSize = '8px';
+                    if (s.indexOf('line-height:1.8') > -1 && s.indexOf('font-size:13px') > -1) {
+                        el.style.setProperty('font-size', '8px', 'important');
                     }
                 });
             }
