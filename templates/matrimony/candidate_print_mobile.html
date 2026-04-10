@@ -147,7 +147,7 @@
         {% if admin_profile %}
         <tr>
             <td colspan="2" style="border:none;border-top:1px solid var(--gold2);padding:5px 8px 0 8px;text-align:center;">
-                <div style="font-size:12px;color:#333;font-weight:700;line-height:1.7;">
+                <div id="header-office-addr" style="font-size:12px;color:#333;font-weight:700;line-height:1.7;">
                     📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}{% if admin_profile.address_line2 %}, {{ admin_profile.address_line2 }}{% endif %}<br>
                         {% if admin_profile.address_line3 %}{{ admin_profile.address_line3 }}<br>{% endif %}
                     📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}{% if admin_profile.email %} &nbsp;&nbsp; ✉ {{ admin_profile.email }}{% endif %}
@@ -371,12 +371,14 @@ function downloadAsImage() {
                 ].join(' ');
                 doc.head.appendChild(style);
 
-                // Direct DOM override for header address div
+                // Direct target by ID
+                var hAddr = doc.getElementById('header-office-addr');
+                if (hAddr) {
+                    hAddr.style.cssText = 'font-size:7px !important;color:#333;font-weight:700;line-height:1.4;';
+                }
+                // Candidate address
                 doc.querySelectorAll('div').forEach(function(el) {
                     var s = el.getAttribute('style') || '';
-                    if (s.indexOf('color:#333') > -1 && s.indexOf('line-height:1.7') > -1) {
-                        el.style.setProperty('font-size', '7px', 'important');
-                    }
                     if (s.indexOf('line-height:1.8') > -1 && s.indexOf('font-size:13px') > -1) {
                         el.style.setProperty('font-size', '8px', 'important');
                     }
