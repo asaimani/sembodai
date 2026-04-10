@@ -77,6 +77,14 @@
 
     
 
+        /* Mobile screen only — reduce oversized elements */
+        @media screen and (max-width: 900px) {
+            .section-title { font-size: 10px !important; padding: 3px 6px; }
+            div[style*="font-size:12px;color:#333"] { font-size: 7px !important; }
+            div[style*="font-size:13px;line-height:1.8"] { font-size: 8px !important; }
+            div[style*="font-size:13px;font-weight:700;color:var(--navy)"] { font-size: 13px !important; }
+        }
+
         @media print {
             .no-print { display: none !important; }
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -335,6 +343,7 @@ function downloadAsImage() {
 
     var page = document.querySelector('.page');
 
+    // Calculate how much the browser scaled the 794px page to fit screen
     var pageNativeWidth = 794;
     var screenWidth = window.innerWidth;
     var browserScale = screenWidth < pageNativeWidth ? screenWidth / pageNativeWidth : 1;
