@@ -105,7 +105,7 @@
             {% if admin_profile %}
             <tr>
                 <td colspan="2" style="border:none;border-top:1px solid #f0c0c0;padding:5px 8px 0 8px;">
-                    <div style="font-size:12px;color:#333;font-weight:700;line-height:1.7;">
+                    <div id="header-office-addr" style="font-size:12px;color:#333;font-weight:700;line-height:1.7;">
                         📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}{% if admin_profile.address_line2 %}, {{ admin_profile.address_line2 }}{% endif %}<br>
                             {% if admin_profile.address_line3 %}{{ admin_profile.address_line3 }}<br>{% endif %}
                         📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}{% if admin_profile.email %} &nbsp;&nbsp; ✉ {{ admin_profile.email }}{% endif %}
