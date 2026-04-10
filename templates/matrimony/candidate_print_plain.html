@@ -52,7 +52,7 @@
         table.info-table { width: 100%; border-collapse: collapse; }
         table.info-table td { padding: 3px 5px; font-size: 13px; border-bottom: none; vertical-align: top; }
         table.info-table td:first-child { color: var(--navy); white-space: nowrap; width: 1%; font-weight: 600; padding-right: 2px; }
-        table.info-table td:first-child::after { content: " :"; color: var(--navy); }
+        table.info-table td.colon { color: var(--navy); padding: 3px 4px; font-weight: 600; width: 8px; text-align: center; white-space: nowrap; }
         table.info-table td:last-child  { color: #1a1a1a; font-weight: 500; word-break: break-word; }
 
         .section { margin-bottom: 6px; }
@@ -155,35 +155,35 @@
 
     <div class="section">
         <table class="info-table">
-            <tr><td>பெயர்</td><td>{{ candidate.name }}</td></tr>
-            <tr><td>பிறந்த தேதி</td><td>{{ candidate.date_of_birth|date:"d/m/Y" }}</td></tr>
-            {% if candidate.educational_qualification %}<tr><td>கல்வி</td><td>{{ candidate.educational_qualification }}</td></tr>{% endif %}
-            {% if candidate.profession %}<tr><td>பணி</td><td>{{ candidate.profession }}</td></tr>{% endif %}
-            {% if candidate.profession_comments %}<tr><td>அலுவலகம்</td><td>{{ candidate.profession_comments }}</td></tr>{% endif %}
+            <tr><td>பெயர்</td><td class="colon">:</td><td>{{ candidate.name }}</td></tr>
+            <tr><td>பிறந்த தேதி</td><td class="colon">:</td><td>{{ candidate.date_of_birth|date:"d/m/Y" }}</td></tr>
+            {% if candidate.educational_qualification %}<tr><td>கல்வி</td><td class="colon">:</td><td>{{ candidate.educational_qualification }}</td></tr>{% endif %}
+            {% if candidate.profession %}<tr><td>பணி</td><td class="colon">:</td><td>{{ candidate.profession }}</td></tr>{% endif %}
+            {% if candidate.profession_comments %}<tr><td>அலுவலகம்</td><td class="colon">:</td><td>{{ candidate.profession_comments }}</td></tr>{% endif %}
             {% display_salary candidate %}
-            {% if candidate.complexion %}<tr><td>நிறம்</td><td>{{ candidate.complexion }}</td></tr>{% endif %}
-            {% if candidate.height %}<tr><td>உயரம்</td><td>{{ candidate.height }}</td></tr>{% endif %}
-            {% if candidate.birth_order %}<tr><td>பிறப்பு வரிசை</td><td>{{ candidate.birth_order }}</td></tr>{% endif %}
-            {% if candidate.own_house %}<tr><td>சொந்த வீடு</td><td>{{ candidate.own_house }}</td></tr>{% endif %}
-            {% if candidate.property_value %}<tr><td>நிலம்</td><td>{{ candidate.property_value }}</td></tr>{% endif %}
-            {% if candidate.native_place %}<tr><td>பூர்வீகம்</td><td>{{ candidate.native_place }}</td></tr>{% endif %}
+            {% if candidate.complexion %}<tr><td>நிறம்</td><td class="colon">:</td><td>{{ candidate.complexion }}</td></tr>{% endif %}
+            {% if candidate.height %}<tr><td>உயரம்</td><td class="colon">:</td><td>{{ candidate.height }}</td></tr>{% endif %}
+            {% if candidate.birth_order %}<tr><td>பிறப்பு வரிசை</td><td class="colon">:</td><td>{{ candidate.birth_order }}</td></tr>{% endif %}
+            {% if candidate.own_house %}<tr><td>சொந்த வீடு</td><td class="colon">:</td><td>{{ candidate.own_house }}</td></tr>{% endif %}
+            {% if candidate.property_value %}<tr><td>நிலம்</td><td class="colon">:</td><td>{{ candidate.property_value }}</td></tr>{% endif %}
+            {% if candidate.native_place %}<tr><td>பூர்வீகம்</td><td class="colon">:</td><td>{{ candidate.native_place }}</td></tr>{% endif %}
         </table>
     </div>
 
     <div class="section">
         <table class="info-table">
-            {% if candidate.tamil_year %}<tr><td>தமிழ் வருடம்</td><td>{{ candidate.tamil_year }}</td></tr>{% endif %}
-            {% if candidate.tamil_month %}<tr><td>தமிழ் மாதம்</td><td>{{ candidate.tamil_month }}</td></tr>{% endif %}
-            {% if candidate.tamil_date %}<tr><td>தமிழ் தேதி</td><td>{{ candidate.tamil_date }}</td></tr>{% endif %}
-            {% if candidate.tamil_kizhamai %}<tr><td>தமிழ் கிழமை</td><td>{{ candidate.tamil_kizhamai }}</td></tr>{% endif %}
-            {% if candidate.birth_time %}<tr><td>பிறந்த நேரம்</td><td>{{ candidate.birth_time|time:"h:i A" }}</td></tr>{% endif %}
-            {% if candidate.rasi %}<tr><td>ராசி</td><td>{{ candidate.rasi }}</td></tr>{% endif %}
-            {% if candidate.nachathiram %}<tr><td>நட்சத்திரம்</td><td>{{ candidate.nachathiram }}</td></tr>{% endif %}
-            {% if candidate.lagnam %}<tr><td>லக்னம்</td><td>{{ candidate.lagnam }}</td></tr>{% endif %}
-            {% if candidate.sevadosham %}<tr><td>செ. தோஷம்</td><td>{{ candidate.sevadosham }}</td></tr>{% endif %}
-            {% if candidate.ragu_kethu %}<tr><td>ராகு/கேது</td><td>{{ candidate.ragu_kethu }}</td></tr>{% endif %}
-            {% if candidate.thisai_iruppu %}<tr><td>திசை இருப்பு</td><td><span style="font-size:12px;">{{ candidate.thisai_iruppu }}</span></td></tr>{% endif %}
-            {% if candidate.birth_place %}<tr><td>பிறந்த ஊர்</td><td>{{ candidate.birth_place }}</td></tr>{% endif %}
+            {% if candidate.tamil_year %}<tr><td>தமிழ் வருடம்</td><td class="colon">:</td><td>{{ candidate.tamil_year }}</td></tr>{% endif %}
+            {% if candidate.tamil_month %}<tr><td>தமிழ் மாதம்</td><td class="colon">:</td><td>{{ candidate.tamil_month }}</td></tr>{% endif %}
+            {% if candidate.tamil_date %}<tr><td>தமிழ் தேதி</td><td class="colon">:</td><td>{{ candidate.tamil_date }}</td></tr>{% endif %}
+            {% if candidate.tamil_kizhamai %}<tr><td>தமிழ் கிழமை</td><td class="colon">:</td><td>{{ candidate.tamil_kizhamai }}</td></tr>{% endif %}
+            {% if candidate.birth_time %}<tr><td>பிறந்த நேரம்</td><td class="colon">:</td><td>{{ candidate.birth_time|time:"h:i A" }}</td></tr>{% endif %}
+            {% if candidate.rasi %}<tr><td>ராசி</td><td class="colon">:</td><td>{{ candidate.rasi }}</td></tr>{% endif %}
+            {% if candidate.nachathiram %}<tr><td>நட்சத்திரம்</td><td class="colon">:</td><td>{{ candidate.nachathiram }}</td></tr>{% endif %}
+            {% if candidate.lagnam %}<tr><td>லக்னம்</td><td class="colon">:</td><td>{{ candidate.lagnam }}</td></tr>{% endif %}
+            {% if candidate.sevadosham %}<tr><td>செ. தோஷம்</td><td class="colon">:</td><td>{{ candidate.sevadosham }}</td></tr>{% endif %}
+            {% if candidate.ragu_kethu %}<tr><td>ராகு/கேது</td><td class="colon">:</td><td>{{ candidate.ragu_kethu }}</td></tr>{% endif %}
+            {% if candidate.thisai_iruppu %}<tr><td>திசை இருப்பு</td><td class="colon">:</td><td><span style="font-size:12px;">{{ candidate.thisai_iruppu }}</span></td></tr>{% endif %}
+            {% if candidate.birth_place %}<tr><td>பிறந்த ஊர்</td><td class="colon">:</td><td>{{ candidate.birth_place }}</td></tr>{% endif %}
         </table>
     </div>
 </div>
