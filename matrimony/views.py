@@ -104,40 +104,41 @@ def dashboard(request):
     active_premium_m = MaleCandidate.objects.filter(premium_end_date__gte=today).count()
     active_premium_f = FemaleCandidate.objects.filter(premium_end_date__gte=today).count()
 
-    # Weekly chart — last 8 weeks: new candidates added per week
-    from django.db.models.functions import TruncWeek
+    # Weekly chart — last 8 weeks: new candidates per week
+    from collections import OrderedDict
     eight_weeks_ago = today - timedelta(weeks=8)
 
-    male_weekly = (
-        MaleCandidate.objects
-        .filter(created_at__date__gte=eight_weeks_ago)
-        .annotate(week=TruncWeek('created_at'))
-        .values('week').annotate(n=Count('id')).order_by('week')
-    )
-    female_weekly = (
-        FemaleCandidate.objects
-        .filter(created_at__date__gte=eight_weeks_ago)
-        .annotate(week=TruncWeek('created_at'))
-        .values('week').annotate(n=Count('id')).order_by('week')
-    )
-
-    # Build week labels and data arrays
-    from collections import OrderedDict
+    # Build 8 week buckets (Sunday-based)
     weeks = OrderedDict()
     for i in range(7, -1, -1):
         days_back = (today.weekday() + 1) % 7 + i * 7
         wstart = today - timedelta(days=days_back)
-        label = wstart.strftime('%d/%m')
-        weeks[wstart.strftime('%Y-%m-%d')] = {'label': label, 'male': 0, 'female': 0}
+        wend   = wstart + timedelta(days=6)
+        weeks[i] = {'label': wstart.strftime('%d/%m'), 'start': wstart, 'end': wend, 'male': 0, 'female': 0}
 
-    for row in male_weekly:
-        key = row['week'].strftime('%Y-%m-%d') if row['week'] else None
-        if key in weeks:
-            weeks[key]['male'] = row['n']
-    for row in female_weekly:
-        key = row['week'].strftime('%Y-%m-%d') if row['week'] else None
-        if key in weeks:
-            weeks[key]['female'] = row['n']
+    # Count candidates created in each week bucket
+    males_raw = list(
+        MaleCandidate.objects
+        .filter(created_at__date__gte=eight_weeks_ago)
+        .values_list('created_at__date', flat=True)
+    )
+    females_raw = list(
+        FemaleCandidate.objects
+        .filter(created_at__date__gte=eight_weeks_ago)
+        .values_list('created_at__date', flat=True)
+    )
+
+    for d in males_raw:
+        for i, w in weeks.items():
+            if w['start'] <= d <= w['end']:
+                weeks[i]['male'] += 1
+                break
+
+    for d in females_raw:
+        for i, w in weeks.items():
+            if w['start'] <= d <= w['end']:
+                weeks[i]['female'] += 1
+                break
 
     chart_labels = _json.dumps([v['label'] for v in weeks.values()])
     chart_male   = _json.dumps([v['male']  for v in weeks.values()])
