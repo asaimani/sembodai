@@ -734,6 +734,81 @@ def candidate_print(request, gender, pk):
 
 
 @login_required
+def multi_pdf(request):
+    """Render multiple candidate profiles in one printable page."""
+    import base64, os
+
+    admin_profile = None
+    try:
+        admin_profile = request.user.adminprofile
+    except Exception:
+        pass
+
+    profiles = []
+    errors   = []
+
+    if request.method == 'POST':
+        raw_uids = request.POST.get('uids', '')
+        uids = [u.strip() for u in raw_uids.replace(',', '\n').splitlines() if u.strip()][:10]
+
+        for uid in uids:
+            candidate = None
+            gender    = None
+            # Detect gender from UID prefix
+            uid_upper = uid.upper()
+            if uid_upper.startswith('MM') or uid_upper.startswith('MF'):
+                gender = 'M' if uid_upper.startswith('MM') else 'F'
+            elif uid_upper.startswith('M'):
+                gender = 'M'
+            elif uid_upper.startswith('F'):
+                gender = 'F'
+            else:
+                errors.append(f'{uid} — தவறான UID வடிவம்')
+                continue
+
+            try:
+                if gender == 'M':
+                    candidate = MaleCandidate.objects.get(uid=uid)
+                else:
+                    candidate = FemaleCandidate.objects.get(uid=uid)
+            except (MaleCandidate.DoesNotExist, FemaleCandidate.DoesNotExist):
+                errors.append(f'{uid} — கண்டுபிடிக்கவில்லை')
+                continue
+
+            # Photo
+            photo_base64 = None
+            first_photo  = candidate.photos.first()
+            if first_photo:
+                try:
+                    photo_path = first_photo.photo.path
+                    if os.path.exists(photo_path):
+                        with open(photo_path, 'rb') as img_file:
+                            ext = os.path.splitext(photo_path)[1].lower().replace('.', '')
+                            if ext == 'jpg': ext = 'jpeg'
+                            photo_base64 = f"data:image/{ext};base64,{base64.b64encode(img_file.read()).decode()}"
+                except Exception:
+                    pass
+
+            gender_code  = 'M' if gender == 'M' else 'F'
+            family_members = FamilyMember.objects.filter(candidate_gender=gender_code, candidate_id=candidate.pk)
+            jathagam_map   = candidate.get_jathagam_map()
+
+            profiles.append({
+                'candidate':      candidate,
+                'gender':         gender,
+                'family_members': family_members,
+                'jathagam_map':   jathagam_map,
+                'photo_base64':   photo_base64,
+            })
+
+    return render(request, 'matrimony/candidate_multi_pdf.html', {
+        'profiles':      profiles,
+        'admin_profile': admin_profile,
+        'errors':        errors,
+        'is_print':      bool(profiles),
+    })
+
+@login_required
 def candidate_delete(request, gender, pk):
     if not request.user.is_superuser:
         from django.http import HttpResponseForbidden

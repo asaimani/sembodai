@@ -1,0 +1,386 @@
+{% load static %}
+{% load matrimony_tags %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=794, shrink-to-fit=yes">
+    <title>Multi Profile PDF</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --navy:  #1a3a5c;
+            --navy2: #0f2744;
+            --gold:  #c9a84c;
+            --gold2: #e8c96a;
+        }
+        * { font-family: 'Noto Sans Tamil', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f0f4ff; color: #1a1a1a; }
+
+        /* Each profile gets its own A4 page */
+        .profile-page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto 20px auto;
+            padding: 6mm;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            page-break-after: always;
+        }
+        .profile-page:last-child { page-break-after: avoid; }
+
+        /* Header */
+        .header { border: 3px double var(--gold); padding: 8px; margin-bottom: 8px; background: #fff; }
+        .header-title-main { font-size: 18px; font-weight: 700; color: var(--navy); }
+        .header-title-sub  { font-size: 14px; font-weight: 700; color: var(--navy); white-space: nowrap; }
+        .header-tagline    { color: var(--gold); font-size: 11px; margin-top: 3px; }
+
+        /* Section titles */
+        .section-title {
+            background: linear-gradient(90deg, var(--navy) 0%, var(--navy2) 100%);
+            color: var(--gold2);
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            text-align: center;
+            border-left: 4px solid var(--gold);
+            border-right: 4px solid var(--gold);
+        }
+
+        /* Info tables */
+        table.info-table { width: 100%; border-collapse: collapse; }
+        table.info-table td { padding: 3px 5px; font-size: 13px; border-bottom: none; vertical-align: top; }
+        table.info-table td:first-child { color: var(--navy); white-space: nowrap; width: 1%; font-weight: 600; padding-right: 2px; }
+        table.info-table td.colon { color: var(--navy); padding: 3px 4px; font-weight: 600; width: 8px; text-align: center; white-space: nowrap; }
+        table.info-table td:last-child  { color: #1a1a1a; font-weight: 500; word-break: break-word; }
+
+        .section { margin-bottom: 6px; }
+
+        /* Family table */
+        table.family-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        table.family-table th { background: var(--navy); color: var(--gold2); padding: 4px 5px; text-align: left; border: 1px solid var(--gold); }
+        table.family-table td { padding: 3px 5px; border: 1px solid #d4c08a; }
+
+        /* Jathagam */
+        .jathagam-outer { width: 100%; border-collapse: collapse; border: 2px solid var(--gold); background: #fff; }
+        .jathagam-outer td { border: 1px solid var(--gold2); padding: 3px; font-size: 11px; font-weight: 600; height: 45px; vertical-align: middle; text-align: center; width: 25%; }
+        .jathagam-center { background: #fff; color: #1a1a1a; font-weight: 700; font-size: 11px; border: 1px solid var(--gold2); }
+
+        /* Photo */
+        .photo-img { width: 130px; height: 155px; object-fit: cover; border: 2px solid var(--gold); display: block; }
+        .photo-placeholder { width: 130px; height: 155px; display: flex; align-items: center; justify-content: center; border: 2px dashed var(--gold); font-size: 40px; color: #ccc; }
+
+        /* Input form */
+        .form-wrap {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #fff;
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+        .form-wrap h2 { color: var(--navy); font-size: 18px; margin-bottom: 16px; }
+        .form-wrap textarea {
+            width: 100%; height: 160px; border: 2px solid var(--gold);
+            border-radius: 6px; padding: 10px; font-size: 14px;
+            font-family: 'Noto Sans Tamil', sans-serif; resize: vertical;
+        }
+        .form-wrap .hint { font-size: 12px; color: #666; margin: 6px 0 14px; }
+        .btn-submit {
+            background: var(--navy); color: var(--gold2);
+            border: 2px solid var(--gold); padding: 10px 28px;
+            border-radius: 6px; font-size: 14px; font-weight: 600;
+            cursor: pointer; font-family: inherit;
+        }
+        .btn-back {
+            background: #fff; color: var(--navy);
+            border: 2px solid var(--navy); padding: 10px 20px;
+            border-radius: 6px; font-size: 14px; font-weight: 600;
+            cursor: pointer; font-family: inherit; margin-left: 10px;
+            text-decoration: none; display: inline-block;
+        }
+        .error-list { background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 10px 16px; margin-bottom: 14px; font-size: 13px; color: #856404; }
+
+        /* Toolbar */
+        .toolbar {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--navy); color: var(--gold2);
+            padding: 8px 16px; display: flex; align-items: center; gap: 10px;
+        }
+        .toolbar span { font-weight: 700; font-size: 14px; flex: 1; }
+        .toolbar button, .toolbar a {
+            padding: 7px 16px; border: 2px solid var(--gold);
+            border-radius: 6px; font-family: inherit; font-size: 13px;
+            cursor: pointer; font-weight: 600; text-decoration: none;
+        }
+        .btn-print  { background: var(--gold2); color: var(--navy); }
+        .btn-new    { background: transparent; color: var(--gold2); }
+
+        @page { margin: 5mm; size: A4; }
+
+        @media print {
+            body { background: #fff; }
+            .toolbar { display: none !important; }
+            .profile-page { margin: 0; box-shadow: none; padding: 4mm; }
+        }
+    </style>
+</head>
+<body>
+
+{% if not is_print %}
+<!-- UID Entry Form -->
+<div class="form-wrap">
+    <h2>📄 பல சுயவிவரங்கள் — PDF அச்சு</h2>
+
+    {% if errors %}
+    <div class="error-list">
+        <strong>பிழைகள்:</strong><br>
+        {% for e in errors %}{{ e }}<br>{% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <label style="font-size:13px;font-weight:600;color:var(--navy);display:block;margin-bottom:6px;">
+            UID பட்டியல் (ஒவ்வொரு வரியில் ஒரு UID — அதிகபட்சம் 10)
+        </label>
+        <textarea name="uids" placeholder="M0000001&#10;F0000002&#10;MM0000003&#10;M0000004"></textarea>
+        <div class="hint">எ.கா: M0000001, F0000002, MM0000003 — ஆண் M / பெண் F / மறுமண MM/MF</div>
+        <button type="submit" class="btn-submit">🖨️ PDF உருவாக்கு</button>
+        <a href="{% url 'candidate_list' %}" class="btn-back">← திரும்பு</a>
+    </form>
+</div>
+
+{% else %}
+<!-- Toolbar -->
+<div class="toolbar no-print">
+    <span>📄 {{ profiles|length }} சுயவிவரங்கள் தயார்</span>
+    <button class="btn-print" onclick="window.print()">🖨️ அச்சிடு / PDF சேமி</button>
+    <a href="{% url 'multi_pdf' %}" class="btn-new">+ புதியது</a>
+    <a href="{% url 'candidate_list' %}" class="btn-new">← திரும்பு</a>
+</div>
+
+{% if errors %}
+<div style="max-width:794px;margin:10px auto;background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:10px 16px;font-size:13px;color:#856404;" class="no-print">
+    <strong>கண்டுபிடிக்கவில்லை:</strong> {% for e in errors %}{{ e }}{% if not forloop.last %}, {% endif %}{% endfor %}
+</div>
+{% endif %}
+
+<!-- Profile Pages -->
+{% for p in profiles %}
+{% with candidate=p.candidate family_members=p.family_members jathagam_map=p.jathagam_map photo_base64=p.photo_base64 %}
+<div class="profile-page">
+
+    <!-- Header -->
+    <div class="header">
+        <table style="width:100%;border:none;border-collapse:collapse;">
+            <tr>
+                <td style="width:20%;text-align:left;vertical-align:middle;border:none;padding:0;" rowspan="2">
+                    <img src="{% static 'images/bluelogo.png' %}" alt="Logo" style="width:130px;height:130px;object-fit:contain;">
+                </td>
+                <td style="width:55%;text-align:center;vertical-align:middle;border:none;padding:0 8px;">
+                    <div class="header-title-main">செம்போடையார்</div>
+                    <div class="header-title-sub">வன்னியர் திருமண தகவல் மையம்</div>
+                    <div class="header-tagline">வாழ்க்கை துணை தேடல் - சேவை</div>
+                </td>
+                <td style="width:25%;text-align:right;vertical-align:top;border:none;padding:0 0 0 8px;">
+                    <table style="border-collapse:collapse;margin-left:auto;font-size:12px;font-weight:700;">
+                        {% if candidate.old_reg_no %}
+                        <tr>
+                            <td style="color:#555;white-space:nowrap;padding:1px 2px 1px 0;">ப.பதிவு எண்</td>
+                            <td style="color:#555;padding:1px 3px;text-align:center;">:</td>
+                            <td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;">{{ candidate.old_reg_no }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if candidate.sub_caste %}
+                        <tr>
+                            <td style="color:#555;white-space:nowrap;padding:1px 2px 1px 0;">உட்பிரிவு</td>
+                            <td style="color:#555;padding:1px 3px;text-align:center;">:</td>
+                            <td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;">{{ candidate.sub_caste }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if candidate.premium_start_date %}
+                        <tr>
+                            <td style="color:#555;white-space:nowrap;padding:1px 2px 1px 0;">பதிவு தேதி</td>
+                            <td style="color:#555;padding:1px 3px;text-align:center;">:</td>
+                            <td style="color:#1a1a1a;white-space:nowrap;padding:1px 0;">{{ candidate.premium_start_date|date:"d/m/Y" }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if candidate.status and candidate.status.code == 'remarriage' %}
+                        <tr><td colspan="3" style="color:#0369a1;font-weight:700;">💑 மறுமணம்</td></tr>
+                        {% endif %}
+                    </table>
+                </td>
+            </tr>
+            {% if admin_profile %}
+            <tr>
+                <td colspan="2" style="border:none;border-top:1px solid var(--gold2);padding:5px 8px 0 8px;text-align:center;">
+                    <div style="font-size:12px;color:#333;font-weight:700;line-height:1.7;">
+                        📍 {{ admin_profile.location }}{% if admin_profile.address_line1 %}, {{ admin_profile.address_line1 }}{% endif %}{% if admin_profile.address_line2 %}, {{ admin_profile.address_line2 }}{% endif %}<br>
+                        {% if admin_profile.address_line3 %}{{ admin_profile.address_line3 }}<br>{% endif %}
+                        📞 {{ admin_profile.phone }}{% if admin_profile.alternate_phone %} / {{ admin_profile.alternate_phone }}{% endif %}{% if admin_profile.email %} &nbsp;&nbsp; ✉ {{ admin_profile.email }}{% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+
+    <!-- ROW 1: Basic | Jothida -->
+    <div style="display:grid;grid-template-columns:58% 42%;gap:10px;margin-bottom:10px;align-items:start;">
+        <div class="section">
+            <table class="info-table">
+                <tr><td>பெயர்</td><td class="colon">:</td><td>{{ candidate.name }}</td></tr>
+                <tr><td>பிறந்த தேதி</td><td class="colon">:</td><td>{{ candidate.date_of_birth|date:"d/m/Y" }}</td></tr>
+                {% if candidate.educational_qualification %}<tr><td>கல்வி</td><td class="colon">:</td><td>{{ candidate.educational_qualification }}</td></tr>{% endif %}
+                {% if candidate.profession %}<tr><td>பணி</td><td class="colon">:</td><td>{{ candidate.profession }}</td></tr>{% endif %}
+                {% if candidate.profession_comments %}<tr><td>அலுவலகம்</td><td class="colon">:</td><td>{{ candidate.profession_comments }}</td></tr>{% endif %}
+                {% display_salary candidate %}
+                {% if candidate.complexion %}<tr><td>நிறம்</td><td class="colon">:</td><td>{{ candidate.complexion }}</td></tr>{% endif %}
+                {% if candidate.height %}<tr><td>உயரம்</td><td class="colon">:</td><td>{{ candidate.height }}</td></tr>{% endif %}
+                {% if candidate.birth_order %}<tr><td>பிறப்பு வரிசை</td><td class="colon">:</td><td>{{ candidate.birth_order }}</td></tr>{% endif %}
+                {% if candidate.own_house %}<tr><td>சொந்த வீடு</td><td class="colon">:</td><td>{{ candidate.own_house }}</td></tr>{% endif %}
+                {% if candidate.property_value %}<tr><td>நிலம்</td><td class="colon">:</td><td>{{ candidate.property_value }}</td></tr>{% endif %}
+                {% if candidate.native_place %}<tr><td>பூர்வீகம்</td><td class="colon">:</td><td>{{ candidate.native_place }}</td></tr>{% endif %}
+            </table>
+        </div>
+        <div class="section">
+            <table class="info-table">
+                {% if candidate.tamil_year %}<tr><td>தமிழ் வருடம்</td><td class="colon">:</td><td>{{ candidate.tamil_year }}</td></tr>{% endif %}
+                {% if candidate.tamil_month %}<tr><td>தமிழ் மாதம்</td><td class="colon">:</td><td>{{ candidate.tamil_month }}</td></tr>{% endif %}
+                {% if candidate.tamil_date %}<tr><td>தமிழ் தேதி</td><td class="colon">:</td><td>{{ candidate.tamil_date }}</td></tr>{% endif %}
+                {% if candidate.tamil_kizhamai %}<tr><td>தமிழ் கிழமை</td><td class="colon">:</td><td>{{ candidate.tamil_kizhamai }}</td></tr>{% endif %}
+                {% if candidate.birth_time %}<tr><td>பிறந்த நேரம்</td><td class="colon">:</td><td>{{ candidate.birth_time|time:"h:i A" }}</td></tr>{% endif %}
+                {% if candidate.rasi %}<tr><td>ராசி</td><td class="colon">:</td><td>{{ candidate.rasi }}</td></tr>{% endif %}
+                {% if candidate.nachathiram %}<tr><td>நட்சத்திரம்</td><td class="colon">:</td><td>{{ candidate.nachathiram }}</td></tr>{% endif %}
+                {% if candidate.lagnam %}<tr><td>லக்னம்</td><td class="colon">:</td><td>{{ candidate.lagnam }}</td></tr>{% endif %}
+                {% if candidate.sevadosham %}<tr><td>செ. தோஷம்</td><td class="colon">:</td><td>{{ candidate.sevadosham }}</td></tr>{% endif %}
+                {% if candidate.ragu_kethu %}<tr><td>ராகு/கேது</td><td class="colon">:</td><td>{{ candidate.ragu_kethu }}</td></tr>{% endif %}
+                {% if candidate.thisai_iruppu %}<tr><td>திசை இருப்பு</td><td class="colon">:</td><td><span style="font-size:12px;">{{ candidate.thisai_iruppu }}</span></td></tr>{% endif %}
+                {% if candidate.birth_place %}<tr><td>பிறந்த ஊர்</td><td class="colon">:</td><td>{{ candidate.birth_place }}</td></tr>{% endif %}
+            </table>
+        </div>
+    </div>
+
+    <!-- ROW 2: Family -->
+    {% if family_members %}
+    <div class="section">
+        <div class="section-title">குடும்பத்தினர் விவரம்</div>
+        <table class="family-table">
+            <thead>
+                <tr>
+                    <th style="width:3%">#</th>
+                    <th style="width:18%">பெயர்</th>
+                    <th style="width:20%">படிப்பு</th>
+                    <th style="width:14%;white-space:nowrap;">உறவு</th>
+                    <th style="width:18%;white-space:nowrap;">திருமணம்</th>
+                    <th>பணி விவரம்</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fm in family_members %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ fm.name }}</td>
+                    <td>{{ fm.education|default:"-" }}</td>
+                    <td>{{ fm.relation|default:"-" }}</td>
+                    <td>{{ fm.marital_status|default:"-" }}</td>
+                    <td>{{ fm.job_info|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- ROW 3: Jathagam -->
+    <div class="section">
+        <div style="display:flex;gap:2%;justify-content:space-between;">
+            <div style="width:48%;">
+                <table class="jathagam-outer">
+                    <tr>
+                        <td>{% house_display jathagam_map 'R' 12 %}</td>
+                        <td>{% house_display jathagam_map 'R' 1 %}</td>
+                        <td>{% house_display jathagam_map 'R' 2 %}</td>
+                        <td>{% house_display jathagam_map 'R' 3 %}</td>
+                    </tr>
+                    <tr>
+                        <td>{% house_display jathagam_map 'R' 11 %}</td>
+                        <td colspan="2" rowspan="2" class="jathagam-center">ராசி</td>
+                        <td>{% house_display jathagam_map 'R' 4 %}</td>
+                    </tr>
+                    <tr>
+                        <td>{% house_display jathagam_map 'R' 10 %}</td>
+                        <td>{% house_display jathagam_map 'R' 5 %}</td>
+                    </tr>
+                    <tr>
+                        <td>{% house_display jathagam_map 'R' 9 %}</td>
+                        <td>{% house_display jathagam_map 'R' 8 %}</td>
+                        <td>{% house_display jathagam_map 'R' 7 %}</td>
+                        <td>{% house_display jathagam_map 'R' 6 %}</td>
+                    </tr>
+                </table>
+            </div>
+            <div style="width:48%;">
+                <table class="jathagam-outer">
+                    <tr>
+                        <td>{% house_display jathagam_map 'N' 12 %}</td>
+                        <td>{% house_display jathagam_map 'N' 1 %}</td>
+                        <td>{% house_display jathagam_map 'N' 2 %}</td>
+                        <td>{% house_display jathagam_map 'N' 3 %}</td>
+                    </tr>
+                    <tr>
+                        <td>{% house_display jathagam_map 'N' 11 %}</td>
+                        <td colspan="2" rowspan="2" class="jathagam-center">நவாம்சம்</td>
+                        <td>{% house_display jathagam_map 'N' 4 %}</td>
+                    </tr>
+                    <tr>
+                        <td>{% house_display jathagam_map 'N' 10 %}</td>
+                        <td>{% house_display jathagam_map 'N' 5 %}</td>
+                    </tr>
+                    <tr>
+                        <td>{% house_display jathagam_map 'N' 9 %}</td>
+                        <td>{% house_display jathagam_map 'N' 8 %}</td>
+                        <td>{% house_display jathagam_map 'N' 7 %}</td>
+                        <td>{% house_display jathagam_map 'N' 6 %}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROW 4: Address | Photo -->
+    <div style="display:grid;grid-template-columns:1fr 135px;gap:10px;align-items:start;margin-bottom:10px;">
+        <div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;">முகவரி</div>
+            <div style="font-size:13px;line-height:1.8;">
+                {% if candidate.address_name %}<div style="font-weight:600;">{{ candidate.address_name }},</div>{% endif %}
+                {% if candidate.address_line1 %}<div>{{ candidate.address_line1 }},</div>{% endif %}
+                {% if candidate.address_line2 %}<div>{{ candidate.address_line2 }},</div>{% endif %}
+                <div>{% if candidate.address_line3 %}{{ candidate.address_line3 }},{% endif %} {% if candidate.pincode %}{{ candidate.pincode }}.{% endif %}</div>
+                <div style="margin-top:4px;">
+                    {% if candidate.mobile_number %}📞 {{ candidate.mobile_number }}.{% endif %}
+                    {% if candidate.whatsapp_number %}&nbsp;&nbsp;<i class="fab fa-whatsapp" style="color:#25D366;font-size:12px;"></i> {{ candidate.whatsapp_number }}.{% endif %}
+                </div>
+            </div>
+        </div>
+        <div style="text-align:right;">
+            {% if photo_base64 %}
+                <img src="{{ photo_base64 }}" class="photo-img">
+            {% else %}
+                <div class="photo-placeholder">👤</div>
+            {% endif %}
+        </div>
+    </div>
+
+</div><!-- end .profile-page -->
+{% endwith %}
+{% endfor %}
+
+{% endif %}
+
+</body>
+</html>

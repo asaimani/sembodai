@@ -10,6 +10,7 @@ urlpatterns = [
     path('candidates/<str:gender>/<int:pk>/', views.candidate_detail, name='candidate_detail'),
     path('candidates/<str:gender>/<int:pk>/edit/', views.candidate_edit, name='candidate_edit'),
     path('candidates/<str:gender>/<int:pk>/print/', views.candidate_print, name='candidate_print'),
+    path('candidates/multi-pdf/', views.multi_pdf, name='multi_pdf'),
     path('api/nachathirams/', views.get_nachathirams, name='get_nachathirams'),
     path('api/sub_castes/', views.get_sub_castes, name='get_sub_castes'),
     path('api/districts/', views.get_districts, name='get_districts'),
