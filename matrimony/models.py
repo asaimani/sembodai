@@ -29,7 +29,7 @@ class Nachathiram(models.Model):
     name = models.CharField(max_length=50)
     rasi = models.ForeignKey(Rasi, on_delete=models.SET_NULL, null=True, blank=True)
     def __str__(self): return self.name
-    class Meta: verbose_name = "நட்சத்திரம்"; ordering = ['id']
+    class Meta: verbose_name = "நட்சத்திரம்"; ordering = ['name']
 
 class Profession(models.Model):
     name = models.CharField(max_length=100)
