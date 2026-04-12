@@ -236,5 +236,10 @@ def display_salary(candidate):
         label = 'வருமானம்'
         val   = smart_salary(annual) + ' per annum'
     else:
-        return mark_safe('')
+        from .models import MaleCandidate
+        if isinstance(candidate, MaleCandidate):
+            label = 'வருமானம்'
+            val   = 'நேரில்'
+        else:
+            return mark_safe('')
     return mark_safe(f'<tr><td>{label}</td><td class="colon">:</td><td style="white-space:nowrap;">{val}</td></tr>')
