@@ -308,11 +308,12 @@ class Command(BaseCommand):
 
         # ── Ragu Kethu ──
         for order, code, name in [
-            (1, 'yes', 'ஆம்'),
+            (1, 'yes', 'உண்டு'),
             (2, 'no',  'இல்லை'),
         ]:
             obj, created = RaguKethu.objects.get_or_create(code=code, defaults={'name': name, 'order': order})
             if not created:
+                obj.name  = name
                 obj.order = order
                 obj.save()
 
