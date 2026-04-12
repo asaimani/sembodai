@@ -236,7 +236,7 @@ def display_salary(candidate):
         label = 'வருமானம்'
         val   = smart_salary(annual) + ' per annum'
     else:
-        from .models import MaleCandidate
+        from matrimony.models import MaleCandidate
         if isinstance(candidate, MaleCandidate):
             label = 'வருமானம்'
             val   = 'நேரில்'
