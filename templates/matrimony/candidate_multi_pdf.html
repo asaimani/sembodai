@@ -121,6 +121,25 @@
 
         @page { margin: 5mm; size: A4; }
 
+
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.08;
+            width: 300px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @media print {
+            .watermark {
+                position: fixed;
+                top: 50%; left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        }
+
         @media print {
             body { background: #fff; }
             .toolbar { display: none !important; }
@@ -129,6 +148,8 @@
     </style>
 </head>
 <body>
+<img src="{% static 'images/bluelogo.png' %}" class="watermark" alt="">
+
 
 {% if not is_print %}
 <!-- UID Entry Form -->

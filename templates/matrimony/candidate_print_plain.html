@@ -85,6 +85,25 @@
             div[style*="font-size:13px;font-weight:700;color:var(--navy)"] { font-size: 13px !important; }
         }
 
+
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.08;
+            width: 300px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @media print {
+            .watermark {
+                position: fixed;
+                top: 50%; left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        }
+
         @media print {
             .no-print { display: none !important; }
             body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -93,6 +112,8 @@
     </style>
 </head>
 <body>
+<img src="{% static 'images/bluelogo.png' %}" class="watermark" alt="">
+
 
 <!-- Toolbar -->
 <div class="no-print" style="text-align:center;padding:10px;background:#f0f4ff;">
