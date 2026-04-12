@@ -125,7 +125,7 @@
                     <td>{{ c.rasi }}</td>
                     <td>{{ c.nachathiram }}</td>
                     <td>{{ c.profession }}</td>
-                    <td>{% if c.monthly_salary %}₹{{ c.monthly_salary|floatformat:0 }}{% else %}-{% endif %}</td>
+                    <td>{% if c.monthly_salary %}₹{{ c.monthly_salary|floatformat:0 }}/மா{% elif c.annual_income %}₹{{ c.annual_income|floatformat:0 }}/ஆ{% else %}-{% endif %}</td>
                     <td class="small">{{ c.district|default:"-" }}</td>
                     <td class="small text-muted">{{ c.created_by|default:"-" }}</td>
                     <td>
