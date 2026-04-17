@@ -719,6 +719,8 @@ def candidate_print(request, gender, pk):
         template = 'matrimony/candidate_print_plain.html'
     else:
         template = 'matrimony/candidate_print.html'
+    from .models import OfficeNotice
+    office_notice = OfficeNotice.get()
     return render(request, template, {
         'candidate': candidate,
         'admin_profile': admin_profile,
@@ -726,6 +728,7 @@ def candidate_print(request, gender, pk):
         'gender': gender,
         'family_members': family_members,
         'jathagam_map': jathagam_map,
+        'office_notice': office_notice,
     })
 
 
@@ -801,11 +804,14 @@ def multi_pdf(request):
                 'photo_base64':   photo_base64,
             })
 
+    from .models import OfficeNotice
+    office_notice = OfficeNotice.get()
     return render(request, 'matrimony/candidate_multi_pdf.html', {
         'profiles':      profiles,
         'admin_profile': admin_profile,
         'errors':        errors,
         'is_print':      bool(profiles),
+        'office_notice': office_notice,
     })
 
 @login_required
@@ -2206,3 +2212,34 @@ def audit_log(request):
         'search': search,
         'action_choices': AuditLog.ACTION_CHOICES,
     })
+
+
+@login_required
+def office_notice_config(request):
+    from django.http import HttpResponseForbidden
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("அனுமதி இல்லை")
+
+    from .models import OfficeNotice
+    notice = OfficeNotice.get()
+
+    if request.method == 'POST':
+        notice.line1 = request.POST.get('line1', notice.line1).strip()
+        notice.line2 = request.POST.get('line2', notice.line2).strip()
+        notice.line3 = request.POST.get('line3', notice.line3).strip()
+        notice.line4 = request.POST.get('line4', notice.line4).strip()
+        notice.line5 = request.POST.get('line5', notice.line5).strip()
+        notice.save()
+        from django.contrib import messages
+        messages.success(request, "அறிவிப்பு வெற்றிகரமாக புதுப்பிக்கப்பட்டது.")
+        from django.shortcuts import redirect
+        return redirect('office_notice_config')
+
+    notice_lines = [
+        (1, 'வரி 1', notice.line1),
+        (2, 'வரி 2', notice.line2),
+        (3, 'வரி 3', notice.line3),
+        (4, 'வரி 4', notice.line4),
+        (5, 'வரி 5', notice.line5),
+    ]
+    return render(request, 'matrimony/office_notice_config.html', {'notice': notice, 'notice_lines': notice_lines})

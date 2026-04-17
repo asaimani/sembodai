@@ -1,0 +1,67 @@
+{% extends "matrimony/base.html" %}
+{% block title %}முகவரி மறை அறிவிப்பு{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width:700px;">
+    <div class="d-flex align-items-center mb-4 gap-3">
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm">← திரும்பு</a>
+        <h4 class="mb-0">முகவரி மறை அறிவிப்பு</h4>
+    </div>
+
+    {% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <p class="text-muted small mb-4">
+                இந்த செய்தி, வரன் பார்க்கும்போது "முகவரி மறை" பொத்தானை அழுத்தினால் காட்டப்படும்.
+                அனைத்து அச்சு பக்கங்களிலும் இது தெரியும்.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                {% for i, label, value in notice_lines %}
+                <div class="mb-3">
+                    <label class="form-label fw-600">வரி {{ i }}</label>
+                    <input type="text" name="line{{ i }}" value="{{ value }}"
+                           class="form-control" maxlength="300">
+                </div>
+                {% endfor %}
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">சேமி</button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">ரத்து</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-header bg-light fw-600">மாதிரி காட்சி</div>
+        <div class="card-body p-3">
+            <div style="font-size:13px;font-weight:700;color:#1a3a5c;margin-bottom:6px;">செம்போடையார் வன்னியர் திருமண தகவல் மையம்</div>
+            <ul style="font-size:12px;line-height:1.9;color:#333;margin:0;padding-left:18px;">
+                <li id="prev1">{{ notice.line1 }}</li>
+                <li id="prev2">{{ notice.line2 }}</li>
+                <li id="prev3">{{ notice.line3 }}</li>
+                <li id="prev4">{{ notice.line4 }}</li>
+                <li id="prev5">{{ notice.line5 }}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+[1,2,3,4,5].forEach(function(i) {
+    var inp = document.querySelector('[name="line' + i + '"]');
+    var prev = document.getElementById('prev' + i);
+    if (inp && prev) {
+        inp.addEventListener('input', function() { prev.textContent = inp.value; });
+    }
+});
+</script>
+{% endblock %}

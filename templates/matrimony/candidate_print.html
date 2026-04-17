@@ -287,11 +287,11 @@
             <div id="no-address-notice" style="display:none;">
                 <div style="font-size:11px;font-weight:700;color:#b91c1c;margin-bottom:5px;">செம்போடையார் வன்னியர் திருமண தகவல் மையம்</div>
                 <ul style="font-size:10px;line-height:1.8;color:#333;margin:0;padding-left:14px;list-style-type:disc;">
-                    <li>கடந்த 30 ஆண்டுகளாக நம்பிக்கையான திருமண சேவையை வழங்கி வருகிறோம்.</li>
-                    <li>பாதுகாப்பு கருதி, முகவரி இல்லாத சுயவிவரங்களை (Bio-data) மட்டும் அனுப்பியுள்ளோம்.</li>
-                    <li>எங்கள் சேவையில் எவ்வித தரகு (Brokerage) அல்லது கமிஷன் (%) கட்டணமும் கண்டிப்பாக கிடையாது.</li>
-                    <li>இந்த வரன் பிடித்திருந்தால், மேலும் விவரங்களுக்கு எங்களைத் தொடர்பு கொள்ளவும்.</li>
-                    <li>அளவற்ற வரன்களின் விவரங்களை அன்போடு வழங்குகிறோம்; எங்கள் சந்தா 6 மாதத்திற்கு ₹2500 மட்டுமே.</li>
+                    {% if office_notice.line1 %}<li>{{ office_notice.line1 }}</li>{% endif %}
+                    {% if office_notice.line2 %}<li>{{ office_notice.line2 }}</li>{% endif %}
+                    {% if office_notice.line3 %}<li>{{ office_notice.line3 }}</li>{% endif %}
+                    {% if office_notice.line4 %}<li>{{ office_notice.line4 }}</li>{% endif %}
+                    {% if office_notice.line5 %}<li>{{ office_notice.line5 }}</li>{% endif %}
                 </ul>
                 <div style="font-size:12px;font-weight:700;color:#b91c1c;margin-top:6px;">மாவட்டம் : {% if candidate.district %}{{ candidate.district.name }}{% else %}-{% endif %}</div>
             </div>

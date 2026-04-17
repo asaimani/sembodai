@@ -239,6 +239,9 @@
 
         {% if request.user.is_superuser %}
         <div class="nav-section">நிர்வாகம்</div>
+        <a href="{% url 'office_notice_config' %}" class="{% if request.resolver_match.url_name == 'office_notice_config' %}active{% endif %}">
+            <i class="fas fa-bullhorn me-2"></i>அறிவிப்பு
+        </a>
         <a href="{% url 'weekly_bio_config' %}" class="{% if request.resolver_match.url_name == 'weekly_bio_config' %}active{% endif %}">
             <i class="fas fa-cog"></i> வார அனுப்பல் அமைப்பு
         </a>

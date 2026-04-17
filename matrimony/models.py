@@ -850,3 +850,23 @@ def _audit(action, candidate, gender, user=None, details=''):
         )
     except Exception:
         pass  # Never let audit failure break the main operation
+
+
+class OfficeNotice(models.Model):
+    """Singleton — editable notice shown when candidate address is hidden."""
+    line1 = models.CharField(max_length=300, verbose_name="வரி 1", default="கடந்த 30 ஆண்டுகளாக நம்பிக்கையான திருமண சேவையை வழங்கி வருகிறோம்.")
+    line2 = models.CharField(max_length=300, verbose_name="வரி 2", default="பாதுகாப்பு கருதி, முகவரி இல்லாத சுயவிவரங்களை (Bio-data) மட்டும் அனுப்பியுள்ளோம்.")
+    line3 = models.CharField(max_length=300, verbose_name="வரி 3", default="எங்கள் சேவையில் எவ்வித தரகு (Brokerage) அல்லது கமிஷன் (%) கட்டணமும் கண்டிப்பாக கிடையாது.")
+    line4 = models.CharField(max_length=300, verbose_name="வரி 4", default="இந்த வரன் பிடித்திருந்தால், மேலும் விவரங்களுக்கு எங்களைத் தொடர்பு கொள்ளவும்.")
+    line5 = models.CharField(max_length=300, verbose_name="வரி 5", default="அளவற்ற வரன்களின் விவரங்களை அன்போடு வழங்குகிறோம்; எங்கள் சந்தா 6 மாதத்திற்கு ₹2500 மட்டுமே.")
+
+    class Meta:
+        verbose_name = "முகவரி மறை அறிவிப்பு"
+
+    def __str__(self):
+        return "Office Notice"
+
+    @classmethod
+    def get(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj

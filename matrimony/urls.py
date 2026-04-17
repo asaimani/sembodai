@@ -30,6 +30,7 @@ urlpatterns = [
     path('remarriage/', views.remarriage_list, name='remarriage_list'),
     path('remarriage-print/<str:gender>/', views.remarriage_print, name='remarriage_print'),
     path('settings/weekly-config/', views.weekly_bio_config, name='weekly_bio_config'),
+    path('settings/office-notice/', views.office_notice_config, name='office_notice_config'),
     path('audit-log/', views.audit_log, name='audit_log'),
     path('cron/prepare/', views.cron_prepare_bios, name='cron_prepare_bios'),
 ]
