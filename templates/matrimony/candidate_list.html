@@ -54,6 +54,13 @@
                     {% for u in created_by_users %}<option value="{{ u.id }}" {% if request.GET.created_by == u.id|stringformat:"s" %}selected{% endif %}>{{ u.get_full_name|default:u.username }}</option>{% endfor %}
                 </select>
             </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small fw-500">நிலை</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">எல்லாம்</option>
+                    {% for s in statuses %}<option value="{{ s.code }}" {% if status_filter == s.code %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+                </select>
+            </div>
             <div class="col-12 col-md-1">
                 <button type="submit" class="btn btn-primary btn-sm w-100">
                     <i class="fas fa-search"></i> தேடு
@@ -95,11 +102,14 @@
                         <th>பெயர்</th>
                         <th>பாலினம்</th>
                         <th>வயது</th>
+                        <th>கல்வி</th>
+                        <th>உயரம்</th>
                         <th>ராசி</th>
                         <th>நட்சத்திரம்</th>
                         <th>தொழில்</th>
                         <th>சம்பளம்</th>
                         <th>மாவட்டம்</th>
+                        <th>நிலை</th>
                         <th>சேர்த்தவர்</th>
                         <th>பிரீமியம்</th>
                         <th>செயல்கள்</th>
@@ -122,11 +132,14 @@
                         {% endif %}
                     </td>
                     <td>{{ c.age }}</td>
+                    <td class="small">{{ c.educational_qualification|default:"-"|truncatechars:20 }}</td>
+                    <td class="small">{{ c.height|default:"-" }}</td>
                     <td>{{ c.rasi }}</td>
                     <td>{{ c.nachathiram }}</td>
                     <td>{{ c.profession }}</td>
                     <td>{% if c.monthly_salary %}₹{{ c.monthly_salary|floatformat:0 }}/மா{% elif c.annual_income %}₹{{ c.annual_income|floatformat:0 }}/ஆ{% else %}-{% endif %}</td>
                     <td class="small">{{ c.district|default:"-" }}</td>
+                    <td class="small">{{ c.status|default:"-" }}</td>
                     <td class="small text-muted">{{ c.created_by|default:"-" }}</td>
                     <td>
                         {% if c.premium_type %}

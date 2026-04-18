@@ -220,7 +220,7 @@ def candidate_list(request):
                 pass
         return qs
 
-    base_select = {'select_related': ['rasi', 'nachathiram', 'profession', 'state', 'district', 'created_by']}
+    base_select = {'select_related': ['rasi', 'nachathiram', 'profession', 'state', 'district', 'created_by', 'status', 'height']}
     MAX_RESULTS = 500
 
     if gender == 'M':
@@ -313,6 +313,9 @@ def candidate_list(request):
     districts        = District.objects.filter(pk__in=all_dist_ids).order_by('name')
     created_by_users = User.objects.filter(pk__in=all_user_ids).order_by('username')
 
+    from .models import CandidateStatus
+    statuses = CandidateStatus.objects.all()
+
     context = {
         'candidates': candidates,
         'page_obj': page_obj,
@@ -321,8 +324,10 @@ def candidate_list(request):
         'nachathirams': nachathirams,
         'districts': districts,
         'created_by_users': created_by_users,
+        'statuses': statuses,
         'gender': gender,
         'search': search,
+        'status_filter': status_filter,
     }
     return render(request, 'matrimony/candidate_list.html', context)
 
