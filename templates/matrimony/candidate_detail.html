@@ -197,11 +197,11 @@
                     {% if expectation.marital_status_ok %}{% include 'matrimony/_detail_row.html' with label="திருமண நிலை" value=expectation.marital_status_ok %}{% endif %}
                     {% if expectation.education_min %}{% include 'matrimony/_detail_row.html' with label="கல்வித் தகுதி" value=expectation.education_min %}{% endif %}
                     {% if expectation.job_type %}{% include 'matrimony/_detail_row.html' with label="வேலை வகை" value=expectation.get_job_type_display %}{% endif %}
-                    {% with nachs=expectation.nachathirams.all %}{% if nachs %}{% include 'matrimony/_detail_row.html' with label="நட்சத்திரம்" value=nachs|join:", " %}{% endif %}{% endwith %}
-                    {% with subs=expectation.sub_castes.all %}{% if subs %}{% include 'matrimony/_detail_row.html' with label="உட்பிரிவு" value=subs|join:", " %}{% endif %}{% endwith %}
-                    {% with dists=expectation.districts.all %}{% if dists %}{% include 'matrimony/_detail_row.html' with label="மாவட்டம்" value=dists|join:", " %}{% endif %}{% endwith %}
-                    {% with profs=expectation.professions.all %}{% if profs %}{% include 'matrimony/_detail_row.html' with label="தொழில்" value=profs|join:", " %}{% endif %}{% endwith %}
-                    {% with comps=expectation.complexions.all %}{% if comps %}{% include 'matrimony/_detail_row.html' with label="நிறம்" value=comps|join:", " %}{% endif %}{% endwith %}
+                    {% with nachs=expectation.nachathirams.all %}{% if nachs %}<div class="col-6 col-md-4"><small class="text-muted">நட்சத்திரம்</small><div>{% for en in nachs %}{{ en.nachathiram.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div></div>{% endif %}{% endwith %}
+                    {% with subs=expectation.sub_castes.all %}{% if subs %}<div class="col-6 col-md-4"><small class="text-muted">உட்பிரிவு</small><div>{% for es in subs %}{{ es.sub_caste.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div></div>{% endif %}{% endwith %}
+                    {% with dists=expectation.districts.all %}{% if dists %}<div class="col-6 col-md-4"><small class="text-muted">மாவட்டம்</small><div>{% for ed in dists %}{{ ed.district.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div></div>{% endif %}{% endwith %}
+                    {% with profs=expectation.professions.all %}{% if profs %}<div class="col-6 col-md-4"><small class="text-muted">தொழில்</small><div>{% for ep in profs %}{{ ep.profession.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div></div>{% endif %}{% endwith %}
+                    {% with comps=expectation.complexions.all %}{% if comps %}<div class="col-6 col-md-4"><small class="text-muted">நிறம்</small><div>{% for ec in comps %}{{ ec.complexion.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div></div>{% endif %}{% endwith %}
                     {% if expectation.notes %}{% include 'matrimony/_detail_row.html' with label="குறிப்புகள்" value=expectation.notes %}{% endif %}
                 </div>
             </div>
