@@ -587,11 +587,20 @@ def candidate_detail(request, gender, pk):
     gender_code = 'M' if gender == 'M' else 'F'
     family_members = FamilyMember.objects.filter(candidate_gender=gender_code, candidate_id=candidate.pk)
     jathagam_map = candidate.get_jathagam_map()
+    from .models import CandidateExpectation
+    try:
+        expectation = CandidateExpectation.objects.prefetch_related(
+            'nachathirams__nachathiram', 'sub_castes__sub_caste',
+            'districts__district', 'professions__profession', 'complexions__complexion'
+        ).get(candidate_gender=gender_code, candidate_id=candidate.pk)
+    except CandidateExpectation.DoesNotExist:
+        expectation = None
     return render(request, 'matrimony/candidate_detail.html', {
         'candidate': candidate,
         'gender': gender,
         'family_members': family_members,
         'jathagam_map': jathagam_map,
+        'expectation': expectation,
     })
 
 
