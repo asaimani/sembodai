@@ -135,11 +135,22 @@ SITE_URL = os.environ.get('SITE_URL', 'https://sembodai-production.up.railway.ap
 # Cron secret — must match CRON_SECRET Railway variable
 CRON_SECRET = os.environ.get('CRON_SECRET', '')
 
-# Cache — used for rate limiting (login + bio endpoint)
-# LocMemCache works per-process. For multi-worker, switch to Redis.
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'sembodai-cache',
+# Cache — Redis if REDIS_URL is set (Railway), else LocMemCache (local dev)
+REDIS_URL = os.environ.get('REDIS_URL')
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
+        }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'sembodai-cache',
+        }
+    }
