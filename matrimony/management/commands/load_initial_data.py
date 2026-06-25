@@ -378,7 +378,7 @@ class Command(BaseCommand):
             (9, 'அக்கா'),  (10, 'அக்கா-2'),  (11, 'அக்கா-3'),
             (12, 'தங்கை'), (13, 'தங்கை-2'), (14, 'தங்கை-3'),
             (15, 'பிற'),
-        ]
+        ] 
         for order, name in relations:
             Relation.objects.get_or_create(name=name, defaults={'order': order})
 
