@@ -5,65 +5,108 @@
 
 {% block content %}
 
+<style>
+.stat-card-link { text-decoration: none !important; display: block; }
+.stat-card-link .stat-card { transition: transform .15s, box-shadow .15s; cursor: pointer; position: relative; }
+.stat-card-link:hover .stat-card { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.18); }
+.stat-card-link:hover .stat-card-arrow { opacity: 1; }
+.stat-card-arrow {
+    opacity: 0;
+    transition: opacity .15s;
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.9);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+</style>
+
 <div class="row g-3 mb-3">
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">
-            <div class="stat-icon"><i class="fas fa-users"></i></div>
-            <div class="stat-num">{{ total|intcomma }}</div>
-            <div class="stat-label">மொத்த விண்ணப்பங்கள்</div>
-        </div>
+        <a href="{% url 'candidate_list' %}" class="stat-card-link">
+            <div class="stat-card" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-num">{{ total|intcomma }}</div>
+                <div class="stat-label">மொத்த விண்ணப்பங்கள்</div>
+                <div class="stat-card-arrow"><i class="fas fa-arrow-right"></i> பட்டியல் காண</div>
+            </div>
+        </a>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background:linear-gradient(135deg,#1d4ed8,#2563eb)">
-            <div class="stat-icon"><i class="fas fa-male"></i></div>
-            <div class="stat-num">{{ male_count|intcomma }}</div>
-            <div class="stat-label">ஆண்</div>
-        </div>
+        <a href="{% url 'candidate_list' %}?gender=M" class="stat-card-link">
+            <div class="stat-card" style="background:linear-gradient(135deg,#1d4ed8,#2563eb)">
+                <div class="stat-icon"><i class="fas fa-male"></i></div>
+                <div class="stat-num">{{ male_count|intcomma }}</div>
+                <div class="stat-label">ஆண்</div>
+                <div class="stat-card-arrow"><i class="fas fa-arrow-right"></i> ஆண் பட்டியல்</div>
+            </div>
+        </a>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background:linear-gradient(135deg,#be185d,#ec4899)">
-            <div class="stat-icon"><i class="fas fa-female"></i></div>
-            <div class="stat-num">{{ female_count|intcomma }}</div>
-            <div class="stat-label">பெண்</div>
-        </div>
+        <a href="{% url 'candidate_list' %}?gender=F" class="stat-card-link">
+            <div class="stat-card" style="background:linear-gradient(135deg,#be185d,#ec4899)">
+                <div class="stat-icon"><i class="fas fa-female"></i></div>
+                <div class="stat-num">{{ female_count|intcomma }}</div>
+                <div class="stat-label">பெண்</div>
+                <div class="stat-card-arrow"><i class="fas fa-arrow-right"></i> பெண் பட்டியல்</div>
+            </div>
+        </a>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background:linear-gradient(135deg,#0369a1,#0ea5e9)">
-            <div class="stat-icon"><i class="fas fa-paper-plane"></i></div>
-            <div class="stat-num">{{ bios_this_week|intcomma }}</div>
-            <div class="stat-label">இந்த வார பயோ</div>
-        </div>
+        <a href="{% url 'weekly_send' %}" class="stat-card-link">
+            <div class="stat-card" style="background:linear-gradient(135deg,#0369a1,#0ea5e9)">
+                <div class="stat-icon"><i class="fas fa-paper-plane"></i></div>
+                <div class="stat-num">{{ bios_this_week|intcomma }}</div>
+                <div class="stat-label">இந்த வார பயோ</div>
+                <div class="stat-card-arrow"><i class="fas fa-arrow-right"></i> வார அனுப்பல்</div>
+            </div>
+        </a>
     </div>
 </div>
 
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background:linear-gradient(135deg,#b45309,#f59e0b)">
-            <div class="stat-icon"><i class="fas fa-crown"></i></div>
-            <div class="stat-num">{{ active_premium|intcomma }}</div>
-            <div class="stat-label">செயலில் பிரீமியம்</div>
-        </div>
+        <a href="{% url 'candidate_list' %}?status=premium" class="stat-card-link">
+            <div class="stat-card" style="background:linear-gradient(135deg,#b45309,#f59e0b)">
+                <div class="stat-icon"><i class="fas fa-crown"></i></div>
+                <div class="stat-num">{{ active_premium|intcomma }}</div>
+                <div class="stat-label">செயலில் பிரீமியம்</div>
+                <div class="stat-card-arrow"><i class="fas fa-arrow-right"></i> பட்டியல் காண</div>
+            </div>
+        </a>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background:linear-gradient(135deg,#dc2626,#ef4444)">
-            <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-            <div class="stat-num">{{ expired_count }}</div>
-            <div class="stat-label">காலாவதி பிரீமியம்</div>
-        </div>
+        <a href="{% url 'premium_expired_married_list' %}" class="stat-card-link">
+            <div class="stat-card" style="background:linear-gradient(135deg,#dc2626,#ef4444)">
+                <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-num">{{ expired_count }}</div>
+                <div class="stat-label">காலாவதி பிரீமியம்</div>
+                <div class="stat-card-arrow"><i class="fas fa-arrow-right"></i> காலாவதி பட்டியல்</div>
+            </div>
+        </a>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background:linear-gradient(135deg,#d97706,#fbbf24)">
-            <div class="stat-icon"><i class="fas fa-clock"></i></div>
-            <div class="stat-num">{{ expiring_soon }}</div>
-            <div class="stat-label">7 நாளில் காலாவதி</div>
-        </div>
+        <a href="{% url 'candidate_list' %}?expiring_soon=1" class="stat-card-link">
+            <div class="stat-card" style="background:linear-gradient(135deg,#d97706,#fbbf24)">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-num">{{ expiring_soon }}</div>
+                <div class="stat-label">7 நாளில் காலாவதி</div>
+                <div class="stat-card-arrow"><i class="fas fa-arrow-right"></i> விரைவில் காலாவதி</div>
+            </div>
+        </a>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background:linear-gradient(135deg,#065f46,#10b981)">
-            <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
-            <div class="stat-num">{{ new_entries|length }}</div>
-            <div class="stat-label">இன்று சேர்ந்தவர்கள்</div>
-        </div>
+        <a href="{% url 'candidate_list' %}?joined_today=1" class="stat-card-link">
+            <div class="stat-card" style="background:linear-gradient(135deg,#065f46,#10b981)">
+                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-num">{{ new_entries|length }}</div>
+                <div class="stat-label">இன்று சேர்ந்தவர்கள்</div>
+                <div class="stat-card-arrow"><i class="fas fa-arrow-right"></i> இன்று பட்டியல்</div>
+            </div>
+        </a>
     </div>
 </div>
 
