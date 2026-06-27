@@ -286,17 +286,92 @@
     </div>
     
     <div class="content-area">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
         {% block content %}{% endblock %}
     </div>
 </div>
+
+{% if messages %}
+<div id="toast-container" style="position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;min-width:300px;max-width:380px;">
+    {% for message in messages %}
+    <div class="sem-toast sem-toast-{{ message.tags }}" role="alert" style="
+        display:flex;align-items:flex-start;gap:12px;
+        padding:14px 16px;border-radius:10px;
+        box-shadow:0 4px 16px rgba(0,0,0,0.12);
+        animation:toastIn .25s ease;
+        position:relative;overflow:hidden;
+        {% if 'error' in message.tags or 'danger' in message.tags %}
+            background:#fff5f5;border:1px solid #fca5a5;
+        {% elif 'warning' in message.tags %}
+            background:#fffbeb;border:1px solid #fcd34d;
+        {% elif 'success' in message.tags %}
+            background:#f0fdf4;border:1px solid #86efac;
+        {% else %}
+            background:#eff6ff;border:1px solid #93c5fd;
+        {% endif %}
+    ">
+        <span style="font-size:18px;line-height:1;margin-top:1px;
+            {% if 'error' in message.tags or 'danger' in message.tags %}color:#dc2626;
+            {% elif 'warning' in message.tags %}color:#d97706;
+            {% elif 'success' in message.tags %}color:#16a34a;
+            {% else %}color:#2563eb;{% endif %}">
+            {% if 'error' in message.tags or 'danger' in message.tags %}<i class="fas fa-circle-xmark"></i>
+            {% elif 'warning' in message.tags %}<i class="fas fa-triangle-exclamation"></i>
+            {% elif 'success' in message.tags %}<i class="fas fa-circle-check"></i>
+            {% else %}<i class="fas fa-circle-info"></i>{% endif %}
+        </span>
+        <div style="flex:1;font-size:13px;line-height:1.5;
+            {% if 'error' in message.tags or 'danger' in message.tags %}color:#991b1b;
+            {% elif 'warning' in message.tags %}color:#92400e;
+            {% elif 'success' in message.tags %}color:#166534;
+            {% else %}color:#1e40af;{% endif %}">
+            {{ message }}
+        </div>
+        <button onclick="dismissToast(this.closest('.sem-toast'))" style="
+            background:none;border:none;cursor:pointer;padding:0;line-height:1;
+            font-size:14px;opacity:.5;margin-top:2px;
+            {% if 'error' in message.tags or 'danger' in message.tags %}color:#991b1b;
+            {% elif 'warning' in message.tags %}color:#92400e;
+            {% elif 'success' in message.tags %}color:#166534;
+            {% else %}color:#1e40af;{% endif %}
+        ">✕</button>
+        <div class="toast-progress" style="
+            position:absolute;bottom:0;left:0;height:3px;width:100%;
+            {% if 'error' in message.tags or 'danger' in message.tags %}background:#fca5a5;
+            {% elif 'warning' in message.tags %}background:#fcd34d;
+            {% elif 'success' in message.tags %}background:#86efac;
+            {% else %}background:#93c5fd;{% endif %}
+            transform-origin:left;animation:toastProgress 4s linear forwards;
+        "></div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+@keyframes toastIn {
+    from { opacity:0; transform:translateX(40px); }
+    to   { opacity:1; transform:translateX(0); }
+}
+@keyframes toastOut {
+    from { opacity:1; transform:translateX(0); max-height:200px; margin-bottom:0; }
+    to   { opacity:0; transform:translateX(40px); max-height:0; padding:0; margin-bottom:-10px; }
+}
+@keyframes toastProgress {
+    from { transform:scaleX(1); }
+    to   { transform:scaleX(0); }
+}
+</style>
+
+<script>
+function dismissToast(el) {
+    el.style.animation = 'toastOut .3s ease forwards';
+    setTimeout(() => el.remove(), 300);
+}
+document.querySelectorAll('.sem-toast').forEach(function(toast) {
+    setTimeout(function() { dismissToast(toast); }, 4000);
+});
+</script>
+{% endif %}
+
 {% else %}
     {% block auth_content %}{% endblock %}
 {% endif %}
