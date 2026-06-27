@@ -1994,6 +1994,114 @@ def married_list(request):
 
 
 # ─────────────────────────────────────────────
+#  பிரீமியம் காலாவதி + திருமணம் பட்டியல்
+# ─────────────────────────────────────────────
+
+@login_required
+def premium_expired_married_list(request):
+    from datetime import date
+    from django.core.paginator import Paginator
+
+    gender = request.GET.get('gender', '')
+    search = request.GET.get('search', '').strip()
+    today  = date.today()
+
+    # ── DELETE (superuser only) ──────────────────────────────────────────
+    if request.method == 'POST' and request.POST.get('action') == 'delete':
+        if not request.user.is_superuser:
+            from django.http import HttpResponseForbidden
+            return HttpResponseForbidden("அனுமதி இல்லை")
+
+        del_gender = request.POST.get('gender')
+        del_pk     = request.POST.get('pk')
+
+        if del_gender and del_pk:
+            try:
+                del_pk = int(del_pk)
+                if del_gender == 'M':
+                    candidate = MaleCandidate.objects.get(pk=del_pk)
+                else:
+                    candidate = FemaleCandidate.objects.get(pk=del_pk)
+
+                # Clean up related records
+                token_ids_recv = list(BioSendLog.objects.filter(
+                    receiver_gender=del_gender, receiver_id=del_pk
+                ).values_list('bio_token_id', flat=True))
+                BioSendLog.objects.filter(receiver_gender=del_gender, receiver_id=del_pk).delete()
+                BioToken.objects.filter(pk__in=token_ids_recv).delete()
+
+                token_ids_sent = list(BioSendLog.objects.filter(
+                    sender_gender=del_gender, sender_id=del_pk
+                ).values_list('bio_token_id', flat=True))
+                BioSendLog.objects.filter(sender_gender=del_gender, sender_id=del_pk).delete()
+                BioToken.objects.filter(pk__in=token_ids_sent).delete()
+
+                CandidateExpectation.objects.filter(candidate_gender=del_gender, candidate_id=del_pk).delete()
+                FamilyMember.objects.filter(candidate_gender=del_gender, candidate_id=del_pk).delete()
+                JathagamEntry.objects.filter(candidate_gender=del_gender, candidate_id=del_pk).delete()
+                MarriedCandidate.objects.filter(gender=del_gender, candidate_id=del_pk).delete()
+
+                import os
+                for photo in candidate.photos.all():
+                    if photo.photo and os.path.isfile(photo.photo.path):
+                        os.remove(photo.photo.path)
+                candidate.photos.all().delete()
+                candidate.delete()
+
+                messages.success(request, 'வேட்பாளர் பதிவு நீக்கப்பட்டது.')
+            except Exception as e:
+                messages.error(request, f'பிழை: {str(e)}')
+
+        return redirect('premium_expired_married_list')
+
+    # ── QUERY ────────────────────────────────────────────────────────────
+    married_status_codes = ['married']
+
+    male_qs = MaleCandidate.objects.select_related(
+        'status', 'district', 'premium_type', 'created_by'
+    ).filter(
+        status__code__in=married_status_codes,
+        premium_end_date__lt=today,
+    )
+
+    female_qs = FemaleCandidate.objects.select_related(
+        'status', 'district', 'premium_type', 'created_by'
+    ).filter(
+        status__code__in=married_status_codes,
+        premium_end_date__lt=today,
+    )
+
+    if search:
+        male_qs   = male_qs.filter(Q(name__icontains=search) | Q(uid__icontains=search))
+        female_qs = female_qs.filter(Q(name__icontains=search) | Q(uid__icontains=search))
+
+    # Build unified list with gender tag
+    rows = []
+    if gender != 'F':
+        for c in male_qs:
+            rows.append({'candidate': c, 'gender': 'M'})
+    if gender != 'M':
+        for c in female_qs:
+            rows.append({'candidate': c, 'gender': 'F'})
+
+    # Sort by premium_end_date ascending (oldest expired first)
+    rows.sort(key=lambda r: r['candidate'].premium_end_date or today)
+
+    total = len(rows)
+
+    paginator = Paginator(rows, 50)
+    page_obj  = paginator.get_page(request.GET.get('page', 1))
+
+    return render(request, 'matrimony/premium_expired_married_list.html', {
+        'page_obj': page_obj,
+        'total':    total,
+        'gender':   gender,
+        'search':   search,
+        'today':    today,
+    })
+
+
+# ─────────────────────────────────────────────
 #  மறுமணம் CANDIDATE LIST
 # ─────────────────────────────────────────────
 
