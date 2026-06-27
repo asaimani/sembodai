@@ -236,6 +236,9 @@
         <a href="{% url 'married_list' %}" class="{% if request.resolver_match.url_name == 'married_list' %}active{% endif %}">
             <i class="fas fa-heart"></i> திருமணமான வரன்கள்
         </a>
+        <a href="{% url 'premium_expired_married_list' %}" class="{% if request.resolver_match.url_name == 'premium_expired_married_list' %}active{% endif %}">
+            <i class="fas fa-clock"></i> பிரீமியம் காலாவதி + திருமணம்
+        </a>
 
         {% if request.user.is_superuser %}
         <div class="nav-section">நிர்வாகம்</div>
