@@ -203,86 +203,73 @@
     <nav class="sidebar-nav">
         {% with u=request.resolver_match.url_name %}
 
-        {% comment %}Group membership flags{% endcomment %}
-        {% if u == 'candidate_list' or u == 'candidate_detail' or u == 'candidate_edit' or u == 'candidate_add' or u == 'candidate_print' %}
-            {% with in_candidates=True in_remarriage=False in_send=False in_admin=False %}
-        {% elif u == 'remarriage_list' %}
-            {% with in_candidates=False in_remarriage=True in_send=False in_admin=False %}
-        {% elif u == 'weekly_send' or u == 'bio_history' or u == 'district_print_list' or u == 'married_list' or u == 'premium_expired_married_list' %}
-            {% with in_candidates=False in_remarriage=False in_send=True in_admin=False %}
-        {% elif u == 'office_notice_config' or u == 'weekly_bio_config' or u == 'audit_log' or u == 'weekly_run_log' or u == 'media_files' %}
-            {% with in_candidates=False in_remarriage=False in_send=False in_admin=True %}
-        {% else %}
-            {% with in_candidates=False in_remarriage=False in_send=False in_admin=False %}
-        {% endif %}
-
         <div class="nav-section">முகப்பு</div>
         <a href="{% url 'dashboard' %}" class="{% if u == 'dashboard' %}active{% endif %}">
             <i class="fas fa-tachometer-alt"></i> டாஷ்போர்டு
         </a>
 
-        <div class="sidebar-section-header {% if in_candidates %}group-active-header{% endif %}">விண்ணப்பங்கள்</div>
-        <a href="{% url 'candidate_add' %}?gender=M" class="{% if in_candidates %}group-active{% endif %}">
+        <div class="sidebar-section-header {% if u == 'candidate_list' or u == 'candidate_detail' or u == 'candidate_edit' or u == 'candidate_add' or u == 'candidate_print' %}group-active-header{% endif %}">விண்ணப்பங்கள்</div>
+        <a href="{% url 'candidate_add' %}?gender=M" class="{% if u == 'candidate_list' or u == 'candidate_detail' or u == 'candidate_edit' or u == 'candidate_add' or u == 'candidate_print' %}group-active{% endif %}">
             <i class="fas fa-male"></i> ஆண் விண்ணப்பம் சேர்க்க
         </a>
-        <a href="{% url 'candidate_add' %}?gender=F" class="{% if in_candidates %}group-active{% endif %}">
+        <a href="{% url 'candidate_add' %}?gender=F" class="{% if u == 'candidate_list' or u == 'candidate_detail' or u == 'candidate_edit' or u == 'candidate_add' or u == 'candidate_print' %}group-active{% endif %}">
             <i class="fas fa-female"></i> பெண் விண்ணப்பம் சேர்க்க
         </a>
 
-        <div class="sidebar-section-header {% if in_candidates %}group-active-header{% endif %}">பட்டியல்</div>
-        <a href="{% url 'candidate_list' %}?gender=M" class="{% if u == 'candidate_list' and request.GET.gender == 'M' %}active{% elif in_candidates %}group-active{% endif %}">
+        <div class="sidebar-section-header {% if u == 'candidate_list' or u == 'candidate_detail' or u == 'candidate_edit' or u == 'candidate_add' or u == 'candidate_print' %}group-active-header{% endif %}">பட்டியல்</div>
+        <a href="{% url 'candidate_list' %}?gender=M" class="{% if u == 'candidate_list' and request.GET.gender == 'M' %}active{% elif u == 'candidate_detail' or u == 'candidate_edit' or u == 'candidate_add' or u == 'candidate_print' %}group-active{% endif %}">
             <i class="fas fa-male"></i> ஆண் பட்டியல்
         </a>
-        <a href="{% url 'candidate_list' %}?gender=F" class="{% if u == 'candidate_list' and request.GET.gender == 'F' %}active{% elif in_candidates %}group-active{% endif %}">
+        <a href="{% url 'candidate_list' %}?gender=F" class="{% if u == 'candidate_list' and request.GET.gender == 'F' %}active{% elif u == 'candidate_detail' or u == 'candidate_edit' or u == 'candidate_add' or u == 'candidate_print' %}group-active{% endif %}">
             <i class="fas fa-female"></i> பெண் பட்டியல்
         </a>
-        <a href="{% url 'candidate_list' %}" class="{% if u == 'candidate_list' and not request.GET.gender %}active{% elif in_candidates %}group-active{% endif %}">
+        <a href="{% url 'candidate_list' %}" class="{% if u == 'candidate_list' and not request.GET.gender %}active{% elif u == 'candidate_detail' or u == 'candidate_edit' or u == 'candidate_add' or u == 'candidate_print' %}group-active{% endif %}">
             <i class="fas fa-users"></i> அனைத்தும்
         </a>
 
-        <div class="sidebar-section-header {% if in_remarriage %}group-active-header{% endif %}">மறுமணம்</div>
-        <a href="{% url 'remarriage_list' %}?gender=M" class="{% if u == 'remarriage_list' and request.GET.gender == 'M' %}active{% elif in_remarriage %}group-active{% endif %}">
+        <div class="sidebar-section-header {% if u == 'remarriage_list' %}group-active-header{% endif %}">மறுமணம்</div>
+        <a href="{% url 'remarriage_list' %}?gender=M" class="{% if u == 'remarriage_list' and request.GET.gender == 'M' %}active{% elif u == 'remarriage_list' %}group-active{% endif %}">
             <i class="fas fa-male"></i> மறுமணம் ஆண்
         </a>
-        <a href="{% url 'remarriage_list' %}?gender=F" class="{% if u == 'remarriage_list' and request.GET.gender == 'F' %}active{% elif in_remarriage %}group-active{% endif %}">
+        <a href="{% url 'remarriage_list' %}?gender=F" class="{% if u == 'remarriage_list' and request.GET.gender == 'F' %}active{% elif u == 'remarriage_list' %}group-active{% endif %}">
             <i class="fas fa-female"></i> மறுமணம் பெண்
         </a>
-        <a href="{% url 'remarriage_list' %}" class="{% if u == 'remarriage_list' and not request.GET.gender %}active{% elif in_remarriage %}group-active{% endif %}">
+        <a href="{% url 'remarriage_list' %}" class="{% if u == 'remarriage_list' and not request.GET.gender %}active{% elif u == 'remarriage_list' %}group-active{% endif %}">
             <i class="fas fa-users"></i> மறுமணம் அனைத்தும்
         </a>
 
-        <div class="sidebar-section-header {% if in_send %}group-active-header{% endif %}">அனுப்பல்</div>
-        <a href="{% url 'weekly_send' %}" class="{% if u == 'weekly_send' %}active{% elif in_send %}group-active{% endif %}">
+        <div class="sidebar-section-header {% if u == 'weekly_send' or u == 'bio_history' or u == 'district_print_list' or u == 'married_list' or u == 'premium_expired_married_list' %}group-active-header{% endif %}">அனுப்பல்</div>
+        <a href="{% url 'weekly_send' %}" class="{% if u == 'weekly_send' %}active{% elif u == 'bio_history' or u == 'district_print_list' or u == 'married_list' or u == 'premium_expired_married_list' %}group-active{% endif %}">
             <i class="fas fa-paper-plane"></i> வார அனுப்பல்
         </a>
-        <a href="{% url 'bio_history' %}" class="{% if u == 'bio_history' %}active{% elif in_send %}group-active{% endif %}">
+        <a href="{% url 'bio_history' %}" class="{% if u == 'bio_history' %}active{% elif u == 'weekly_send' or u == 'district_print_list' or u == 'married_list' or u == 'premium_expired_married_list' %}group-active{% endif %}">
             <i class="fas fa-history"></i> அனுப்பல் வரலாறு
         </a>
-        <a href="{% url 'district_print_list' %}" class="{% if u == 'district_print_list' %}active{% elif in_send %}group-active{% endif %}">
+        <a href="{% url 'district_print_list' %}" class="{% if u == 'district_print_list' %}active{% elif u == 'weekly_send' or u == 'bio_history' or u == 'married_list' or u == 'premium_expired_married_list' %}group-active{% endif %}">
             <i class="fas fa-map-marker-alt"></i> மாவட்ட வாரியான அச்சு
         </a>
-        <a href="{% url 'married_list' %}" class="{% if u == 'married_list' %}active{% elif in_send %}group-active{% endif %}">
+        <a href="{% url 'married_list' %}" class="{% if u == 'married_list' %}active{% elif u == 'weekly_send' or u == 'bio_history' or u == 'district_print_list' or u == 'premium_expired_married_list' %}group-active{% endif %}">
             <i class="fas fa-heart"></i> திருமணமான வரன்கள்
         </a>
-        <a href="{% url 'premium_expired_married_list' %}" class="{% if u == 'premium_expired_married_list' %}active{% elif in_send %}group-active{% endif %}">
+        <a href="{% url 'premium_expired_married_list' %}" class="{% if u == 'premium_expired_married_list' %}active{% elif u == 'weekly_send' or u == 'bio_history' or u == 'district_print_list' or u == 'married_list' %}group-active{% endif %}">
             <i class="fas fa-clock"></i> பிரீமியம் காலாவதி + திருமணம்
         </a>
 
         {% if request.user.is_superuser %}
-        <div class="nav-section {% if in_admin %}group-active-header{% endif %}">நிர்வாகம்</div>
-        <a href="{% url 'office_notice_config' %}" class="{% if u == 'office_notice_config' %}active{% elif in_admin %}group-active{% endif %}">
+        <div class="nav-section {% if u == 'office_notice_config' or u == 'weekly_bio_config' or u == 'audit_log' or u == 'weekly_run_log' or u == 'media_files' %}group-active-header{% endif %}">நிர்வாகம்</div>
+        <a href="{% url 'office_notice_config' %}" class="{% if u == 'office_notice_config' %}active{% elif u == 'weekly_bio_config' or u == 'audit_log' or u == 'weekly_run_log' or u == 'media_files' %}group-active{% endif %}">
             <i class="fas fa-bullhorn"></i> அறிவிப்பு
         </a>
-        <a href="{% url 'weekly_bio_config' %}" class="{% if u == 'weekly_bio_config' %}active{% elif in_admin %}group-active{% endif %}">
+        <a href="{% url 'weekly_bio_config' %}" class="{% if u == 'weekly_bio_config' %}active{% elif u == 'office_notice_config' or u == 'audit_log' or u == 'weekly_run_log' or u == 'media_files' %}group-active{% endif %}">
             <i class="fas fa-cog"></i> வார அனுப்பல் அமைப்பு
         </a>
-        <a href="{% url 'audit_log' %}" class="{% if u == 'audit_log' %}active{% elif in_admin %}group-active{% endif %}">
+        <a href="{% url 'audit_log' %}" class="{% if u == 'audit_log' %}active{% elif u == 'office_notice_config' or u == 'weekly_bio_config' or u == 'weekly_run_log' or u == 'media_files' %}group-active{% endif %}">
             <i class="fas fa-shield-alt"></i> தணிக்கை பதிவு
         </a>
-        <a href="{% url 'weekly_run_log' %}" class="{% if u == 'weekly_run_log' %}active{% elif in_admin %}group-active{% endif %}">
+        <a href="{% url 'weekly_run_log' %}" class="{% if u == 'weekly_run_log' %}active{% elif u == 'office_notice_config' or u == 'weekly_bio_config' or u == 'audit_log' or u == 'media_files' %}group-active{% endif %}">
             <i class="fas fa-clipboard-list"></i> இயக்க பதிவு
         </a>
-        <a href="{% url 'media_files' %}" class="{% if u == 'media_files' %}active{% elif in_admin %}group-active{% endif %}">
+        <a href="{% url 'media_files' %}" class="{% if u == 'media_files' %}active{% elif u == 'office_notice_config' or u == 'weekly_bio_config' or u == 'audit_log' or u == 'weekly_run_log' %}group-active{% endif %}">
             <i class="fas fa-images"></i> மீடியா கோப்புகள்
         </a>
         <a href="/admin/">
@@ -290,7 +277,6 @@
         </a>
         {% endif %}
 
-        {% endwith %}
         {% endwith %}
 
         <div class="nav-section">கணக்கு</div>
@@ -300,9 +286,8 @@
                 <i class="fas fa-sign-out-alt"></i> வெளியேறு
             </button>
         </form>
-
-        {% endwith %}
     </nav>
+
 </div>
 
 <div class="main-content">
